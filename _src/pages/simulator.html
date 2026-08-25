@@ -1,0 +1,260 @@
+<!--TITLE:Circuit Lab — Live Simulator | PBCOE Electronics Portal-->
+<section class="page-hero circuit-bg">
+  <div class="blob blue" style="width:360px;height:360px;top:-120px;right:-80px"></div>
+  <div class="container">
+    <p class="crumb reveal"><a href="index.html">HOME</a> / LABS / CIRCUIT LAB</p>
+    <h1 class="reveal" style="--d:.08s">Series RLC <span class="grad-text">Live Bench.</span></h1>
+    <p class="section-sub reveal" style="--d:.16s">Drive a real series resonant circuit from your browser. Drag the sliders, watch impedance collapse at resonance.</p>
+  </div>
+</section>
+
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track" data-ticker>
+    <span><b>SIM ENGINE:</b> PHASOR ANALYSIS · IDEAL COMPONENTS</span><span class="dot">//</span><span>TIP: SET f = f₀ FOR RESONANCE</span><span class="dot">//</span><span>CURRENT AMPLIFIES ×Q AT RESONANCE</span><span class="dot">//</span>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container grid-2" style="align-items:start">
+    <!-- SCHEMATIC + CONTROLS -->
+    <div class="card reveal left" style="padding:1.8rem">
+      <svg viewBox="0 0 520 150" style="width:100%" aria-label="Series RLC circuit diagram">
+        <defs>
+          <marker id="arrowhead" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#facc15"/></marker>
+        </defs>
+        <!-- wire loop -->
+        <path id="wire-path" d="M60,75 h40 M140,75 h50 M240,75 h50 M340,75 h50 M430,75 h30 M460,75 a385,385 0 0 0 -400,-0.01 z"
+              fill="none" stroke="#94a3b8" stroke-width="2"/>
+        <!-- animated current overlay -->
+        <path id="current-path" d="M60,75 h370 M460,75 a385,385 0 0 0 -400,-0.01 z"
+              fill="none" stroke="#facc15" stroke-width="2.5" stroke-dasharray="7 13" opacity=".9"/>
+        <!-- AC source -->
+        <circle cx="50" cy="75" r="22" fill="none" stroke="#60a5fa" stroke-width="2"/>
+        <path d="M38,75 q6,-12 12,0 q6,12 12,0" fill="none" stroke="#60a5fa" stroke-width="2"/>
+        <text x="50" y="118" fill="#94a3b8" font-size="11" text-anchor="middle" font-family="Share Tech Mono">AC 5V</text>
+        <!-- Resistor -->
+        <rect x="102" y="62" width="36" height="26" rx="4" fill="none" stroke="#ef4444" stroke-width="2"/>
+        <text x="120" y="52" fill="#ef4444" font-size="12" text-anchor="middle" font-family="Share Tech Mono">R</text>
+        <!-- Inductor -->
+        <path d="M192,75 a9,9 0 1 1 18,0 a9,9 0 1 1 18,0 a9,9 0 1 1 18,0 a9,9 0 1 1 18,0" fill="none" stroke="#facc15" stroke-width="2" transform="translate(48,0)"/>
+        <text x="264" y="52" fill="#facc15" font-size="12" text-anchor="middle" font-family="Share Tech Mono">L</text>
+        <!-- Capacitor -->
+        <line x1="342" y1="60" x2="342" y2="90" stroke="#22c55e" stroke-width="3"/>
+        <line x1="356" y1="60" x2="356" y2="90" stroke="#22c55e" stroke-width="3"/>
+        <line x1="330" y1="75" x2="342" y2="75" stroke="#94a3b8" stroke-width="2"/>
+        <line x1="356" y1="75" x2="368" y2="75" stroke="#94a3b8" stroke-width="2"/>
+        <text x="349" y="52" fill="#22c55e" font-size="12" text-anchor="middle" font-family="Share Tech Mono">C</text>
+      </svg>
+      <hr style="border:none;border-top:1px dashed var(--glass-border);margin:1rem 0">
+      <div class="ctrl-row"><label>R · RESISTANCE</label><input type="range" id="ctl-r" min="1" max="1000" value="100"><output id="out-r"></output></div>
+      <div class="ctrl-row"><label>L · INDUCTANCE</label><input type="range" id="ctl-l" min="0" max="1000" value="500"><output id="out-l"></output></div>
+      <div class="ctrl-row"><label>C · CAPACITANCE</label><input type="range" id="ctl-c" min="0" max="1000" value="500"><output id="out-c"></output></div>
+      <div class="ctrl-row"><label>f · FREQUENCY</label><input type="range" id="ctl-f" min="0" max="1000" value="300"><output id="out-f"></output></div>
+      <br>
+      <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+        <button class="btn btn-sm btn-accent" id="preset-res">Resonance Demo</button>
+        <button class="btn btn-sm btn-ghost" id="preset-crossover">Crossover Network</button>
+        <button class="btn btn-sm btn-ghost" id="preset-rf">RF Tank</button>
+      </div>
+    </div>
+
+    <!-- READOUTS -->
+    <div data-stagger>
+      <div class="card reveal right">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+          <h3>Bench Readouts</h3>
+          <span class="chip" id="mode-badge"><i></i>ANALYZING…</span>
+        </div>
+        <div class="readout">
+          <div class="ro"><div class="k">X_L INDUCTIVE</div><div class="v" id="ro-xl">—</div><div class="u">Ω</div></div>
+          <div class="ro"><div class="k">X_C CAPACITIVE</div><div class="v" id="ro-xc">—</div><div class="u">Ω</div></div>
+          <div class="ro"><div class="k">Z IMPEDANCE</div><div class="v" id="ro-z">—</div><div class="u">Ω</div></div>
+          <div class="ro"><div class="k">I CURRENT</div><div class="v" id="ro-i">—</div><div class="u">RMS</div></div>
+          <div class="ro"><div class="k">φ PHASE</div><div class="v" id="ro-ph">—</div><div class="u">DEG</div></div>
+          <div class="ro"><div class="k">f₀ RESONANT</div><div class="v" id="ro-f0">—</div><div class="u">HZ</div></div>
+          <div class="ro"><div class="k">Q QUALITY</div><div class="v" id="ro-q">—</div><div class="u">FACTOR</div></div>
+          <div class="ro"><div class="k">BW BANDWIDTH</div><div class="v" id="ro-bw">—</div><div class="u">HZ</div></div>
+        </div>
+      </div>
+      <br>
+      <div class="card reveal right" style="padding:1.2rem">
+        <header style="display:flex;justify-content:space-between;font-family:var(--font-display);font-size:.74rem;color:var(--muted);letter-spacing:.16em;margin-bottom:.7rem">
+          <span>SCOPE · CH1 V(t)</span><span>CH2 I(t)</span>
+        </header>
+        <canvas id="rlc-scope" height="220" style="width:100%;display:block;border-radius:12px;background:var(--dark)"></canvas>
+        <div style="display:flex;gap:1.4rem;margin-top:.8rem;font-family:var(--font-display);font-size:.72rem;color:var(--muted)">
+          <span><b style="color:#60a5fa">━</b> SOURCE VOLTAGE</span>
+          <span><b style="color:#facc15">━</b> CURRENT (phase-shifted)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="dark-zone section circuit-bg" style="padding-block:4rem">
+  <div class="container grid-3" data-stagger>
+    <div class="card reveal zoom"><div class="icon-chip b" style="background:linear-gradient(135deg,#2563eb,#06b6d4)">01</div><h3 style="color:#fff">What am I looking at?</h3><p>A series RLC driven by an ideal 5 V RMS source. The yellow dashed path animates conventional current — its speed tracks magnitude.</p></div>
+    <div class="card reveal zoom"><div class="icon-chip y">02</div><h3 style="color:#fff">Why does Z dip?</h3><p>X_L grows with frequency while X_C shrinks. At f₀ they cancel exactly and only R limits current — the definition of resonance.</p></div>
+    <div class="card reveal zoom"><div class="icon-chip r">03</div><h3 style="color:#fff">Try this experiment</h3><p>Hit "Resonance Demo", then nudge frequency ±10% and watch current fall off a cliff. That sharpness is Q — radio tuners live here.</p></div>
+  </div>
+</section>
+
+<script>
+(() => {
+"use strict";
+const $ = s => document.querySelector(s);
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* --- log-mapped controls --- */
+const ctl = { r: $("#ctl-r"), l: $("#ctl-l"), c: $("#ctl-c"), f: $("#ctl-f") };
+const mapLog = (t, min, max) => min * Math.pow(max / min, t / 1000);
+let R = 100, L = mapLog(500, 1e-6, 1e-1), C = mapLog(500, 1e-9, 1e-4), F = mapLog(300, 10, 1e6);
+
+function si(v, unit) {
+  const a = Math.abs(v);
+  if (a >= 1e6) return (v / 1e6).toFixed(2) + "M";
+  if (a >= 1e3) return (v / 1e3).toFixed(2) + "k";
+  if (a >= 1)   return v.toFixed(2);
+  if (a >= 1e-3)return (v * 1e3).toFixed(2) + "m";
+  if (a >= 1e-6)return (v * 1e6).toFixed(2) + "µ";
+  return (v * 1e9).toFixed(2) + "n";
+}
+function paintFill(el) {
+  const p = (el.value - el.min) / (el.max - el.min) * 100;
+  el.style.setProperty("--fill", p + "%");
+}
+
+const scope = $("#rlc-scope");
+let phase = 0;
+let S = {};
+let running = true;
+
+function solve() {
+  const XL = 2 * Math.PI * F * L;
+  const XC = 1 / (2 * Math.PI * F * C);
+  const X  = XL - XC;
+  const Z  = Math.hypot(R, X);
+  const I  = 5 / Z;
+  const ph = Math.atan2(X, R) * 180 / Math.PI;
+  const f0 = 1 / (2 * Math.PI * Math.sqrt(L * C));
+  const Q  = (1 / R) * Math.sqrt(L / C);
+  const BW = f0 / Q;
+  const atF0 = Math.abs(F - f0) / f0 < 0.02;
+
+  $("#out-r").textContent = si(R, "Ω") + "Ω";
+  $("#out-l").textContent = si(L, "H") + "H";
+  $("#out-c").textContent = si(C, "F") + "F";
+  $("#out-f").textContent = si(F, "Hz") + "Hz";
+  $("#ro-xl").textContent = si(XL);
+  $("#ro-xc").textContent = si(XC);
+  $("#ro-z").textContent  = si(Z);
+  $("#ro-i").textContent  = si(I) ;
+  $("#ro-ph").textContent = (ph > 0 ? "+" : "") + ph.toFixed(1);
+  $("#ro-f0").textContent = si(f0);
+  $("#ro-q").textContent  = Q.toFixed(2);
+  $("#ro-bw").textContent = si(BW);
+
+  const badge = $("#mode-badge");
+  if (atF0) {
+    badge.className = "chip warn"; badge.innerHTML = '<i></i>⚠ RESONANCE LOCK';
+    $("#ro-z").parentElement.style.outline = "2px solid #facc15";
+    $("#ro-z").parentElement.style.borderRadius = "12px";
+  } else {
+    badge.className = "chip"; badge.innerHTML = `<i></i>${X > 0 ? "INDUCTIVE (φ>0)" : "CAPACITIVE (φ<0)"}`;
+    $("#ro-z").parentElement.style.outline = "none";
+  }
+
+  S = { I, phRad: ph * Math.PI / 180 };
+
+  /* current flow animation scales with magnitude */
+  $("#current-path").style.animationDuration = reduced ? "0s" : Math.max(1.4 - Math.log10(I * 1000 + 1) * 0.22, 0.12).toFixed(2) + "s";
+}
+
+function drawScope() {
+  const dpr = devicePixelRatio || 1;
+  scope.width = scope.offsetWidth * dpr;
+  scope.height = 220 * dpr;
+  const w = scope.width, h = scope.height, c = scope.getContext("2d");
+  c.clearRect(0, 0, w, h);
+  /* grid */
+  c.strokeStyle = "rgba(51,65,85,.6)"; c.lineWidth = 1;
+  for (let x = 0; x <= w; x += w / 12) { c.beginPath(); c.moveTo(x, 0); c.lineTo(x, h); c.stroke(); }
+  for (let y = 0; y <= h; y += h / 8) { c.beginPath(); c.moveTo(0, y); c.lineTo(w, y); c.stroke(); }
+
+  const cycles = 3;
+  const norm = Math.max(Math.min(S.I * 400, 1), 0.08);
+  const phRad = S.phRad;
+
+  const plot = (color, amp, offset, width) => {
+    c.strokeStyle = color; c.lineWidth = width * dpr;
+    c.shadowColor = color; c.shadowBlur = 12;
+    c.beginPath();
+    for (let px = 0; px <= w; px++) {
+      const u = px / w;
+      const val = amp * Math.sin(u * cycles * 2 * Math.PI - phase + offset);
+      const py = h / 2 - val * h * 0.38;
+      px ? c.lineTo(px, py) : c.moveTo(px, py);
+    }
+    c.stroke();
+    c.shadowBlur = 0;
+  };
+  plot("#60a5fa", 1, 0, 2);
+  plot("#facc15", norm, phRad, 2);
+}
+
+/* continuous redraw: solve readouts + advance scope phase */
+function loop() {
+  if (!running) return;
+  solve();
+  if (!reduced) { drawScope(); phase += 0.09; }
+  requestAnimationFrame(loop);
+}
+document.addEventListener("visibilitychange", () => {
+  running = !document.hidden && !reduced;
+  if (running) requestAnimationFrame(loop);
+});
+
+["r","l","c","f"].forEach(k => {
+  ctl[k].addEventListener("input", () => {
+    paintFill(ctl[k]);
+    if (k === "r") R = +ctl.r.value;
+    if (k === "l") L = mapLog(+ctl.l.value, 1e-6, 1e-1);
+    if (k === "c") C = mapLog(+ctl.c.value, 1e-9, 1e-4);
+    if (k === "f") F = mapLog(+ctl.f.value, 10, 1e6);
+    solve();
+  });
+});
+
+$("#preset-res").addEventListener("click", () => {
+  R = 20;
+  L = 10e-3; ctl.l.value = Math.round(1000 * Math.log(L / 1e-6) / Math.log(1e-1 / 1e-6));
+  C = 100e-9; ctl.c.value = Math.round(1000 * Math.log(C / 1e-9) / Math.log(1e-4 / 1e-9));
+  const f0 = 1 / (2 * Math.PI * Math.sqrt(L * C));
+  F = f0; ctl.f.value = Math.round(1000 * Math.log(F / 10) / Math.log(1e6 / 10));
+  ["r","l","c","f"].forEach(k => paintFill(ctl[k]));
+});
+$("#preset-crossover").addEventListener("click", () => {
+  R = 8; ctl.r.value = 8;
+  L = 3.3e-3; ctl.l.value = Math.round(1000 * Math.log(L / 1e-6) / Math.log(1e-1 / 1e-6));
+  C = 220e-6; ctl.c.value = Math.round(1000 * Math.log(C / 1e-9) / Math.log(1e-4 / 1e-9));
+  F = 2500; ctl.f.value = Math.round(1000 * Math.log(F / 10) / Math.log(1e6 / 10));
+  ["r","l","c","f"].forEach(k => paintFill(ctl[k]));
+});
+$("#preset-rf").addEventListener("click", () => {
+  R = 5; ctl.r.value = 5;
+  L = 10e-6; ctl.l.value = Math.round(1000 * Math.log(L / 1e-6) / Math.log(1e-1 / 1e-6));
+  C = 47e-12; ctl.c.value = Math.round(1000 * Math.log(C / 1e-9) / Math.log(1e-4 / 1e-9));
+  const f0 = 1 / (2 * Math.PI * Math.sqrt(L * C));
+  F = f0; ctl.f.value = Math.round(1000 * Math.log(F / 10) / Math.log(1e6 / 10));
+  ["r","l","c","f"].forEach(k => paintFill(ctl[k]));
+});
+
+/* init */
+Object.values(ctl).forEach(paintFill);
+if (!reduced) requestAnimationFrame(loop); else solve();
+})();
+</script>
+<style>
+@keyframes dashFlow { to { stroke-dashoffset: -20; } }
+#current-path{ animation: dashFlow .5s linear infinite; }
+</style>

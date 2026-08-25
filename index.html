@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PBCOE Electronics Portal — Dept. of Electronics &amp; Communication Engineering</title>
+<meta name="description" content="Prabhu Bhole College of Engineering — Electronics & Communication Department. Circuit labs, simulators, logic games, careers in electronics.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<div id="scroll-progress"></div>
+
+<!-- ================= NAVBAR ================= -->
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="index.html">
+      <span class="brand-badge">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M13 2 4.5 13.5H11L9.5 22 19.5 9.5H13L14.5 2z" fill="#0f172a"/></svg>
+      </span>
+      <span>PBCOE·ECE<small>ELECTRONICS PORTAL</small></span>
+    </a>
+    <ul class="nav-links">
+      <li><a class="nlink" href="index.html">Home</a></li>
+      <li><a class="nlink" href="about.html">About</a></li>
+      <li><a class="nlink" href="academics.html">Academics</a></li>
+      <li class="has-dd">
+        <a class="nlink" href="#labs">Labs <span class="caret">▼</span></a>
+        <div class="dd">
+          <a href="simulator.html"><span>⚡</span>Circuit Simulator</a>
+          <a href="tools.html"><span>🛠</span>Engineering Tools</a>
+          <a href="games.html"><span>🎮</span>Logic Arcade</a>
+          <a href="facilities.html"><span>🔬</span>Lab Facilities</a>
+        </div>
+      </li>
+      <li class="has-dd">
+        <a class="nlink" href="resources.html">Careers <span class="caret">▼</span></a>
+        <div class="dd">
+          <a href="resources.html">Internships &amp; Jobs</a>
+          <a href="trends.html">Underrated Tech Radar</a>
+        </div>
+      </li>
+      <li class="has-dd">
+        <a class="nlink" href="#campus">Campus <span class="caret">▼</span></a>
+        <div class="dd">
+          <a href="faculty.html">Faculty</a>
+          <a href="events.html">Events &amp; News</a>
+          <a href="gallery.html">Gallery</a>
+          <a href="admissions.html">Admissions</a>
+        </div>
+      </li>
+      <li><a class="nlink" href="contact.html">Contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="theme-toggle" aria-label="Toggle dark mode">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+      </button>
+      <a href="student-portal.html" class="btn btn-accent btn-sm">Login</a>
+      <button class="burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+
+<nav class="mobile-menu" id="drawer" aria-label="Mobile navigation">
+  <a href="index.html">Home →</a>
+  <a href="about.html">About →</a>
+  <a href="academics.html">Academics →</a>
+  <a href="simulator.html">Circuit Simulator →</a>
+  <a href="tools.html">Tools →</a>
+  <a href="games.html">Logic Arcade →</a>
+  <a href="facilities.html">Facilities →</a>
+  <a href="faculty.html">Faculty →</a>
+  <a href="resources.html">Internships &amp; Jobs →</a>
+  <a href="trends.html">Tech Radar →</a>
+  <a href="student-portal.html">Student Portal →</a>
+  <a href="faculty-portal.html">Faculty Portal →</a>
+  <a href="events.html">Events →</a>
+  <a href="gallery.html">Gallery →</a>
+  <a href="admissions.html">Admissions →</a>
+  <a href="contact.html">Contact →</a>
+</nav>
+
+<main>
+<!-- ================= HERO ================= -->
+<section class="hero circuit-bg">
+  <div class="blob blue" style="width:420px;height:420px;top:-120px;right:-80px"></div>
+  <div class="blob yellow" style="width:320px;height:320px;bottom:-100px;left:-60px"></div>
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <span class="kicker reveal">// DEPT. OF ELECTRONICS &amp; COMMUNICATION</span>
+      <h1 class="reveal" style="--d:.08s">Where Circuits Become <span class="grad">Careers.</span></h1>
+      <p class="lead reveal" style="--d:.16s">The official Electronics Portal of Prabhu Bhole College of Engineering. Simulate real circuits, play with hardware logic, decode the industry, and power up your future — all from one glass cockpit.</p>
+      <div class="hero-cta reveal" style="--d:.24s">
+        <a href="simulator.html" class="btn btn-primary">⚡ Launch Circuit Lab</a>
+        <a href="resources.html" class="btn btn-ghost">Explore Careers →</a>
+      </div>
+      <div class="hero-badges reveal" style="--d:.32s">
+        <span class="chip"><i></i>VLSI LAB ONLINE</span>
+        <span class="chip warn"><i></i>ADMISSIONS OPEN '26</span>
+        <span class="chip crit"><i></i>HACKATHON IN 12 DAYS</span>
+      </div>
+    </div>
+    <div class="cpu-stage reveal zoom" style="--d:.2s">
+      <canvas id="lightning-canvas" aria-hidden="true"></canvas>
+      <div class="cpu-core">
+        <div class="cpu-ring"></div>
+        <div class="cpu-ring r2"></div>
+        <div class="cpu-chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="1.4" aria-hidden="true">
+            <rect x="6" y="6" width="12" height="12" rx="2"/>
+            <rect x="9.5" y="9.5" width="5" height="5" rx="1"/>
+            <path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <span class="orbit-tag b">P1.0 ▸ HIGH</span>
+        <span class="orbit-tag y">CLK 3.3GHz</span>
+        <span class="orbit-tag r">V-I/O 5V</span>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-hint"><span class="mouse"></span>SCROLL</div>
+</section>
+
+<!-- ================= TICKER ================= -->
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track" data-ticker>
+    <span><b>▲</b> ECE Placement: 94.2%</span><span class="dot">//</span>
+    <span>ISRO Workshop — Sept 12</span><span class="dot">//</span>
+    <span><b>NEW</b> FPGA Development Track</span><span class="dot">//</span>
+    <span>Robotics Club — Recruitments Open</span><span class="dot">//</span>
+    <span>IEEE Student Branch — Paper CFP Live</span><span class="dot">//</span>
+  </div>
+</div>
+
+<!-- ================= STATS ================= -->
+<section class="section" style="padding-block:4rem">
+  <div class="container stats-grid" data-stagger>
+    <div class="glass stat"><div class="num"><span data-count="1240">0</span>+</div><div class="lbl">Alumni Network</div></div>
+    <div class="glass stat"><div class="num">₹<span data-count="8.4" data-dec="1">0</span>L</div><div class="lbl">Highest Package</div></div>
+    <div class="glass stat"><div class="num"><span data-count="14">0</span></div><div class="lbl">Advanced Labs</div></div>
+    <div class="glass stat"><div class="num"><span data-count="47">0</span></div><div class="lbl">Patents &amp; Papers</div></div>
+  </div>
+</section>
+
+<!-- ================= CALIBRATION SCROLLYTELLING ================= -->
+<section class="section circuit-bg" id="calibration" style="padding-top:2rem">
+  <div class="blob violet" style="width:380px;height:380px;top:20%;right:-140px"></div>
+  <div class="container">
+    <div class="center reveal">
+      <span class="kicker">// INTERACTIVE PROTOCOL</span>
+      <h2 class="section-title">Circuit Calibration <span class="grad-text">Protocol</span></h2>
+      <p class="section-sub">Scroll to run the department's signature gamified sequence — watch the oscilloscope respond as you calibrate each stage of the signal chain.</p>
+    </div>
+    <br><br>
+    <div class="calibration">
+      <aside class="cal-sticky reveal left">
+        <div class="cal-screen">
+          <header><span>OSC-01 · LIVE</span><span id="cal-mode">SINE SWEEP</span></header>
+          <canvas id="cal-wave" height="170"></canvas>
+          <div class="cal-meter"><i id="cal-meter-fill"></i></div>
+          <div class="cal-readout"><span>CALIBRATION</span><b id="cal-pct">0%</b></div>
+        </div>
+      </aside>
+      <div class="cal-steps">
+        <article class="card cal-step reveal right">
+          <span class="step-no">STAGE_01 // SIGNAL SOURCE</span>
+          <h3>Generate the Carrier</h3>
+          <p>Every system begins with a clean source. In Semester 1 you'll build Wien bridge oscillators and function generators by hand — the same waveform now sweeping on the scope.</p>
+        </article>
+        <article class="card cal-step reveal right">
+          <span class="step-no">STAGE_02 // DIGITAL SWITCHING</span>
+          <h3>Square Up the Logic</h3>
+          <p>Analog meets digital. Flip-flops, counters, and 555 timers convert smooth carriers into crisp clock edges that drive every processor on Earth.</p>
+        </article>
+        <article class="card cal-step reveal right">
+          <span class="step-no">STAGE_03 // POWER MODULATION</span>
+          <h3>Gate the Energy</h3>
+          <p>PWM is how modern electronics breathe — motor drivers, SMPS units, Class-D amplifiers. You'll tune duty cycles on real MOSFET breadboards in our Power Lab.</p>
+        </article>
+        <article class="card cal-step reveal right">
+          <span class="step-no">STAGE_04 // SIGNAL CONDITIONING</span>
+          <h3>Filter Out the Noise</h3>
+          <p>Real signals are messy. Active filters, op-amp stages and ADC pipelines scrub interference before a single bit reaches your microcontroller.</p>
+        </article>
+        <article class="card cal-step reveal right">
+          <span class="step-no">STAGE_05 // SYSTEM LOCK</span>
+          <h3>Achieve Lock. Ship Product.</h3>
+          <p>I&amp;Q aligned, jitter minimized, protocol stable. This is the moment an engineering student becomes an engineer — and where your journey at PBCOE begins.</p>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FACILITIES SHOWCASE ================= -->
+<section class="section">
+  <div class="container">
+    <div class="center reveal">
+      <span class="kicker">// INFRASTRUCTURE</span>
+      <h2 class="section-title">Facilities That Feel Like <span class="glow-b">Industry</span></h2>
+      <p class="section-sub">Not display-case labs. Working environments with the same instruments used in semiconductor fabs and aerospace benches.</p>
+    </div>
+    <br>
+    <div class="grid-3" data-stagger>
+      <a class="card" href="facilities.html" data-tilt>
+        <div class="icon-chip y">μC</div>
+        <h3>Embedded Systems Lab</h3>
+        <p>ARM Cortex-M dev stations, STM32 &amp; ESP32 fleets, logic analyzers at every bench and a live GPIO wall for the whole batch.</p>
+      </a>
+      <a class="card" href="facilities.html" data-tilt>
+        <div class="icon-chip">VLSI</div>
+        <h3>VLSI &amp; Fabrication Suite</h3>
+        <p>Xilinx Vivado workstations, Basys-3 FPGA boards, mask-less PCB prototyper delivering boards in under 40 minutes.</p>
+      </a>
+      <a class="card" href="facilities.html" data-tilt>
+        <div class="icon-chip r">RF</div>
+        <h3>RF &amp; Antenna Range</h3>
+        <p>Vector network analyzer up to 8.5 GHz, anechoic test corner, and SDR benches running GNU Radio experiments.</p>
+      </a>
+      <a class="card" href="facilities.html" data-tilt>
+        <div class="icon-chip v">IoT</div>
+        <h3>IoT &amp; Robotics Forge</h3>
+        <p>LoRaWAN gateways, ROS2 robot fleet, and a printed sensor lab — home of two national robotics champions.</p>
+      </a>
+      <a class="card" href="facilities.html" data-tilt>
+        <div class="icon-chip g">SIM</div>
+        <h3>Simulation Center</h3>
+        <p>MATLAB, LTspice, Cadence Virtuoso seats with GPU compute for SPICE-level device physics coursework.</p>
+      </a>
+      <a class="card" href="facilities.html" data-tilt>
+        <div class="icon-chip">⚡</div>
+        <h3>Power Electronics Bay</h3>
+        <p>Regenerative grid simulators, 4-channel scopes to 350 MHz, and thermal cameras for converter design projects.</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DARK ACADEMIC GRID ================= -->
+<section class="section dark-zone circuit-bg">
+  <div class="container">
+    <div class="center reveal">
+      <span class="kicker">// ACADEMIC EXCELLENCE</span>
+      <h2 class="section-title" style="color:#fff">Signature Course Tracks</h2>
+      <p class="section-sub">Four-year B.Tech curriculum engineered backwards from what the semiconductor industry actually hires for.</p>
+    </div>
+    <br>
+    <div style="display:flex;flex-direction:column;gap:1rem" data-stagger>
+      <article class="course-row">
+        <span class="course-code">ECE-201</span>
+        <div><h3>Digital System Design with HDL</h3><p>From truth tables to synthesizable Verilog on real FPGAs. Includes timing closure and verification fundamentals.</p></div>
+        <span class="course-meta">SEM 3 · 4 CR</span>
+      </article>
+      <article class="course-row">
+        <span class="course-code">ECE-305</span>
+        <div><h3>Microcontrollers &amp; Embedded C</h3><p>Bare-metal programming, RTOS concepts, peripheral drivers and low-power firmware patterns on ARM Cortex-M.</p></div>
+        <span class="course-meta">SEM 5 · 4 CR</span>
+      </article>
+      <article class="course-row">
+        <span class="course-code">ECE-308</span>
+        <div><h3>Analog IC Design Foundations</h3><p>Two-stage op-amps, bandgap references and noise analysis using Cadence Virtuoso with tape-out-style reviews.</p></div>
+        <span class="course-meta">SEM 6 · 3 CR</span>
+      </article>
+      <article class="course-row">
+        <span class="course-code">ECE-402</span>
+        <div><h3>VLSI Physical Design Automation</h3><p>Floorplanning to routing: industry flow with open-source tools (OpenROAD) plus DRC/LVS sign-off methodology.</p></div>
+        <span class="course-meta">SEM 7 · 3 CR</span>
+      </article>
+      <article class="course-row">
+        <span class="course-code">ECE-410</span>
+        <div><h3>Embedded Security &amp; Trust</h3><p>Secure boot chains, side-channel basics, and hardware root-of-trust design — one of India's few UG electives here.</p></div>
+        <span class="course-meta">SEM 8 · 3 CR</span>
+      </article>
+    </div>
+    <div class="center" style="margin-top:2.4rem">
+      <a href="academics.html" class="btn btn-primary">View Full Curriculum</a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SKILLS MARQUEE (sliding bar) ================= -->
+<div class="section" style="padding-block:2.6rem">
+  <div class="ticker marquee-light" aria-hidden="true" style="border-radius:999px">
+    <div class="ticker-track">
+      <span>Embedded C</span><span>•</span><span>Verilog HDL</span><span>•</span><span>PCB Design</span><span>•</span><span>RISC-V</span><span>•</span><span>Signal Processing</span><span>•</span><span>RTOS</span><span>•</span><span>RF Engineering</span><span>•</span><span>FPGA</span><span>•</span><span>IoT Protocols</span><span>•</span>
+      <span>Embedded C</span><span>•</span><span>Verilog HDL</span><span>•</span><span>PCB Design</span><span>•</span><span>RISC-V</span><span>•</span><span>Signal Processing</span><span>•</span><span>RTOS</span><span>•</span><span>RF Engineering</span><span>•</span><span>FPGA</span><span>•</span><span>IoT Protocols</span><span>•</span>
+    </div>
+  </div>
+</div>
+
+<!-- ================= CAREERS TEASER ================= -->
+<section class="section" style="padding-top:1rem">
+  <div class="container">
+    <div class="center reveal">
+      <span class="kicker">// BEYOND THE CLASSROOM</span>
+      <h2 class="section-title">Built for the <span class="glow-y">Real Economy</span></h2>
+      <p class="section-sub">Two portal sections dedicated entirely to making you money-ready and future-proof.</p>
+    </div>
+    <br>
+    <div class="grid-2" data-stagger>
+      <a class="card" href="resources.html" data-tilt style="display:block">
+        <div class="icon-chip g">JOB</div>
+        <h3>Opportunity Engine</h3>
+        <p>Curated internships, remote gigs and earning paths specifically vetted for electronics students — updated weekly, ranked by real stipends.</p>
+        <span class="chip" style="margin-top:1rem"><i></i>38 LIVE OPPORTUNITIES</span>
+      </a>
+      <a class="card" href="trends.html" data-tilt style="display:block">
+        <div class="icon-chip r">RADAR</div>
+        <h3>Underrated Tech Radar</h3>
+        <p>The skills nobody's hyping yet but the market desperately needs — FPGA security, embedded Rust, RF test, chiplet packaging and more.</p>
+        <span class="chip crit" style="margin-top:1rem"><i></i>NEXT BIG WAVE TRACKED</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PORTALS SPLIT ================= -->
+<section class="dark-zone section circuit-bg">
+  <div class="container grid-2" data-stagger>
+    <a class="card reveal left" href="student-portal.html" style="display:block">
+      <div class="icon-chip b" style="background:linear-gradient(135deg,#2563eb,#06b6d4)">STU</div>
+      <h3 style="color:#fff">Student Portal</h3>
+      <p>GPA telemetry, attendance rings, document vault, exam schedules and project checkpoints — your academic HUD.</p>
+    </a>
+    <a class="card reveal right" href="faculty-portal.html" style="display:block">
+      <div class="icon-chip y">FAC</div>
+      <h3 style="color:#fff">Faculty Console</h3>
+      <p>Class rosters, grade entry, leave workflows and research supervision dashboards behind role-based glass.</p>
+    </a>
+  </div>
+</section>
+
+<!-- ================= EVENTS PREVIEW + CTA ================= -->
+<section class="section">
+  <div class="container">
+    <div class="center reveal">
+      <span class="kicker">// HAPPENING NOW</span>
+      <h2 class="section-title">Signal Events</h2>
+    </div>
+    <br>
+    <div class="grid-3" data-stagger>
+      <div class="card">
+        <span class="pill mid">SEPT 12</span>
+        <h3 style="margin-top:.8rem">ISRO Outreach Workshop</h3>
+        <p>Hands-on satellite comms session with live ground-station pass predictions.</p>
+      </div>
+      <div class="card">
+        <span class="pill bad">HACKATHON</span>
+        <h3 style="margin-top:.8rem">VoltHacks 4.0</h3>
+        <p>36-hour embedded hackathon. Theme: "Devices for Bharat". ₹75K prize pool.</p>
+      </div>
+      <div class="card">
+        <span class="pill ok">OPEN</span>
+        <h3 style="margin-top:.8rem">Robotics Club Recruitment</h3>
+        <p>Freshers' bootcamp then team placements across 4 competition squads.</p>
+      </div>
+    </div>
+    <br><br>
+    <div class="cta-banner reveal zoom">
+      <h2>Ready to <span class="grad-text">power on?</span></h2>
+      <p style="color:var(--muted);max-width:52ch;margin:0.8rem auto 1.6rem">Admissions for the 2026 B.Tech ECE cohort are open. Scholarships available for board-rank holders and tinkerers alike.</p>
+      <div style="display:flex;gap:.9rem;justify-content:center;flex-wrap:wrap">
+        <a href="admissions.html" class="btn btn-danger">Apply Now ⚡</a>
+        <a href="contact.html" class="btn btn-ghost">Talk to Us</a>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="container footer-grid">
+    <div>
+      <a class="brand" href="index.html" style="color:#e2e8f0;margin-bottom:1rem">
+        <span class="brand-badge"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M13 2 4.5 13.5H11L9.5 22 19.5 9.5H13L14.5 2z" fill="#0f172a"/></svg></span>
+        <span>PBCOE·ECE<small>ELECTRONICS PORTAL</small></span>
+      </a>
+      <p style="font-size:.88rem;max-width:34ch">Department of Electronics &amp; Communication Engineering, Prabhu Bhole College of Engineering &amp; Technology. Accredited by NBA · Affiliated to State Technical University.</p>
+      <div class="term" aria-hidden="true">
+        <span class="t-line cmt">$ tail -f /var/log/dept.log</span>
+        <span class="t-line">[OK] VLSI suite online</span>
+        <span class="t-line">[OK] 94.2% placement</span>
+        <span class="t-line">[..] awaiting your enrollment_</span>
+      </div>
+    </div>
+    <div>
+      <h4>// LEARN</h4>
+      <a href="academics.html">Programs</a>
+      <a href="facilities.html">Laboratories</a>
+      <a href="faculty.html">Faculty</a>
+      <a href="academics.html#syllabus">Syllabus Bank</a>
+    </div>
+    <div>
+      <h4>// BUILD &amp; PLAY</h4>
+      <a href="simulator.html">Circuit Simulator</a>
+      <a href="tools.html">Engineering Tools</a>
+      <a href="games.html">Logic Arcade</a>
+      <a href="gallery.html">Project Gallery</a>
+    </div>
+    <div>
+      <h4>// CONNECT</h4>
+      <a href="resources.html">Opportunities</a>
+      <a href="events.html">Events</a>
+      <a href="contact.html">Contact Desk</a>
+      <a href="admissions.html">Admissions '26</a>
+    </div>
+  </div>
+  <div class="footer-bar container">
+    <span>© <span id="year"></span> PBCOE ELECTRONICS PORTAL v2.0</span>
+    <span>SYS.STATUS: <b style="color:#4ade80">ALL CIRCUITS NOMINAL</b></span>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" aria-label="Back to top">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m18 15-6-6-6 6" stroke-linecap="round"/></svg>
+</button>
+
+<script src="assets/js/main.js"></script>
+<script>
+/* duplicate ticker content so the loop is seamless */
+document.querySelectorAll("[data-ticker]").forEach(t => { t.innerHTML += t.innerHTML; });
+</script>
+</body>
+</html>

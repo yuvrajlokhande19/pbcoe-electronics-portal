@@ -1,0 +1,337 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Engineering Tools — PBCOE Electronics Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+
+</head>
+<body>
+<div id="scroll-progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="index.html">
+      <span class="brand-badge"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M13 2 4.5 13.5H11L9.5 22 19.5 9.5H13L14.5 2z" fill="#0f172a"/></svg></span>
+      <span>PBCOE·ECE<small>ELECTRONICS PORTAL</small></span>
+    </a>
+    <ul class="nav-links">
+      <li><a class="nlink" href="index.html">Home</a></li>
+      <li><a class="nlink" href="about.html">About</a></li>
+      <li><a class="nlink" href="academics.html">Academics</a></li>
+      <li class="has-dd"><a class="nlink" href="#labs">Labs <span class="caret">▼</span></a>
+        <div class="dd"><a href="simulator.html"><span>⚡</span>Circuit Simulator</a><a href="tools.html"><span>🛠</span>Engineering Tools</a><a href="games.html"><span>🎮</span>Logic Arcade</a><a href="facilities.html"><span>🔬</span>Lab Facilities</a></div>
+      </li>
+      <li class="has-dd"><a class="nlink" href="resources.html">Careers <span class="caret">▼</span></a>
+        <div class="dd"><a href="resources.html">Internships &amp; Jobs</a><a href="trends.html">Underrated Tech Radar</a></div>
+      </li>
+      <li class="has-dd"><a class="nlink" href="#campus">Campus <span class="caret">▼</span></a>
+        <div class="dd"><a href="faculty.html">Faculty</a><a href="events.html">Events &amp; News</a><a href="gallery.html">Gallery</a><a href="admissions.html">Admissions</a></div>
+      </li>
+      <li><a class="nlink" href="contact.html">Contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="theme-toggle" aria-label="Toggle dark mode"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg></button>
+      <a href="student-portal.html" class="btn btn-accent btn-sm">Login</a>
+      <button class="burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+
+<nav class="mobile-menu" id="drawer" aria-label="Mobile navigation">
+  <a href="index.html">Home →</a><a href="about.html">About →</a><a href="academics.html">Academics →</a>
+  <a href="simulator.html">Circuit Simulator →</a><a href="tools.html">Tools →</a><a href="games.html">Logic Arcade →</a>
+  <a href="facilities.html">Facilities →</a><a href="faculty.html">Faculty →</a><a href="resources.html">Internships &amp; Jobs →</a>
+  <a href="trends.html">Tech Radar →</a><a href="student-portal.html">Student Portal →</a><a href="faculty-portal.html">Faculty Portal →</a>
+  <a href="events.html">Events →</a><a href="gallery.html">Gallery →</a><a href="admissions.html">Admissions →</a><a href="contact.html">Contact →</a>
+</nav>
+
+<main>
+<!--TITLE:Engineering Tools — PBCOE Electronics Portal-->
+<section class="page-hero circuit-bg">
+  <div class="blob yellow" style="width:340px;height:340px;top:-110px;right:-60px"></div>
+  <div class="container">
+    <p class="crumb reveal"><a href="index.html">HOME</a> / LABS / TOOLS</p>
+    <h1 class="reveal" style="--d:.08s">Bench Tools, <span class="grad-text">Zero Wires.</span></h1>
+    <p class="section-sub reveal" style="--d:.16s">Decoder, finders and calculators — the daily-carry utilities of an electronics student.</p>
+  </div>
+</section>
+
+<section class="section" id="resistor">
+  <div class="container">
+    <div class="center reveal"><span class="kicker">// TOOL 01</span><h2 class="section-title">Resistor Color Decoder</h2><p class="section-sub">Pick the bands; we do the arithmetic. Supports 4-band resistors with tolerance.</p></div>
+    <br>
+    <div class="grid-2" style="align-items:start">
+      <div class="card reveal left">
+        <div class="resistor-visual">
+          <div class="resistor-body">
+            <span class="rband" id="vb1" style="left:22%"></span>
+            <span class="rband" id="vb2" style="left:40%"></span>
+            <span class="rband" id="vb3" style="left:58%"></span>
+            <span class="rband" id="vb4" style="left:80%;width:10px"></span>
+          </div>
+        </div>
+        <div class="band-select" style="justify-content:center">
+          <label class="band">BAND 1<select id="b1"></select></label>
+          <label class="band">BAND 2<select id="b2"></select></label>
+          <label class="band">MULTIPLIER<select id="b3"></select></label>
+          <label class="band">TOLERANCE<select id="b4"></select></label>
+        </div>
+      </div>
+      <div class="card reveal right center" style="display:flex;flex-direction:column;justify-content:center;min-height:280px">
+        <p class="kicker" style="justify-content:center">// DECODED VALUE</p>
+        <div class="mono" id="res-out" style="font-size:clamp(2.2rem,5vw,3.4rem);margin:.6rem 0;text-shadow:0 0 24px rgba(250,204,21,.4)">4.70 kΩ</div>
+        <div style="display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap">
+          <span class="chip warn" id="res-tol"><i></i>±5%</span>
+          <span class="chip" id="res-range"><i></i>4.47 – 4.94 kΩ</span>
+        </div>
+        <p style="color:var(--muted);font-size:.85rem;margin-top:1.2rem">Nearest E-series value: <b class="mono" id="res-e">E24 · 4.7k</b></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="dark-zone section circuit-bg" id="finder">
+  <div class="container">
+    <div class="center reveal"><span class="kicker">// TOOL 02</span><h2 class="section-title" style="color:#fff">Component Finder</h2><p class="section-sub">Search the department's stocked-parts index before you order anything.</p></div>
+    <br>
+    <input class="input reveal" id="comp-search" placeholder="Search: e.g. 'regulator', '555', 'MOSFET'…" style="max-width:520px;margin-inline:auto;display:block;background:rgba(15,26,48,.6);border-color:rgba(148,163,184,.25);color:#e2e8f0">
+    <br>
+    <div class="grid-3" id="comp-grid" data-stagger></div>
+    <p id="comp-none" class="center mono" style="color:#f87171;display:none;padding:2rem">// NO MATCH IN STOCK INDEX</p>
+  </div>
+</section>
+
+<section class="section" id="calcs">
+  <div class="container">
+    <div class="center reveal"><span class="kicker">// TOOL 03</span><h2 class="section-title">Quick Calculators</h2><p class="section-sub">Three classics every ECE brain should eventually do mentally.</p></div>
+    <br>
+    <div class="tabs reveal">
+      <button class="tab active" data-tab="ohm">Ohm's Law</button>
+      <button class="tab" data-tab="led">LED Resistor</button>
+      <button class="tab" data-tab="vd">Voltage Divider</button>
+    </div>
+
+    <div class="tab-panel active" id="tab-ohm" style="max-width:640px;margin-inline:auto">
+      <div class="card">
+        <p style="margin-bottom:1.2rem;color:var(--muted)">Enter any <b>two</b> values — V, I or R — and the third computes itself.</p>
+        <div class="form-grid">
+          <div class="field"><label>Voltage (V)</label><input class="input calc-ohm" data-k="v" type="number" step="any"></div>
+          <div class="field"><label>Current (A)</label><input class="input calc-ohm" data-k="i" type="number" step="any"></div>
+          <div class="field"><label>Resistance (Ω)</label><input class="input calc-ohm" data-k="r" type="number" step="any"></div>
+          <div class="field"><label>Power (W)</label><output class="input" id="ohm-p" readonly style="background:var(--bg-2)">—</output></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-led" style="max-width:640px;margin-inline:auto">
+      <div class="card">
+        <p style="margin-bottom:1.2rem;color:var(--muted)">Series resistor for a single LED (or a chain).</p>
+        <div class="form-grid">
+          <div class="field"><label>Supply Voltage (V)</label><input class="input" id="led-vs" type="number" value="5" step="any"></div>
+          <div class="field"><label>LED Forward V (V)</label><input class="input" id="led-vf" type="number" value="2.0" step="any"></div>
+          <div class="field"><label>LED Current (mA)</label><input class="input" id="led-if" type="number" value="20" step="any"></div>
+          <div class="field"><label>Use Resistor</label><output class="input" id="led-r" readonly style="background:var(--bg-2)">—</output></div>
+        </div>
+        <p id="led-note" class="mono" style="color:var(--green);font-size:.85rem"></p>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-vd" style="max-width:640px;margin-inline:auto">
+      <div class="card">
+        <svg viewBox="0 0 300 120" style="width:100%;max-height:130px" aria-hidden="true">
+          <line x1="30" y1="20" x2="270" y2="20" stroke="#ef4444" stroke-width="2"/>
+          <rect x="60" y="45" width="34" height="18" rx="3" fill="none" stroke="#94a3b8" stroke-width="2"/>
+          <text x="77" y="42" fill="#94a3b8" font-size="11" text-anchor="middle" font-family="Share Tech Mono">R1</text>
+          <rect x="180" y="75" width="34" height="18" rx="3" fill="none" stroke="#94a3b8" stroke-width="2"/>
+          <text x="197" y="112" fill="#94a3b8" font-size="11" text-anchor="middle" font-family="Share Tech Mono">R2</text>
+          <line x1="30" y1="20" x2="30" y2="84" stroke="#94a3b8" stroke-width="2"/>
+          <line x1="30" y1="84" x2="180" y2="84" stroke="#94a3b8" stroke-width="2"/>
+          <line x1="214" y1="84" x2="260" y2="84" stroke="#94a3b8" stroke-width="2"/>
+          <line x1="260" y1="20" x2="260" y2="84" stroke="#94a3b8" stroke-width="2"/>
+          <circle cx="150" cy="84" r="4" fill="#facc15"/><text x="150" y="105" fill="#facc15" font-size="11" text-anchor="middle" font-family="Share Tech Mono">VOUT</text>
+          <text x="30" y="14" fill="#ef4444" font-size="11" text-anchor="middle" font-family="Share Tech Mono">VIN</text>
+        </svg>
+        <div class="form-grid">
+          <div class="field"><label>Vin (V)</label><input class="input vd-in" id="vd-vin" type="number" value="12" step="any"></div>
+          <div class="field"><label>R1 (Ω)</label><input class="input vd-in" id="vd-r1" type="number" value="10000" step="any"></div>
+          <div class="field"><label>R2 (Ω)</label><input class="input vd-in" id="vd-r2" type="number" value="4700" step="any"></div>
+          <div class="field"><label>Vout (V)</label><output class="input" id="vd-out" readonly style="background:var(--bg-2)">—</output></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ============ RESISTOR DECODER ============ */
+(() => {
+"use strict";
+const $ = s => document.querySelector(s);
+const COLORS = [
+  { n:"Black",  v:0, m:1,        hex:"#111111", tol:null },
+  { n:"Brown",  v:1, m:10,       hex:"#795548", tol:"±1%" },
+  { n:"Red",    v:2, m:100,      hex:"#ef4444", tol:"±2%" },
+  { n:"Orange", v:3, m:1e3,      hex:"#fb923c", tol:null },
+  { n:"Yellow", v:4, m:1e4,      hex:"#facc15", tol:null },
+  { n:"Green",  v:5, m:1e5,      hex:"#22c55e", tol:"±0.5%" },
+  { n:"Blue",   v:6, m:1e6,      hex:"#3b82f6", tol:"±0.25%" },
+  { n:"Violet", v:7, m:1e7,      hex:"#8b5cf6", tol:"±0.1%" },
+  { n:"Gray",   v:8, m:1e8,      hex:"#9ca3af", tol:"±0.05%" },
+  { n:"White",  v:9, m:1e9,      hex:"#ffffff", tol:null }
+];
+const TOLS = [
+  { n:"Gold",   hex:"#d4a017", tol:"±5%" },
+  { n:"Silver", hex:"#c0c0c0", tol:"±10%" },
+  { n:"Brown",  hex:"#795548", tol:"±1%" },
+  { n:"Red",    hex:"#ef4444", tol:"±2%" }
+];
+function fill(sel, arr) {
+  sel.innerHTML = arr.map((c, i) => `<option value="${i}">${c.n}${c.tol ? " " + c.tol : ""}</option>`).join("");
+}
+fill($("#b1"), COLORS.slice(0, 10)); fill($("#b2"), COLORS.slice(0, 10));
+fill($("#b3"), COLORS.slice(0, 10)); fill($("#b4"), TOLS);
+$("#b1").value = 4; $("#b2").value = 7; $("#b3").value = 2; $("#b4").value = 0;
+
+function fmt(v) {
+  if (v >= 1e6) return (v / 1e6).toFixed(2) + " MΩ";
+  if (v >= 1e3) return (v / 1e3).toFixed(2) + " kΩ";
+  if (v >= 1) return v.toFixed(1) + " Ω";
+  return (v * 1000).toFixed(0) + " mΩ";
+}
+function decode() {
+  const c1 = COLORS[$("#b1").value], c2 = COLORS[$("#b2").value],
+        c3 = COLORS[$("#b3").value], c4 = TOLS[$("#b4").value];
+  const val = (c1.v * 10 + c2.v) * c3.m;
+  $("#vb1").style.background = c1.hex;
+  $("#vb2").style.background = c2.hex;
+  $("#vb3").style.background = c3.hex;
+  $("#vb4").style.background = c4.hex;
+  $("#res-out").textContent = fmt(val);
+  $("#res-tol").innerHTML = `<i></i>${c4.tol}`;
+  const lo = val - val * parseFloat(c4.tol.replace(/[^0-9.]/g, "")) / 100;
+  const hi = val + val * parseFloat(c4.tol.replace(/[^0-9.]/g, "")) / 100;
+  $("#res-range").innerHTML = `<i></i>${fmt(lo)} – ${fmt(hi)}`;
+}
+["b1","b2","b3","b4"].forEach(id => $("#" + id).addEventListener("change", decode));
+decode();
+})();
+
+/* ============ COMPONENT FINDER ============ */
+(() => {
+"use strict";
+const $ = s => document.querySelector(s);
+const PARTS = [
+  { n:"NE555 Timer IC", d:"Classic timing/PWM workhorse. DIP-8.", t:["timer","analog","555"], stock:184 },
+  { n:"LM7805 Regulator", d:"Linear 5V regulator, TO-220. Up to 1.5A.", t:["power","regulator"], stock:96 },
+  { n:"AMS1117-3.3", d:"3.3V LDO SOT-223 for MCU rails.", t:["power","regulator","ldo"], stock:240 },
+  { n:"ATmega328P", d:"Arduino-class 8-bit MCU, DIP-28.", t:["mcu","avr","microcontroller"], stock:52 },
+  { n:"ESP32-WROOM-32", d:"WiFi+BLE SoC module for IoT builds.", t:["mcu","iot","wireless","esp32"], stock:78 },
+  { n:"STM32F103C8T6", d:"ARM Cortex-M3 'Blue Pill' class MCU.", t:["mcu","arm","stm32"], stock:64 },
+  { n:"IRFZ44N MOSFET", d:"N-channel power MOSFET, 49A/55V.", t:["mosfet","power","transistor"], stock:132 },
+  { n:"2N2222 NPN", d:"General purpose BJT, TO-92.", t:["transistor","bjt"], stock:310 },
+  { n:"1N4007 Diode", d:"Rectifier diode 1A/1000V.", t:["diode","power"], stock:500 },
+  { n:"1N4148 Signal Diode", d:"Fast switching diode, DO-35.", t:["diode","signal"], stock:420 },
+  { n:"16×2 LCD (HD44780)", d:"Parallel character display, green.", t:["display","lcd"], stock:44 },
+  { n:"SSD1306 OLED 0.96\"", d:"128×64 I²C OLED display.", t:["display","oled","i2c"], stock:61 },
+  { n:"HC-05 Bluetooth Module", d:"SPP serial BT bridge.", t:["wireless","bluetooth"], stock:37 },
+  { n:"DHT11 Temp/Humidity", d:"Digital environmental sensor.", t:["sensor","iot"], stock:88 },
+  { n:"MPU-6050 IMU", d:"3-axis gyro + accelerometer, I²C.", t:["sensor","imu","robotics"], stock:56 },
+  { n:"L293D Motor Driver", d:"Dual H-bridge for DC/stepper motors.", t:["motor","driver","robotics"], stock:73 }
+];
+const grid = $("#comp-grid");
+grid.innerHTML = PARTS.map(p => `
+  <div class="card comp-card" data-t="${p.t.join(" ")} ${p.n.toLowerCase()} ${p.d.toLowerCase()}">
+    <h3 style="color:#f1f5f9">${p.n}</h3>
+    <p>${p.d}</p>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:1rem">
+      <span class="pill ${p.stock > 100 ? "ok" : p.stock > 50 ? "mid" : "bad"}">${p.stock} IN STOCK</span>
+      <span class="mono" style="color:#7dd3fc;font-size:.72rem">BIN:${String(PARTS.indexOf(p) + 1).padStart(3, "0")}</span>
+    </div>
+  </div>`).join("");
+$("#comp-search").addEventListener("input", e => {
+  const q = e.target.value.trim().toLowerCase();
+  let shown = 0;
+  document.querySelectorAll(".comp-card").forEach(c => {
+    const hit = !q || c.dataset.t.includes(q);
+    c.style.display = hit ? "" : "none";
+    if (hit) shown++;
+  });
+  $("#comp-none").style.display = shown ? "none" : "block";
+});
+
+/* ============ TABS ============ */
+document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => {
+  document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+  document.querySelectorAll(".tab-panel").forEach(x => x.classList.remove("active"));
+  t.classList.add("active");
+  $("#tab-" + t.dataset.tab).classList.add("active");
+}));
+
+/* ============ CALCULATORS ============ */
+const oInputs = [...document.querySelectorAll(".calc-ohm")];
+oInputs.forEach(inp => inp.addEventListener("input", () => {
+  const g = k => parseFloat(oInputs.find(i => i.dataset.k === k).value);
+  const filled = ["v","i","r"].filter(k => !isNaN(g(k)));
+  const [outP] = [$("#ohm-p")];
+  if (filled.length !== 2) { outP.value = "—"; return; }
+  let v = g("v"), i = g("i"), r = g("r");
+  if (isNaN(v)) v = i * r;
+  else if (isNaN(i)) i = v / r;
+  else if (isNaN(r)) r = v / i;
+  outP.value = (v * i).toFixed(4) + " W";
+}));
+
+function ledCalc() {
+  const vs = parseFloat($("#led-vs").value), vf = parseFloat($("#led-vf").value),
+        iMa = parseFloat($("#led-if").value);
+  const r = (vs - vf) / (iMa / 1000);
+  const p = (vs - vf) * (iMa / 1000);
+  $("#led-r").value = isNaN(r) ? "—" : Math.ceil(r / 10) * 10 + " Ω";
+  $("#led-note").textContent = isNaN(r) ? "" : `Dissipation ≈ ${p.toFixed(3)} W → use ≥ ${(Math.ceil(p / 0.125) * 0.125).toFixed(3)}W resistor`;
+}
+["led-vs","led-vf","led-if"].forEach(id => $("#" + id).addEventListener("input", ledCalc));
+ledCalc();
+
+function vdCalc() {
+  const vin = parseFloat($("#vd-vin").value), r1 = parseFloat($("#vd-r1").value), r2 = parseFloat($("#vd-r2").value);
+  $("#vd-out").value = isNaN(vin * r1 * r2) ? "—" : (vin * r2 / (r1 + r2)).toFixed(3) + " V";
+}
+["vd-vin","vd-r1","vd-r2"].forEach(id => $("#" + id).addEventListener("input", vdCalc));
+vdCalc();
+})();
+</script>
+</main>
+
+<footer>
+  <div class="container footer-grid">
+    <div>
+      <a class="brand" href="index.html" style="color:#e2e8f0;margin-bottom:1rem">
+        <span class="brand-badge"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M13 2 4.5 13.5H11L9.5 22 19.5 9.5H13L14.5 2z" fill="#0f172a"/></svg></span>
+        <span>PBCOE·ECE<small>ELECTRONICS PORTAL</small></span>
+      </a>
+      <p style="font-size:.88rem;max-width:34ch">Dept. of Electronics &amp; Communication Engineering, Prabhu Bhole College of Engineering &amp; Technology.</p>
+      <div class="term" aria-hidden="true">
+        <span class="t-line cmt">$ tail -f /var/log/dept.log</span>
+        <span class="t-line">[OK] all systems nominal</span>
+        <span class="t-line">[..] awaiting your signal_</span>
+      </div>
+    </div>
+    <div><h4>// LEARN</h4><a href="academics.html">Programs</a><a href="facilities.html">Laboratories</a><a href="faculty.html">Faculty</a><a href="academics.html#syllabus">Syllabus Bank</a></div>
+    <div><h4>// BUILD &amp; PLAY</h4><a href="simulator.html">Circuit Simulator</a><a href="tools.html">Engineering Tools</a><a href="games.html">Logic Arcade</a><a href="gallery.html">Project Gallery</a></div>
+    <div><h4>// CONNECT</h4><a href="resources.html">Opportunities</a><a href="events.html">Events</a><a href="contact.html">Contact Desk</a><a href="admissions.html">Admissions '26</a></div>
+  </div>
+  <div class="footer-bar container">
+    <span>© <span id="year"></span> PBCOE ELECTRONICS PORTAL v2.0</span>
+    <span>SYS.STATUS: <b style="color:#4ade80">ALL CIRCUITS NOMINAL</b></span>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" aria-label="Back to top"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m18 15-6-6-6 6" stroke-linecap="round"/></svg></button>
+
+<script src="assets/js/main.js"></script>
+<script>document.querySelectorAll("[data-ticker]").forEach(t => { t.innerHTML += t.innerHTML; });</script>

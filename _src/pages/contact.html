@@ -1,0 +1,92 @@
+<!--TITLE:Contact — PBCOE Electronics Portal-->
+<section class="page-hero circuit-bg">
+  <div class="blob blue" style="width:340px;height:340px;top:-110px;left:-70px"></div>
+  <div class="container">
+    <p class="crumb reveal"><a href="index.html">HOME</a> / CONTACT</p>
+    <h1 class="reveal" style="--d:.08s">Open a <span class="grad-text">Channel.</span></h1>
+    <p class="section-sub reveal" style="--d:.16s">Admissions, labs, collaborations or just a circuit question bugging you — we reply within one working day.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container grid-2" style="align-items:start">
+    <form class="card reveal left" id="contact-form" novalidate>
+      <h3 style="margin-bottom:1.2rem">Transmit a Message ⚡</h3>
+      <div class="form-grid">
+        <div class="field"><label for="cname">Full Name</label><input class="input" id="cname" required placeholder="Ada Lovelace"></div>
+        <div class="field"><label for="cmail">Email</label><input class="input" type="email" id="cmail" required placeholder="you@example.com"></div>
+      </div>
+      <div class="field"><label for="ctopic">Topic</label>
+        <select class="select" id="ctopic">
+          <option>Admissions '26</option>
+          <option>Campus Visit / Virtual Tour</option>
+          <option>Lab &amp; Industry Collaboration</option>
+          <option>Placement / Recruitment</option>
+          <option>General Query</option>
+        </select>
+      </div>
+      <div class="field"><label for="cmsg">Message</label><textarea class="input" id="cmsg" rows="5" required placeholder="Type your signal here..."></textarea></div>
+      <button class="btn btn-primary" type="submit">Send Transmission</button>
+      <p id="contact-status" style="margin-top:.9rem;font-family:var(--font-display);font-size:.85rem;color:var(--green)" hidden>✔ PACKET RECEIVED — our desk replies within 24h.</p>
+    </form>
+
+    <div data-stagger>
+      <div class="card reveal right">
+        <div class="icon-chip b" style="background:linear-gradient(135deg,#2563eb,#06b6d4)">◎</div>
+        <h3>Department Office</h3>
+        <p>Block E, Room E-001<br>Prabhu Bhole College of Engineering &amp; Technology<br>Knowledge Park Road, State — 400 001</p>
+      </div>
+      <br>
+      <div class="grid-2" style="gap:1rem">
+        <div class="card reveal right"><h3>Phone</h3><p style="font-family:var(--font-display)">+91 98XXX XXXXX<br>+91 22 2345 6789</p></div>
+        <div class="card reveal right"><h3>Email</h3><p style="font-family:var(--font-display)">ece@pbcoe.ac.in<br>admissions@pbcoe.ac.in</p></div>
+      </div>
+      <br>
+      <div class="card reveal right">
+        <h3>Office Hours</h3>
+        <table class="tbl">
+          <tbody>
+            <tr><td>Mon – Fri</td><td style="text-align:right;font-family:var(--font-display)">09:00 – 17:00</td></tr>
+            <tr><td>Saturday (Tinker Desk)</td><td style="text-align:right;font-family:var(--font-display)">10:00 – 14:00</td></tr>
+            <tr><td>Sunday</td><td style="text-align:right"><span class="pill bad">CLOSED</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="dark-zone section circuit-bg" style="padding-block:3rem">
+  <div class="container grid-2" style="align-items:center">
+    <div class="reveal left">
+      <span class="kicker">// FIND THE BLOCK</span>
+      <h2 class="section-title" style="color:#fff">Campus Coordinates</h2>
+      <p class="section-sub">E-Block is the glass building behind the main quadrangle — look for the antenna mast on the roof. Parking Gate 3 is closest.</p>
+      <br>
+      <div class="hero-badges" style="margin-top:0">
+        <span class="chip"><i></i>BUS STOP: 200 M</span>
+        <span class="chip warn"><i></i>METRO: 2.4 KM</span>
+      </div>
+    </div>
+    <div class="card reveal right" style="min-height:260px;position:relative;overflow:hidden;background:
+      linear-gradient(color-mix(in srgb,var(--blue) 10%,transparent) 1px,transparent 1px),
+      linear-gradient(90deg,color-mix(in srgb,var(--blue) 10%,transparent) 1px,transparent 1px),
+      var(--glass);
+      background-size:28px 28px,28px 28px,auto;">
+      <div style="position:absolute;top:42%;left:46%;translate:-50% -50%;display:flex;flex-direction:column;align-items:center;gap:.4rem">
+        <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" aria-hidden="true" style="filter:drop-shadow(0 0 10px rgba(239,68,68,.8));animation:floatY 2s ease-in-out infinite"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span class="chip crit"><i></i>E-BLOCK · ECE DEPT</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+document.getElementById("contact-form").addEventListener("submit", function (e) {
+  e.preventDefault();
+  const ok = [...this.querySelectorAll("[required]")].every(f => f.value.trim() && (f.type !== "email" || /^\S+@\S+\.\S+$/.test(f.value)));
+  if (!ok) { this.querySelectorAll("[required]").forEach(f => { if (!f.value.trim()) f.style.borderColor = "#ef4444"; }); return; }
+  document.getElementById("contact-status").hidden = false;
+  this.reset();
+});
+</script>

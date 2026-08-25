@@ -1,0 +1,270 @@
+<!--TITLE:Logic Arcade — Games | PBCOE Electronics Portal-->
+<section class="page-hero circuit-bg">
+  <div class="blob violet" style="width:340px;height:340px;top:-110px;left:-70px"></div>
+  <div class="container">
+    <p class="crumb reveal"><a href="index.html">HOME</a> / LABS / LOGIC ARCADE</p>
+    <h1 class="reveal" style="--d:.08s">Learn Like It's <span class="grad-text">an Arcade.</span></h1>
+    <p class="section-sub reveal" style="--d:.16s">Three machines, infinite respawns. Flip GPIOs, match waveforms, build VHDL — scores included.</p>
+  </div>
+</section>
+
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track" data-ticker>
+    <span><b>HIGH SCORES THIS WEEK</b></span><span class="dot">//</span><span>WAVEFORM MATCH: Aarti (ECE-3) · 14 STREAK</span><span class="dot">//</span><span>VHDL BUILDER: Rohan (ECE-5) · 950 PTS</span><span class="dot">//</span><span>INSERT COIN = OPEN A TAB BELOW</span><span class="dot">//</span>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="tabs reveal">
+      <button class="tab active" data-tab="gpio">▣ GPIO SIMULATOR</button>
+      <button class="tab" data-tab="wave">∿ WAVEFORM MATCH</button>
+      <button class="tab" data-tab="vhdl">⌘ VHDL BUILDER</button>
+    </div>
+
+    <!-- ================= GAME 1: GPIO ================= -->
+    <div class="tab-panel active" id="tab-gpio">
+      <div class="glass game-shell reveal zoom">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.8rem;margin-bottom:1.4rem">
+          <h3>P1 PORT REGISTER — WRITE BITS WITH YOUR MOUSE</h3>
+          <div style="display:flex;gap:.6rem">
+            <button class="btn btn-sm btn-accent" id="gpio-run">▶ RUN BLINK</button>
+            <button class="btn btn-sm btn-ghost" id="gpio-reset">RESET</button>
+          </div>
+        </div>
+        <div class="led-grid" id="gpio-grid"></div>
+        <br><br>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem">
+          <div class="hex-readout" id="gpio-bin">0000 0000</div>
+          <div class="hex-readout" id="gpio-hex">0x00</div>
+          <div class="hex-readout" id="gpio-dec">DEC: 0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= GAME 2: WAVEFORM MATCH ================= -->
+    <div class="tab-panel" id="tab-wave">
+      <div class="glass game-shell reveal zoom">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.8rem;margin-bottom:1.2rem">
+          <span class="score-pill">SCORE <b id="wave-score">0</b></span>
+          <span class="chip"><i></i>STREAK ×<b id="wave-streak" style="margin-left:.3rem">0</b></span>
+          <button class="btn btn-sm btn-ghost" id="wave-skip">SKIP →</button>
+        </div>
+        <canvas id="wave-canvas" height="200" style="width:100%;display:block;border-radius:12px;background:var(--dark);box-shadow:inset 0 0 40px rgba(56,189,248,.06)"></canvas>
+        <br>
+        <p class="center mono" style="color:var(--muted);font-size:.85rem;margin-bottom:1rem">NAME THAT WAVEFORM:</p>
+        <div class="word-tiles" id="wave-options"></div>
+        <p class="center mono" id="wave-msg" style="margin-top:1.1rem;font-size:.95rem;color:var(--muted)">Round starts automatically…</p>
+      </div>
+    </div>
+
+    <!-- ================= GAME 3: VHDL BUILDER ================= -->
+    <div class="tab-panel" id="tab-vhdl">
+      <div class="glass game-shell reveal zoom">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.8rem;margin-bottom:1.2rem">
+          <span class="score-pill">POINTS <b id="vhdl-score">0</b></span>
+          <button class="btn btn-sm btn-ghost" id="vhdl-clear">CLEAR</button>
+        </div>
+        <p class="mono" style="color:var(--muted);font-size:.78rem;letter-spacing:.16em;margin-bottom:.6rem">// BUILD THE STATEMENT IN ORDER:</p>
+        <div class="code-target mono" id="vhdl-target"></div>
+        <div class="code-target mono" id="vhdl-built" style="border-color:rgba(250,204,21,.35);color:#fde047">&nbsp;</div>
+        <br>
+        <div class="word-tiles" id="vhdl-tiles"></div>
+        <p class="center mono" id="vhdl-msg" style="margin-top:1.1rem;font-size:.95rem;color:var(--muted)">Click tokens in the correct sequence.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="dark-zone section circuit-bg" style="padding-block:4rem">
+  <div class="container grid-3" data-stagger>
+    <div class="card reveal zoom"><div class="icon-chip b" style="background:linear-gradient(135deg,#2563eb,#06b6d4)">L1</div><h3 style="color:#fff">Why GPIO first?</h3><p>Every embedded engineer's "hello world" is a blinking LED. Here you drive a whole byte — and read it back in binary, hex and decimal like real firmware.</p></div>
+    <div class="card reveal zoom"><div class="icon-chip y">L2</div><h3 style="color:#fff">Why waveforms?</h3><p>Scope literacy separates operators from observers. Recognizing square vs sawtooth vs PWM at a glance is a semester-3 superpower.</p></div>
+    <div class="card reveal zoom"><div class="icon-chip r">L3</div><h3 style="color:#fff">Why VHDL syntax?</h3><p>Muscle memory for entity–architecture structure means lab exams feel like typing practice, not archaeology.</p></div>
+  </div>
+</section>
+
+<script>
+(() => {
+"use strict";
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* tabs */
+$$(".tab").forEach(t => t.addEventListener("click", () => {
+  $$(".tab").forEach(x => x.classList.remove("active"));
+  $$(".tab-panel").forEach(x => x.classList.remove("active"));
+  t.classList.add("active");
+  $("#tab-" + t.dataset.tab).classList.add("active");
+}));
+
+/* ============ GAME 1: GPIO ============ */
+const N = 8;
+let state = new Array(N).fill(0), blinkTimer = null;
+const grid = $("#gpio-grid");
+grid.innerHTML = Array.from({ length: N }, (_, i) => `
+  <div class="led-unit">
+    <div class="led ${i % 2 ? "" : ""}" id="led-${i}"></div>
+    <button class="sw" role="switch" aria-checked="false" data-i="${i}" aria-label="Switch P1.${i}"></button>
+    <span class="mono" style="font-size:.68rem;color:var(--muted)">P1.${i}</span>
+  </div>`).join("");
+
+function gpioRender() {
+  state.forEach((v, i) => {
+    $("#led-" + i).classList.toggle("on", !!v);
+    $(`.sw[data-i="${i}"]`).setAttribute("aria-checked", String(!!v));
+  });
+  const bits = state.slice().reverse().join("");
+  const val = parseInt(bits, 2);
+  $("#gpio-bin").textContent = bits.replace(/(.{4})(.{4})/, "$1 $2");
+  $("#gpio-hex").textContent = "0x" + val.toString(16).toUpperCase().padStart(2, "0");
+  $("#gpio-dec").textContent = "DEC: " + val;
+}
+$$(".sw").forEach(sw => sw.addEventListener("click", () => {
+  stopBlink();
+  const i = +sw.dataset.i;
+  state[i] ^= 1;
+  gpioRender();
+}));
+function stopBlink() { if (blinkTimer) { clearInterval(blinkTimer); blinkTimer = null; } }
+$("#gpio-run").addEventListener("click", () => {
+  stopBlink();
+  if (reduced) return;
+  let t = 0;
+  blinkTimer = setInterval(() => {
+    /* knight-rider pattern */
+    const seq = [0b00011000, 0b00111100, 0b01111110, 0b11111111, 0b01111110, 0b00111100];
+    state = Array.from({ length: 8 }, (_, i) => (seq[t % seq.length] >> i) & 1);
+    t++;
+    gpioRender();
+  }, 180);
+});
+$("#gpio-reset").addEventListener("click", () => { stopBlink(); state.fill(0); gpioRender(); });
+gpioRender();
+
+/* ============ GAME 2: WAVEFORM MATCH ============ */
+const WAVES = [
+  { name: "SINE", fn: u => Math.sin(u * 2 * Math.PI), color: "#38bdf8" },
+  { name: "SQUARE", fn: u => Math.sign(Math.sin(u * 2 * Math.PI)) || 1, color: "#facc15" },
+  { name: "TRIANGLE", fn: u => 2 / Math.PI * Math.asin(Math.sin(u * 2 * Math.PI)), color: "#4ade80" },
+  { name: "SAWTOOTH", fn: u => 2 * (u - Math.floor(u + 0.5)), color: "#fb923c" },
+  { name: "PWM (35%)", fn: u => ((u % 1) < 0.35 ? 1 : -1), color: "#f472b6" },
+  { name: "EXP DECAY", fn: u => Math.exp(-u * 3.2) * Math.sin(u * 12), color: "#a78bfa" },
+  { name: "HALF-WAVE RECT", fn: u => Math.max(0, Math.sin(u * 2 * Math.PI)), color: "#f87171" }
+];
+let answer = null, wScore = 0, wStreak = 0, wPhase = 0, wAnim = null;
+
+const wc = $("#wave-canvas");
+function drawWave() {
+  const dpr = devicePixelRatio || 1;
+  wc.width = wc.offsetWidth * dpr; wc.height = 200 * dpr;
+  const w = wc.width, h = wc.height, c = wc.getContext("2d");
+  c.clearRect(0, 0, w, h);
+  c.strokeStyle = "rgba(51,65,85,.6)";
+  for (let x = 0; x <= w; x += w / 10) { c.beginPath(); c.moveTo(x, 0); c.lineTo(x, h); c.stroke(); }
+  c.beginPath(); c.moveTo(0, h / 2); c.lineTo(w, h / 2); c.stroke();
+  c.strokeStyle = answer.color; c.lineWidth = 2.4 * dpr;
+  c.shadowColor = answer.color; c.shadowBlur = 14;
+  c.beginPath();
+  for (let px = 0; px <= w; px++) {
+    const y = h / 2 - answer.fn(px / w) * h * 0.36;
+    px ? c.lineTo(px, y) : c.moveTo(px, y);
+  }
+  c.stroke(); c.shadowBlur = 0;
+}
+function animateWave() {
+  if (!reduced && !document.hidden) { wPhase += 0.03; drawWave(); }
+  wAnim = requestAnimationFrame(animateWave);
+}
+function newRound() {
+  const pool = WAVES.filter(w => w !== answer);
+  answer = pool[Math.floor(Math.random() * pool.length)];
+  const opts = [answer.name];
+  while (opts.length < 4) {
+    const cand = WAVES[Math.floor(Math.random() * WAVES.length)].name;
+    if (!opts.includes(cand)) opts.push(cand);
+  }
+  opts.sort(() => Math.random() - 0.5);
+  $("#wave-options").innerHTML = opts.map(o => `<button class="wtile" data-o="${o}">${o}</button>`).join("");
+  $("#wave-msg").textContent = "Trust your eyes.";
+  $("#wave-msg").style.color = "var(--muted)";
+  $$("#wave-options .wtile").forEach(b => b.addEventListener("click", () => pick(b)));
+}
+function pick(btn) {
+  if (btn.dataset.o === answer.name) {
+    wScore += 10 + wStreak * 2; wStreak++;
+    $("#wave-msg").textContent = `✔ CORRECT — ${answer.name} locked. +${10 + (wStreak - 1) * 2}`;
+    $("#wave-msg").style.color = "#22c55e";
+  } else {
+    wStreak = 0;
+    $("#wave-msg").textContent = `✖ That was ${answer.name}. Scope wins this round.`;
+    $("#wave-msg").style.color = "#ef4444";
+  }
+  $("#wave-score").textContent = wScore;
+  $("#wave-streak").textContent = wStreak;
+  setTimeout(newRound, 900);
+}
+$("#wave-skip").addEventListener("click", newRound);
+
+/* start waveform game when tab opens */
+new MutationObserver(() => {
+  if ($("#tab-wave").classList.contains("active") && !wAnim) { drawWave(); animateWave(); }
+}).observe($("#tab-wave"), { attributes: true, attributeFilter: ["class"] });
+
+/* ============ GAME 3: VHDL BUILDER ============ */
+const PUZZLES = [
+  { target: "entity AND_gate is port(A,B : in bit; Y : out bit); end AND_gate;",
+    tokens: ["entity","AND_gate","is","port(","A,B",":","in","bit;","Y",":","out","bit);","end","AND_gate;"] },
+  { target: "architecture dataflow of OR_gate is begin Y <= A or B; end dataflow;",
+    tokens: ["architecture","dataflow","of","OR_gate","is","begin","Y","<=","A","or","B;","end","dataflow;"] },
+  { target: "signal clk : std_logic := '0';",
+    tokens: ["signal","clk",":","std_logic",":=","'0';"] },
+  { target: "process(clk) begin if rising_edge(clk) then Q <= D; end if; end process;",
+    tokens: ["process(clk)","begin","if","rising_edge(clk)","then","Q","<=","D;","end","if;","end","process;"] }
+];
+let vPz = 0, vScore = 0, built = [];
+
+function loadPuzzle() {
+  built = [];
+  const pz = PUZZLES[vPz];
+  $("#vhdl-target").innerHTML = pz.tokens.map(t =>
+    `<span style="opacity:.28">${t}</span>`).join(" ");
+  renderBuilt();
+  const shuffled = pz.tokens.map((t, i) => ({ t, i })).sort(() => Math.random() - 0.5);
+  $("#vhdl-tiles").innerHTML = shuffled.map(o =>
+    `<button class="wtile" data-i="${o.i}" data-t="${o.t.replace(/"/g, "&quot;")}">${o.t}</button>`).join("");
+  $$("#vhdl-tiles .wtile").forEach(b => b.addEventListener("click", () => placeTile(b)));
+  $("#vhdl-msg").textContent = "Click tokens in the correct sequence.";
+  $("#vhdl-msg").style.color = "var(--muted)";
+}
+function renderBuilt() {
+  const pz = PUZZLES[vPz];
+  $("#vhdl-built").textContent = built.map(i => pz.tokens[i]).join(" ") || "\u00A0";
+}
+function placeTile(btn) {
+  const pz = PUZZLES[vPz];
+  const i = +btn.dataset.i, t = btn.dataset.t;
+  if (i === built.length) {
+    built.push(i);
+    btn.classList.add("used");
+    btn.disabled = true;
+    renderBuilt();
+    if (built.length === pz.tokens.length) {
+      vScore += 100;
+      $("#vhdl-score").textContent = vScore;
+      $("#vhdl-msg").textContent = `✔ COMPILES CLEAN! +100 pts → next construct loading…`;
+      $("#vhdl-msg").style.color = "#22c55e";
+      setTimeout(() => { vPz = (vPz + 1) % PUZZLES.length; loadPuzzle(); }, 1300);
+    }
+  } else {
+    btn.classList.add("shake");
+    setTimeout(() => btn.classList.remove("shake"), 400);
+    $("#vhdl-msg").textContent = "✖ Syntax order violated — check the highlighted template.";
+    $("#vhdl-msg").style.color = "#ef4444";
+  }
+}
+$("#vhdl-clear").addEventListener("click", loadPuzzle);
+loadPuzzle();
+})();
+</script>

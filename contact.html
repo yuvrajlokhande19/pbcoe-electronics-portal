@@ -1,0 +1,175 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact — PBCOE Electronics Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+
+</head>
+<body>
+<div id="scroll-progress"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="index.html">
+      <span class="brand-badge"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M13 2 4.5 13.5H11L9.5 22 19.5 9.5H13L14.5 2z" fill="#0f172a"/></svg></span>
+      <span>PBCOE·ECE<small>ELECTRONICS PORTAL</small></span>
+    </a>
+    <ul class="nav-links">
+      <li><a class="nlink" href="index.html">Home</a></li>
+      <li><a class="nlink" href="about.html">About</a></li>
+      <li><a class="nlink" href="academics.html">Academics</a></li>
+      <li class="has-dd"><a class="nlink" href="#labs">Labs <span class="caret">▼</span></a>
+        <div class="dd"><a href="simulator.html"><span>⚡</span>Circuit Simulator</a><a href="tools.html"><span>🛠</span>Engineering Tools</a><a href="games.html"><span>🎮</span>Logic Arcade</a><a href="facilities.html"><span>🔬</span>Lab Facilities</a></div>
+      </li>
+      <li class="has-dd"><a class="nlink" href="resources.html">Careers <span class="caret">▼</span></a>
+        <div class="dd"><a href="resources.html">Internships &amp; Jobs</a><a href="trends.html">Underrated Tech Radar</a></div>
+      </li>
+      <li class="has-dd"><a class="nlink" href="#campus">Campus <span class="caret">▼</span></a>
+        <div class="dd"><a href="faculty.html">Faculty</a><a href="events.html">Events &amp; News</a><a href="gallery.html">Gallery</a><a href="admissions.html">Admissions</a></div>
+      </li>
+      <li><a class="nlink" href="contact.html">Contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="theme-toggle" aria-label="Toggle dark mode"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg></button>
+      <a href="student-portal.html" class="btn btn-accent btn-sm">Login</a>
+      <button class="burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+
+<nav class="mobile-menu" id="drawer" aria-label="Mobile navigation">
+  <a href="index.html">Home →</a><a href="about.html">About →</a><a href="academics.html">Academics →</a>
+  <a href="simulator.html">Circuit Simulator →</a><a href="tools.html">Tools →</a><a href="games.html">Logic Arcade →</a>
+  <a href="facilities.html">Facilities →</a><a href="faculty.html">Faculty →</a><a href="resources.html">Internships &amp; Jobs →</a>
+  <a href="trends.html">Tech Radar →</a><a href="student-portal.html">Student Portal →</a><a href="faculty-portal.html">Faculty Portal →</a>
+  <a href="events.html">Events →</a><a href="gallery.html">Gallery →</a><a href="admissions.html">Admissions →</a><a href="contact.html">Contact →</a>
+</nav>
+
+<main>
+<!--TITLE:Contact — PBCOE Electronics Portal-->
+<section class="page-hero circuit-bg">
+  <div class="blob blue" style="width:340px;height:340px;top:-110px;left:-70px"></div>
+  <div class="container">
+    <p class="crumb reveal"><a href="index.html">HOME</a> / CONTACT</p>
+    <h1 class="reveal" style="--d:.08s">Open a <span class="grad-text">Channel.</span></h1>
+    <p class="section-sub reveal" style="--d:.16s">Admissions, labs, collaborations or just a circuit question bugging you — we reply within one working day.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container grid-2" style="align-items:start">
+    <form class="card reveal left" id="contact-form" novalidate>
+      <h3 style="margin-bottom:1.2rem">Transmit a Message ⚡</h3>
+      <div class="form-grid">
+        <div class="field"><label for="cname">Full Name</label><input class="input" id="cname" required placeholder="Ada Lovelace"></div>
+        <div class="field"><label for="cmail">Email</label><input class="input" type="email" id="cmail" required placeholder="you@example.com"></div>
+      </div>
+      <div class="field"><label for="ctopic">Topic</label>
+        <select class="select" id="ctopic">
+          <option>Admissions '26</option>
+          <option>Campus Visit / Virtual Tour</option>
+          <option>Lab &amp; Industry Collaboration</option>
+          <option>Placement / Recruitment</option>
+          <option>General Query</option>
+        </select>
+      </div>
+      <div class="field"><label for="cmsg">Message</label><textarea class="input" id="cmsg" rows="5" required placeholder="Type your signal here..."></textarea></div>
+      <button class="btn btn-primary" type="submit">Send Transmission</button>
+      <p id="contact-status" style="margin-top:.9rem;font-family:var(--font-display);font-size:.85rem;color:var(--green)" hidden>✔ PACKET RECEIVED — our desk replies within 24h.</p>
+    </form>
+
+    <div data-stagger>
+      <div class="card reveal right">
+        <div class="icon-chip b" style="background:linear-gradient(135deg,#2563eb,#06b6d4)">◎</div>
+        <h3>Department Office</h3>
+        <p>Block E, Room E-001<br>Prabhu Bhole College of Engineering &amp; Technology<br>Knowledge Park Road, State — 400 001</p>
+      </div>
+      <br>
+      <div class="grid-2" style="gap:1rem">
+        <div class="card reveal right"><h3>Phone</h3><p style="font-family:var(--font-display)">+91 98XXX XXXXX<br>+91 22 2345 6789</p></div>
+        <div class="card reveal right"><h3>Email</h3><p style="font-family:var(--font-display)">ece@pbcoe.ac.in<br>admissions@pbcoe.ac.in</p></div>
+      </div>
+      <br>
+      <div class="card reveal right">
+        <h3>Office Hours</h3>
+        <table class="tbl">
+          <tbody>
+            <tr><td>Mon – Fri</td><td style="text-align:right;font-family:var(--font-display)">09:00 – 17:00</td></tr>
+            <tr><td>Saturday (Tinker Desk)</td><td style="text-align:right;font-family:var(--font-display)">10:00 – 14:00</td></tr>
+            <tr><td>Sunday</td><td style="text-align:right"><span class="pill bad">CLOSED</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="dark-zone section circuit-bg" style="padding-block:3rem">
+  <div class="container grid-2" style="align-items:center">
+    <div class="reveal left">
+      <span class="kicker">// FIND THE BLOCK</span>
+      <h2 class="section-title" style="color:#fff">Campus Coordinates</h2>
+      <p class="section-sub">E-Block is the glass building behind the main quadrangle — look for the antenna mast on the roof. Parking Gate 3 is closest.</p>
+      <br>
+      <div class="hero-badges" style="margin-top:0">
+        <span class="chip"><i></i>BUS STOP: 200 M</span>
+        <span class="chip warn"><i></i>METRO: 2.4 KM</span>
+      </div>
+    </div>
+    <div class="card reveal right" style="min-height:260px;position:relative;overflow:hidden;background:
+      linear-gradient(color-mix(in srgb,var(--blue) 10%,transparent) 1px,transparent 1px),
+      linear-gradient(90deg,color-mix(in srgb,var(--blue) 10%,transparent) 1px,transparent 1px),
+      var(--glass);
+      background-size:28px 28px,28px 28px,auto;">
+      <div style="position:absolute;top:42%;left:46%;translate:-50% -50%;display:flex;flex-direction:column;align-items:center;gap:.4rem">
+        <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" aria-hidden="true" style="filter:drop-shadow(0 0 10px rgba(239,68,68,.8));animation:floatY 2s ease-in-out infinite"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span class="chip crit"><i></i>E-BLOCK · ECE DEPT</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+document.getElementById("contact-form").addEventListener("submit", function (e) {
+  e.preventDefault();
+  const ok = [...this.querySelectorAll("[required]")].every(f => f.value.trim() && (f.type !== "email" || /^\S+@\S+\.\S+$/.test(f.value)));
+  if (!ok) { this.querySelectorAll("[required]").forEach(f => { if (!f.value.trim()) f.style.borderColor = "#ef4444"; }); return; }
+  document.getElementById("contact-status").hidden = false;
+  this.reset();
+});
+</script>
+</main>
+
+<footer>
+  <div class="container footer-grid">
+    <div>
+      <a class="brand" href="index.html" style="color:#e2e8f0;margin-bottom:1rem">
+        <span class="brand-badge"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M13 2 4.5 13.5H11L9.5 22 19.5 9.5H13L14.5 2z" fill="#0f172a"/></svg></span>
+        <span>PBCOE·ECE<small>ELECTRONICS PORTAL</small></span>
+      </a>
+      <p style="font-size:.88rem;max-width:34ch">Dept. of Electronics &amp; Communication Engineering, Prabhu Bhole College of Engineering &amp; Technology.</p>
+      <div class="term" aria-hidden="true">
+        <span class="t-line cmt">$ tail -f /var/log/dept.log</span>
+        <span class="t-line">[OK] all systems nominal</span>
+        <span class="t-line">[..] awaiting your signal_</span>
+      </div>
+    </div>
+    <div><h4>// LEARN</h4><a href="academics.html">Programs</a><a href="facilities.html">Laboratories</a><a href="faculty.html">Faculty</a><a href="academics.html#syllabus">Syllabus Bank</a></div>
+    <div><h4>// BUILD &amp; PLAY</h4><a href="simulator.html">Circuit Simulator</a><a href="tools.html">Engineering Tools</a><a href="games.html">Logic Arcade</a><a href="gallery.html">Project Gallery</a></div>
+    <div><h4>// CONNECT</h4><a href="resources.html">Opportunities</a><a href="events.html">Events</a><a href="contact.html">Contact Desk</a><a href="admissions.html">Admissions '26</a></div>
+  </div>
+  <div class="footer-bar container">
+    <span>© <span id="year"></span> PBCOE ELECTRONICS PORTAL v2.0</span>
+    <span>SYS.STATUS: <b style="color:#4ade80">ALL CIRCUITS NOMINAL</b></span>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" aria-label="Back to top"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m18 15-6-6-6 6" stroke-linecap="round"/></svg></button>
+
+<script src="assets/js/main.js"></script>
+<script>document.querySelectorAll("[data-ticker]").forEach(t => { t.innerHTML += t.innerHTML; });</script>
