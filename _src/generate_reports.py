@@ -13,11 +13,11 @@ DOCS_DIR = os.path.join(BASE_DIR, "assets", "docs")
 os.makedirs(DOCS_DIR, exist_ok=True)
 
 # -------------------------------------------------------------
-# 1. GENERATE PDF FROM report.html VIA PLAYWRIGHT
+# 1. GENERATE PDF FROM report_printable.html VIA PLAYWRIGHT
 # -------------------------------------------------------------
 def generate_pdf():
     print("Generating Activity - 2 PDF...")
-    report_html_path = os.path.join(BASE_DIR, "report.html")
+    report_html_path = os.path.join(BASE_DIR, "report_printable.html")
     pdf_out_root = os.path.join(BASE_DIR, "Activity_2_Embedded_Biometric_Report.pdf")
     pdf_out_assets = os.path.join(DOCS_DIR, "Activity_2_Embedded_Biometric_Report.pdf")
 
@@ -26,17 +26,25 @@ def generate_pdf():
         page = browser.new_page()
         page.goto("file:///" + report_html_path.replace("\\", "/"))
         page.wait_for_load_state("networkidle")
-        # Generate crisp A4 PDF with exact backgrounds
+        # Generate crisp A4 PDF with exact backgrounds and 0 outer margins (margins handled in CSS)
         page.pdf(
             path=pdf_out_root,
             format="A4",
             print_background=True,
-            margin={"top": "10mm", "bottom": "10mm", "left": "10mm", "right": "10mm"}
+            margin={"top": "0mm", "bottom": "0mm", "left": "0mm", "right": "0mm"}
         )
         browser.close()
 
-    shutil.copyfile(pdf_out_root, pdf_out_assets)
+    try:
+        shutil.copyfile(pdf_out_root, pdf_out_assets)
+    except Exception as e:
+        print("Note on PDF assets copy:", e)
     print(f"PDF created: {pdf_out_root} ({os.path.getsize(pdf_out_root)} bytes)")
+
+    # Verify Page Count
+    import pymupdf
+    doc = pymupdf.open(pdf_out_root)
+    print(f"VERIFIED PDF PAGE COUNT: {len(doc)} PAGES")
 
 
 # -------------------------------------------------------------
@@ -483,7 +491,10 @@ def generate_docx():
     docx_out_root = os.path.join(BASE_DIR, "Activity_2_Embedded_Biometric_Report.docx")
     docx_out_assets = os.path.join(DOCS_DIR, "Activity_2_Embedded_Biometric_Report.docx")
     doc.save(docx_out_root)
-    shutil.copyfile(docx_out_root, docx_out_assets)
+    try:
+        shutil.copyfile(docx_out_root, docx_out_assets)
+    except Exception as e:
+        print("Note on Word assets copy:", e)
     print(f"Word (.docx) created: {docx_out_root} ({os.path.getsize(docx_out_root)} bytes)")
 
 if __name__ == "__main__":
