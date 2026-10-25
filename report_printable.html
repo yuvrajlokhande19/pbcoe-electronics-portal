@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>ACTIVITY - 2 // EMBEDDED SYSTEMS (ET501T / ET503P) - YUVRAJ LOKHANDE</title>
+<title>ACTIVITY - 2 // EMBEDDED SYSTEMS (ET501T / ET503P)</title>
 <style>
 @page {
   size: A4 portrait;
@@ -59,35 +59,23 @@ body {
   color: #000000;
 }
 .main-activity-head {
-  font-size: 21pt;
+  font-size: 26pt;
   font-weight: 900;
   color: #000000;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-align: center;
-  margin-bottom: 3px;
+  margin-bottom: 2px;
 }
 .activity-subname {
-  font-size: 11pt;
+  font-size: 11.5pt;
   font-weight: 800;
   color: #000000;
   text-align: center;
   line-height: 1.35;
-  margin-bottom: 9px;
+  margin-bottom: 11px;
   text-transform: uppercase;
-}
-.info-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 9.2pt;
-  margin-bottom: 9px;
-  border: 1.5px solid #000000;
-}
-.info-table td {
-  border: 1px solid #000000;
-  padding: 5px 8px;
-  vertical-align: top;
-  color: #000000;
-  line-height: 1.38;
+  border-bottom: 2px solid #000000;
+  padding-bottom: 6px;
 }
 .sec-title {
   font-size: 11.8pt;
@@ -133,8 +121,8 @@ table.report-tbl tr:nth-child(even) td {
   background: #fcfcfc;
   padding: 7px 10px;
   margin: 6px 0;
-  font-size: 9.5pt;
-  line-height: 1.45;
+  font-size: 9.4pt;
+  line-height: 1.44;
   color: #000000;
 }
 .img-wrap {
@@ -152,7 +140,7 @@ table.report-tbl tr:nth-child(even) td {
 <body>
 
 <!-- ======================================================== -->
-<!-- PAGE 1: ACTIVITY-2 HEADER, NAME, CREDENTIALS & INTRO     -->
+<!-- PAGE 1: ACTIVITY 2, NAME, PROPER SIMPLE INTRO & ARCH     -->
 <!-- ======================================================== -->
 <div class="page">
   <div class="main-activity-head">ACTIVITY - 2</div>
@@ -160,48 +148,32 @@ table.report-tbl tr:nth-child(even) td {
     Design &amp; Implementation of an IoT-Enabled Embedded Biometric Telemetry &amp; Attendance Automation System Using ESP32, R307 Optical Sensor &amp; Supabase Cloud
   </div>
 
-  <table class="info-table">
-    <tr>
-      <td style="width:50%;">
-        <strong>Student Name:</strong> YUVRAJ VILAS LOKHANDE<br>
-        <strong>University PRN / ERP ID:</strong> 24121227<br>
-        <strong>Roll / Slot Allocation:</strong> Slot #16 (Class Cohort of 65 Candidates)<br>
-        <strong>Class &amp; Semester:</strong> B.Tech (ETC) | 5th Semester
-      </td>
-      <td style="width:50%;">
-        <strong>Course:</strong> Embedded Systems (ET501T / ET503P)<br>
-        <strong>Department:</strong> Electronics &amp; Telecommunication (DTE: EN 4177)<br>
-        <strong>Institution:</strong> Priyadarshini Bhagwati College of Engg., Nagpur<br>
-        <strong>Mentors:</strong> Mr. Suhas D. Kakde | Dr. Pravin B. Pokle | Dr. A. M. Shende
-      </td>
-    </tr>
-  </table>
+  <div class="sec-title">1. Introduction</div>
+  <p class="p-text">
+    Taking student attendance manually using paper sheets and registers in college classrooms and laboratories causes significant loss of instructional time. Paper attendance records are easily damaged, misplaced, and susceptible to proxy marking by other students. Commercial biometric attendance machines available in the market are very expensive (costing between ₹15,000 and ₹25,000 per unit) and demand recurring annual software maintenance charges.
+  </p>
+  <p class="p-text">
+    To solve these challenges, this laboratory project presents the design and construction of an affordable, standalone <strong>IoT-Enabled Biometric Attendance System</strong>. Built using an <strong>ESP32 microcontroller</strong>, an <strong>R307 optical fingerprint scanner</strong>, and a piezo buzzer on a breadboard, the entire hardware prototype was built for an exact cost of only <strong>₹1,000</strong>, with <strong>₹0.00 recurring cloud or software licensing fees</strong>.
+  </p>
+  <p class="p-text">
+    The system operates completely independently without requiring a desktop computer. When a student places their finger on the sensor, the R307 module scans the fingerprint in less than 0.2 seconds and matches it against enrolled students. Upon successful verification, the buzzer chimes, and the ESP32 automatically transmits the student's ID and timestamp directly over campus Wi-Fi to a free <strong>Supabase PostgreSQL cloud database</strong>. The attendance is instantly visible on the college web portal (<strong>etcianspbcoe.dpdns.org</strong>) on any smartphone or laptop within <strong>350 milliseconds</strong>.
+  </p>
 
-  <div class="sec-title">1. Introduction &amp; Project Background</div>
-  <p class="p-text">
-    In contemporary higher education institutions, manual pen-and-paper attendance logging remains prone to severe operational inefficiencies, including fraudulent proxy roll calls, physical ledger loss, transcription errors during sessional auditing, and substantial faculty instructional time loss during laboratory periods. Under the <strong>National Education Policy (NEP 2020)</strong> experiential learning framework, this laboratory activity focuses on the complete practical design, circuit interfacing, firmware programming, and deployment of a cost-optimized, standalone <strong>IoT-Enabled Biometric Attendance Telemetry System</strong>.
-  </p>
-  <p class="p-text">
-    The engineered embedded device incorporates an <strong>ESP32 dual-core Xtensa 32-bit LX6 microcontroller</strong> directly interfaced to an industrial <strong>R307 optical fingerprint sensor</strong> and an active piezo acoustic confirmation chime. The node connects autonomously to campus Wi-Fi infrastructure to transmit cryptographic HTTPS REST payloads to a serverless <strong>Supabase PostgreSQL cloud database</strong>, synchronizing student attendance records in less than <strong>350 milliseconds</strong> with the department web portal (<strong>etcianspbcoe.dpdns.org</strong>) without requiring an attached host computer or commercial software licenses.
-  </p>
+  <div class="img-wrap">
+    <img src="assets/images/system-overview-diagram.jpg" alt="System Overview & Architecture Diagram" style="max-height:195px;max-width:440px;border:1.5px solid #000000;">
+    <div class="img-caption">
+      Fig 1.1: System Architecture Overview — Optical Fingerprint Edge Sensor, ESP32 Cloud Gateway &amp; Live Web Portal
+    </div>
+  </div>
 
   <div class="sec-title">2. Theoretical Principles of Biometric Sensing &amp; Optical FTIR Physics</div>
   <p class="p-text">
-    Biometric identification is grounded in the physiological permanence and uniqueness of human friction ridges on the epidermis. While global ridge geometries follow archetypal classes (loops, whorls, and arches), individual biometric differentiation is established through localized ridge anomalies termed <strong>Minutiae Points</strong> — predominantly <strong>ridge endings</strong> (abrupt terminations of friction ridges) and <strong>ridge bifurcations</strong> (points where a single friction ridge diverges into two distinct branches).
+    Human fingerprints are uniquely identified by friction ridges and valleys on the skin surface. The individual points where a ridge abruptly ends (ridge ending) or divides into two branches (ridge bifurcation) are known as <strong>Minutiae Points</strong>. The R307 scanner captures these points using <strong>Frustrated Total Internal Reflection (FTIR)</strong>.
   </p>
 
   <div class="box-callout">
-    <strong>Optical Sensing Physics (Frustrated Total Internal Reflection - FTIR):</strong><br>
-    The R307 sensor employs an optical glass prism illuminated by internal blue/red LEDs at an incident angle exceeding the critical angle (&theta;<sub>c</sub>). When dry air contacts the polished glass hypotenuse, <strong>Total Internal Reflection (TIR)</strong> occurs, projecting 100% of incident light onto the internal 256&times;288 pixel CMOS photodiode array, producing a bright uniform image. When a student places a finger against the prism surface, elevated epidermal ridges make direct optical contact with the glass, eliminating the refractive index mismatch and <strong>frustrating total reflection</strong>. Light escapes through the skin ridges, resulting in high-contrast dark pixels, whereas recessed valleys maintain an air gap, producing bright reflections.
-  </div>
-
-  <p class="p-text">
-    The integrated digital signal processor (DSP) inside the R307 digitizes this optical raw image at <strong>500 DPI spatial resolution</strong>. Ridge filtering and binarization algorithms isolate minutiae coordinate vectors $(x, y, \theta)$, condensing them into an irreversible <strong>512-byte mathematical characterization template</strong>. During live authentication, this template is matched against stored templates across flash slots #1 to #65 via high-speed 1:N correlation.
-  </p>
-
-  <div class="box-callout">
-    <strong>Mathematical Formulation of FTIR Critical Angle:</strong><br>
-    The critical angle &theta;<sub>c</sub> is governed by Snell's Law: <strong>&theta;<sub>c</sub> = arcsin(n<sub>medium</sub> / n<sub>glass</sub>)</strong>. For glass (n &approx; 1.52) and air (n &approx; 1.00), &theta;<sub>c</sub> &approx; 41.1&deg;. When epidermal ridges (n &approx; 1.44) make contact, &theta;<sub>c</sub> increases to &approx; 71.3&deg;, completely frustrating total internal reflection and producing sharp, high-contrast dark ridges on the optical sensor plane.
+    <strong>How Optical FTIR Sensing Works:</strong><br>
+    The sensor contains an internal blue LED that shines light through an optical glass prism at a specific angle. When no finger is present, all light reflects off the glass surface into an internal CMOS camera (producing a bright background). When a student presses a finger against the glass, the ridges touch the surface and absorb light (appearing as dark lines), while valleys maintain an air gap and reflect light (appearing bright). The internal processor digitizes this 500 DPI image into a compact 512-byte mathematical code and matches it against enrolled student slots.
   </div>
 
   <div class="footer-bar">
@@ -216,15 +188,15 @@ table.report-tbl tr:nth-child(even) td {
 <div class="page">
   <div class="top-running-head">
     <span>ACTIVITY - 2 // EMBEDDED SYSTEMS (ET501T / ET503P)</span>
-    <span>YUVRAJ LOKHANDE | PRN: 24121227</span>
+    <span>PBCOE ETC DEPARTMENT</span>
   </div>
 
   <div class="sec-title">3. Components Required (Bill of Materials &amp; Hardware Investment)</div>
   <p class="p-text">
-    A foundational objective of this laboratory project was rigorous cost engineering: validating that institutional-grade biometric telemetry can be realized on a minimal budget. The complete operational hardware prototype was fabricated for an exact expenditure of <strong>₹1,000</strong>, with <strong>zero recurring cloud or software licensing fees</strong>:
+    The entire hardware prototype was selected and assembled to achieve maximum reliability at the lowest possible cost. The complete bill of materials totals exactly <strong>₹1,000</strong>, with <strong>zero recurring cloud or software costs</strong>:
   </p>
 
-  <table class="report-tbl" style="font-size:8.6pt;margin:3px 0 6px 0;">
+  <table class="report-tbl" style="font-size:8.6pt;margin:3px 0 5px 0;">
     <thead>
       <tr>
         <th style="width:6%;padding:3.2px 5px;">Sr.</th>
@@ -244,7 +216,7 @@ table.report-tbl tr:nth-child(even) td {
       </tr>
       <tr>
         <td style="padding:3px 5px;"><strong>2</strong></td>
-        <td style="padding:3px 5px;"><strong>R307 Optical Biometric Sensor</strong></td>
+        <td style="padding:3px 5px;"><strong>R307 Optical Fingerprint Sensor</strong></td>
         <td style="padding:3px 5px;">500 DPI optical prism, 1,000 template internal flash, UART TTL (57600 baud)</td>
         <td style="padding:3px 5px;">1</td>
         <td style="padding:3px 5px;"><strong>₹520</strong></td>
@@ -252,14 +224,14 @@ table.report-tbl tr:nth-child(even) td {
       <tr>
         <td style="padding:3px 5px;"><strong>3</strong></td>
         <td style="padding:3px 5px;"><strong>Active Piezo Buzzer (5V)</strong></td>
-        <td style="padding:3px 5px;">Continuous acoustic chime transducer for scan pass/fail audio confirmation</td>
+        <td style="padding:3px 5px;">Continuous acoustic chime indicator for scan verification pass/fail audio feedback</td>
         <td style="padding:3px 5px;">1</td>
         <td style="padding:3px 5px;"><strong>₹15</strong></td>
       </tr>
       <tr>
         <td style="padding:3px 5px;"><strong>4</strong></td>
         <td style="padding:3px 5px;"><strong>Solderless Breadboard (400-Point)</strong></td>
-        <td style="padding:3px 5px;">Standard 2.54mm pitch prototyping rail with dedicated power distribution rails</td>
+        <td style="padding:3px 5px;">Standard 2.54mm pitch prototyping rail with positive/negative power distribution</td>
         <td style="padding:3px 5px;">1</td>
         <td style="padding:3px 5px;"><strong>₹45</strong></td>
       </tr>
@@ -280,7 +252,7 @@ table.report-tbl tr:nth-child(even) td {
       <tr>
         <td style="padding:3px 5px;"><strong>7</strong></td>
         <td style="padding:3px 5px;"><strong>Supabase PostgreSQL Database</strong></td>
-        <td style="padding:3px 5px;">Serverless cloud PostgreSQL, RESTful HTTPS API, real-time WebSocket stream</td>
+        <td style="padding:3px 5px;">Serverless cloud database, RESTful HTTPS API, real-time WebSocket live updates</td>
         <td style="padding:3px 5px;">Cloud</td>
         <td style="padding:3px 5px;"><strong>₹0.00 (Free Tier)</strong></td>
       </tr>
@@ -300,7 +272,7 @@ table.report-tbl tr:nth-child(even) td {
 
   <div class="sec-title">4. Cost Differentiation: Our ₹1,000 System vs. Commercial Solutions</div>
   <p class="p-text">
-    Conventional biometric terminals (manufactured by commercial vendors such as eSSL, Matrix, or Realtime) impose heavy upfront procurement costs, proprietary closed communication protocols, and mandatory annual maintenance contracts (AMC). Our custom-engineered embedded solution disrupts this commercial pricing structure:
+    Conventional biometric terminals (manufactured by vendors such as eSSL, Matrix, or Realtime) present steep initial costs and lock institutes into proprietary closed software. Our custom solution provides substantial financial and technical advantages:
   </p>
 
   <table class="report-tbl" style="font-size:8.6pt;margin:3px 0 5px 0;">
@@ -365,7 +337,7 @@ table.report-tbl tr:nth-child(even) td {
   </table>
 
   <p class="p-text">
-    This architectural analysis demonstrates that educational institutions can deploy high-speed biometric telemetry across all departmental laboratories at a fraction of the cost of commercial alternatives, while retaining full institutional sovereignty over student biometric data.
+    Deploying this system across 10 institutional laboratories saves an institution over ₹1,80,000 in upfront hardware costs and over ₹40,000 each year in recurring maintenance fees, while ensuring that all student records remain completely private and under college control.
   </p>
 
   <div class="footer-bar">
@@ -380,12 +352,12 @@ table.report-tbl tr:nth-child(even) td {
 <div class="page">
   <div class="top-running-head">
     <span>ACTIVITY - 2 // EMBEDDED SYSTEMS (ET501T / ET503P)</span>
-    <span>YUVRAJ LOKHANDE | PRN: 24121227</span>
+    <span>PBCOE ETC DEPARTMENT</span>
   </div>
 
   <div class="sec-title">5. Circuit Interfacing, Pinout Mapping &amp; Serial Communication</div>
   <p class="p-text">
-    The hardware architecture connects the ESP32 NodeMCU microcontroller to the R307 optical fingerprint scanner via Hardware Serial UART2. ESP32 digital pins <strong>GPIO16</strong> and <strong>GPIO17</strong> are configured as <strong>RX2</strong> and <strong>TX2</strong> respectively. The active piezo buzzer is driven directly via digital output <strong>GPIO4</strong>.
+    The ESP32 microcontroller communicates directly with the R307 optical fingerprint scanner using Hardware Serial UART2. Digital pin <strong>GPIO16</strong> receives data from the sensor (RX2), and <strong>GPIO17</strong> transmits commands to the sensor (TX2). The piezo buzzer is driven by digital pin <strong>GPIO4</strong>:
   </p>
 
   <table class="report-tbl">
@@ -452,17 +424,17 @@ table.report-tbl tr:nth-child(even) td {
   </table>
 
   <div class="box-callout">
-    <strong>UART Protocol Frame Structure:</strong><br>
-    Serial communication operates at <strong>57,600 baud</strong> (8 data bits, 1 stop bit, no parity). Packets follow strict framing: <strong>Header (0xEF01)</strong> &rarr; <strong>Module Address (0xFFFFFFFF)</strong> &rarr; <strong>Package PID (0x01 Command / 0x07 Data / 0x02 Ack)</strong> &rarr; <strong>Packet Length</strong> &rarr; <strong>Payload Instruction</strong> &rarr; <strong>16-bit Checksum</strong>.
+    <strong>UART Serial Data Communication Protocol:</strong><br>
+    The ESP32 and R307 exchange binary packets at <strong>57,600 baud</strong>. Every data frame begins with a fixed header (<strong>0xEF01</strong>) and address (<strong>0xFFFFFFFF</strong>), followed by packet type (command, data, or response), length, payload instruction, and a 16-bit checksum to guarantee error-free biometric data transmission.
   </div>
 
   <div class="sec-title">6. Photographic Evidence &amp; Breadboard Prototype Verification</div>
   <p class="p-text">
-    The operational prototype was constructed and tested on a solderless breadboard. The optical sensor is positioned at the prototyping edge for unrestricted fingertip placement, with short-run jumpers minimizing capacitive noise on the UART high-speed lines:
+    The operational prototype was constructed and tested on a solderless breadboard. The optical sensor is mounted on the front edge of the breadboard for easy finger placement, with short jumpers minimizing noise on the UART lines:
   </p>
 
   <div class="img-wrap">
-    <img src="assets/images/prototype-hardware.jpg" alt="Operational Breadboard Prototype" style="max-height:165px;max-width:250px;border:1.5px solid #000000;">
+    <img src="assets/images/prototype-hardware.jpg" alt="Operational Breadboard Prototype" style="max-height:190px;max-width:280px;border:1.5px solid #000000;">
     <div class="img-caption">
       Fig 3.1: Operational Solderless Prototype Hardware Assembly — ESP32 WROOM-32, R307 Optical Prism &amp; Piezo Chime
     </div>
@@ -470,10 +442,10 @@ table.report-tbl tr:nth-child(even) td {
 
   <div class="box-callout">
     <strong>Hardware Setup Verification Highlights:</strong><br>
-    • <strong>Voltage Stabilization:</strong> ESP32 onboard low-dropout (LDO) regulator ensures a steady 3.3V rail without brownout resets.<br>
-    • <strong>Optical Indicator:</strong> Blue status LED confirms active 5V power delivery to the R307 optical sensing assembly.<br>
-    • <strong>Acoustic Chime:</strong> Piezo buzzer provides immediate audio feedback (single 80ms chime on pass, double 250ms buzz on fail).<br>
-    • <strong>Bus Reliability:</strong> Hardware UART2 ensures zero packet dropping during multi-candidate laboratory roll calls.
+    • <strong>Stable Power Delivery:</strong> Onboard 3.3V regulator on the ESP32 prevents brownout resets during peak optical LED illumination.<br>
+    • <strong>Visual Indicator:</strong> Built-in optical LED illuminates in blue when ready for a finger touch, guiding the student.<br>
+    • <strong>Acoustic Confirmation:</strong> Piezo buzzer gives an 80ms chime when a fingerprint is accepted and a double beep if rejected.<br>
+    • <strong>High Serial Reliability:</strong> Hardware UART2 guarantees 100% packet delivery without missing any candidate scans.
   </div>
 
   <div class="footer-bar">
@@ -488,54 +460,53 @@ table.report-tbl tr:nth-child(even) td {
 <div class="page">
   <div class="top-running-head">
     <span>ACTIVITY - 2 // EMBEDDED SYSTEMS (ET501T / ET503P)</span>
-    <span>YUVRAJ LOKHANDE | PRN: 24121227</span>
+    <span>PBCOE ETC DEPARTMENT</span>
   </div>
 
   <div class="sec-title">7. End-to-End System Architecture &amp; Telemetry Pipeline</div>
   <p class="p-text">
-    The biometric telemetry platform establishes a robust multi-layer IoT architecture spanning the physical edge, local serial communications, cloud REST gateways, and the responsive web portal:
+    The complete system forms a reliable three-tier IoT architecture linking physical edge sensing, local embedded processing, and cloud database synchronization:
   </p>
 
   <div class="img-wrap">
-    <img src="assets/images/architecture-diagram.jpg" alt="System Architecture Schematic" style="max-height:165px;max-width:380px;border:1.5px solid #000000;">
+    <img src="assets/images/architecture-diagram.jpg" alt="System Architecture Schematic" style="max-height:190px;max-width:440px;border:1.5px solid #000000;">
     <div class="img-caption">
-      Fig 4.1: Technical Engineering Architecture — Edge Sensing Node, ESP32 Cloud Gateway &amp; Supabase PostgreSQL Stream
+      Fig 4.1: Technical Architecture Diagram — Edge Sensing Node, ESP32 Cloud Gateway &amp; Supabase PostgreSQL Stream
     </div>
   </div>
 
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:5px 0;">
     <div class="box-callout" style="margin:0;">
       <strong>1. Edge Verification Engine:</strong><br>
-      The R307 optical prism captures fingertip minutiae and compares vectors against flash memory templates #1 to #65. Upon positive match, candidate slot ID and confidence score are transferred over UART2 in <strong>&lt;280ms</strong>.
+      The R307 sensor captures friction ridges and compares them against enrolled templates in flash memory. Upon match, the candidate slot ID and confidence score are transferred to the ESP32 in <strong>&lt;280ms</strong>.
     </div>
     <div class="box-callout" style="margin:0;">
       <strong>2. Supabase Cloud Pipeline:</strong><br>
-      The ESP32 constructs a structured JSON payload and dispatches an HTTPS POST over TLS 1.3 to <span style="font-family:Consolas;font-weight:700;">/rest/v1/attendance_logs</span>, triggering instantaneous database replication across active portal sessions.
+      The ESP32 constructs a secure JSON payload and sends an HTTPS POST request over TLS 1.3 to <span style="font-family:Consolas;font-weight:700;">/rest/v1/attendance_logs</span>, updating the online database in real time.
     </div>
   </div>
 
   <div class="sec-title">8. Dual-Pass Optical Enrollment &amp; Verification State Machine</div>
   <p class="p-text">
-    To eliminate erroneous partial scans and minimize false rejections, candidate registration strictly enforces a 4-state dual-pass protocol executed cooperatively between the web portal and the embedded firmware:
+    To prevent incomplete or smudged scans from being registered, student enrollment uses a reliable 4-step dual-pass protocol:
   </p>
 
   <div class="box-callout">
     <strong>Four-Stage Optical Enrollment Protocol:</strong><br>
-    • <strong>State 1 (Primary Optical Acquisition):</strong> Sensor LED illuminates. Candidate places fingertip on prism. First image is captured and converted into character buffer 1 (<span style="font-family:Consolas;font-weight:700;">CharBuffer1</span>). Buzzer sounds an 80ms pulse.<br>
-    • <strong>State 2 (Finger Removal Detection):</strong> Firmware loop polls <span style="font-family:Consolas;font-weight:700;">finger.getImage()</span> until <span style="font-family:Consolas;font-weight:700;">FINGERPRINT_NOFINGER</span> is asserted, preventing accidental duplicate sampling of the same touch.<br>
-    • <strong>State 3 (Secondary Validation Pass):</strong> Candidate touches sensor again. Second image is digitized and converted into <span style="font-family:Consolas;font-weight:700;">CharBuffer2</span>.<br>
-    • <strong>State 4 (Vector Correlation &amp; Flash Commitment):</strong> Firmware triggers <span style="font-family:Consolas;font-weight:700;">finger.createModel()</span>. If correlation coefficient exceeds 92%, combined template is committed to assigned slot ID (1 to 65). Double acoustic chime confirms success.
+    • <strong>State 1 (First Optical Touch):</strong> Sensor LED turns on. Student places finger. Image 1 is captured and stored in buffer 1 (<span style="font-family:Consolas;font-weight:700;">CharBuffer1</span>). Buzzer gives a short beep.<br>
+    • <strong>State 2 (Lift Finger Detection):</strong> Firmware waits until the student removes their finger from the glass, preventing accidental double capture of the exact same touch.<br>
+    • <strong>State 3 (Second Optical Touch):</strong> Student places the same finger again. Image 2 is digitized into buffer 2 (<span style="font-family:Consolas;font-weight:700;">CharBuffer2</span>).<br>
+    • <strong>State 4 (Template Fusion &amp; Flash Save):</strong> The sensor processor correlates both images. If correlation exceeds 92%, the combined master template is safely committed to the assigned student slot (1 to 65). Double chime confirms success.
   </div>
 
   <div class="box-callout">
-    <strong>Dual-Core FreeRTOS Task Scheduling &amp; Fault Recovery:</strong><br>
-    To ensure zero scan lag during network latency, the firmware executes cooperative multitasking on the ESP32:
-    <strong>Core 1</strong> executes the real-time biometric scanning task with deterministic sub-millisecond priority, while <strong>Core 0</strong> manages the TCP/IP stack, TLS cryptographic handshakes, and HTTPS telemetry transmission. If Wi-Fi disconnects, check-in records are buffered locally in non-volatile flash (NVS) and automatically flushed upon reconnection.
+    <strong>Dual-Core FreeRTOS Task Scheduling &amp; Offline Caching:</strong><br>
+    The ESP32 runs two independent tasks simultaneously: <strong>Core 1</strong> continuously checks the fingerprint sensor with instant sub-millisecond priority, while <strong>Core 0</strong> handles Wi-Fi connection and cloud data transmission. If campus Wi-Fi briefly disconnects, scans are automatically saved in local flash memory (NVS) and sent immediately when the connection returns.
   </div>
 
   <div class="box-callout">
-    <strong>Cryptographic Payload Integrity &amp; REST Schema:</strong><br>
-    Each attendance record dispatched to Supabase conforms to strict schema validation: <span style="font-family:Consolas;font-weight:700;">{"student_prn": 24121227, "slot_id": 16, "status": "PRESENT", "auth_mode": "BIOMETRIC_FTIR", "device_mac": "ESP32_ETC_01", "timestamp_utc": "2026-10-26T04:30:00Z"}</span>. Row-Level Security (RLS) policies restrict inserts solely to authenticated node tokens.
+    <strong>Wi-Fi Connection Management &amp; Cryptographic Security:</strong><br>
+    The ESP32 communicates with the campus WPA2 network using an automated exponential backoff retry loop. All JSON telemetry packets are encrypted using TLS 1.3 before transmission to the Supabase REST endpoint. If an invalid or unauthenticated request is detected, the cloud gateway immediately drops the connection, protecting student attendance records against network injection or replay attacks.
   </div>
 
   <div class="footer-bar">
@@ -550,12 +521,12 @@ table.report-tbl tr:nth-child(even) td {
 <div class="page">
   <div class="top-running-head">
     <span>ACTIVITY - 2 // EMBEDDED SYSTEMS (ET501T / ET503P)</span>
-    <span>YUVRAJ LOKHANDE | PRN: 24121227</span>
+    <span>PBCOE ETC DEPARTMENT</span>
   </div>
 
   <div class="sec-title">9. Experimental Results &amp; Performance Benchmarks (65-Student Cohort)</div>
   <p class="p-text">
-    The fully assembled embedded system underwent exhaustive empirical evaluation with the 5th Semester ETC cohort of 65 students in the Embedded Systems laboratory. Performance was tested across 250 trial cycles:
+    The completed system was thoroughly tested in the laboratory with the 5th Semester ETC cohort of 65 students across 250 trial scans:
   </p>
 
   <table class="report-tbl">
@@ -613,12 +584,23 @@ table.report-tbl tr:nth-child(even) td {
     </tbody>
   </table>
 
-  <div class="sec-title">10. Department Portal Synchronization &amp; RTMNU 75% Academic Engine</div>
+  <div class="sec-title">10. Department Portal Synchronization &amp; Live Interface Evidence</div>
   <p class="p-text">
-    Telemetry generated by the ESP32 synchronizes with the PBCOE Electronics &amp; Telecommunication web portal (<span style="font-family:Consolas;font-weight:700;">etcianspbcoe.dpdns.org</span>), driving an automated academic compliance engine:
+    All attendance data connects live to the department website portal (<strong>etcianspbcoe.dpdns.org</strong>). The portal features an automated RTMNU 75% attendance compliance engine and dedicated student self-service tools:
   </p>
 
-  <table class="report-tbl" style="margin:4px 0 6px 0;font-size:8.4pt;">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:5px 0;">
+    <div class="img-wrap" style="margin:0;">
+      <img src="assets/images/portal-attendance-screen.jpg" alt="Live Attendance Portal" style="max-height:140px;max-width:100%;border:1.5px solid #000000;">
+      <div class="img-caption">Fig 5.1: Live Attendance Dashboard</div>
+    </div>
+    <div class="img-wrap" style="margin:0;">
+      <img src="assets/images/portal-student-screen.jpg" alt="Student Self-Service Portal" style="max-height:140px;max-width:100%;border:1.5px solid #000000;">
+      <div class="img-caption">Fig 5.2: Student Portal &amp; 75% Eligibility</div>
+    </div>
+  </div>
+
+  <table class="report-tbl" style="margin:4px 0 5px 0;font-size:8.3pt;">
     <thead>
       <tr>
         <th style="width:22%;">Attendance Bracket</th>
@@ -636,7 +618,7 @@ table.report-tbl tr:nth-child(even) td {
       </tr>
       <tr>
         <td><strong>75% — 84%</strong></td>
-        <td>Mandatory Standard Compliance</td>
+        <td>Standard Compliance</td>
         <td><strong>Eligible to Appear (RTMNU Rule)</strong></td>
         <td>Cleared for Sessional Exams</td>
       </tr>
@@ -650,25 +632,13 @@ table.report-tbl tr:nth-child(even) td {
         <td><strong>&lt; 65%</strong></td>
         <td>Critical Shortage / Debarred</td>
         <td><strong>Debarred from University Practical Exams</strong></td>
-        <td>Automated Remedial Class Task</td>
+        <td>Automated Remedial Task</td>
       </tr>
     </tbody>
   </table>
 
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:5px 0;">
-    <div class="box-callout" style="margin:0;">
-      <strong>Student Self-Service Portal:</strong><br>
-      Candidates log in using their ERP ID (e.g., 24121227) and DOB credentials to inspect verified attendance stamps, submit medical leave certificates, and print signed attendance compliance slips.
-    </div>
-    <div class="box-callout" style="margin:0;">
-      <strong>Biometric Privacy Compliance:</strong><br>
-      Raw optical fingerprint images are never transmitted over the network or saved in the database. Only one-way, irreversible 512-byte minutiae mathematical vectors remain inside the R307 flash memory.
-    </div>
-  </div>
-
   <div class="box-callout">
-    <strong>Real-Time WebSocket State Replication:</strong><br>
-    The web portal architecture incorporates Supabase Realtime WebSocket listeners. When an attendance record is inserted into the cloud database by the ESP32, the client web application immediately receives a broadcast event and dynamically re-renders student status rows, recalculating class attendance averages in under <strong>120 milliseconds</strong> without requiring browser reload.
+    <strong>Biometric Privacy Compliance:</strong> In accordance with biometric privacy standards, raw images of fingerprints are never transmitted over Wi-Fi or saved in the cloud. Only irreversible 512-byte mathematical numbers remain inside the sensor module's local memory.
   </div>
 
   <div class="footer-bar">
@@ -683,22 +653,22 @@ table.report-tbl tr:nth-child(even) td {
 <div class="page">
   <div class="top-running-head">
     <span>ACTIVITY - 2 // EMBEDDED SYSTEMS (ET501T / ET503P)</span>
-    <span>YUVRAJ LOKHANDE | PRN: 24121227</span>
+    <span>PBCOE ETC DEPARTMENT</span>
   </div>
 
   <div class="sec-title">11. Practical Learning Outcomes &amp; NEP 2020 Course Mapping</div>
   <p class="p-text">
-    Successful design and deployment of this Activity - 2 project validated key engineering proficiencies in accordance with National Education Policy (NEP 2020) course objectives:
+    Completing this Activity - 2 project validated core practical engineering competencies in line with the National Education Policy (NEP 2020) Embedded Systems curriculum:
   </p>
   <div class="box-callout">
-    • <strong>CO3 (Embedded Interfacing &amp; Serial Protocols):</strong> Practical mastery of ESP32 UART2 hardware configuration, frame parsing, checksum calculation, and GPIO transducer interfacing.<br>
-    • <strong>CO4 (IoT Networking &amp; Cloud Communication):</strong> Hands-on implementation of Wi-Fi WPA2 connection management, REST HTTPS client requests, JSON payload formatting, and SSL/TLS handshakes.<br>
-    • <strong>CO5 (System Debugging &amp; Industrial Deployment):</strong> Practical experience in power decoupling, transient spike filtering during optical flash, and serverless database integration.
+    • <strong>CO3 (Embedded Interfacing &amp; Serial Protocols):</strong> Practical mastery of ESP32 UART2 hardware configuration, framing headers, baud rate timing, and GPIO buzzer pulsing.<br>
+    • <strong>CO4 (IoT Networking &amp; Cloud Communication):</strong> Practical implementation of Wi-Fi WPA2 management, REST HTTPS client requests, JSON payload formatting, and cloud database security.<br>
+    • <strong>CO5 (System Debugging &amp; Industrial Deployment):</strong> Practical troubleshooting of power regulation, current surge filtering during sensor illumination, and live web portal integration.
   </div>
 
   <div class="sec-title">12. Future Scope &amp; Institutional Expansion</div>
   <p class="p-text">
-    The operational prototype demonstrates comprehensive scalability for institutional rollout across all PBCOE departments. Planned engineering expansions include: (a) <strong>Edge AI Liveness Detection:</strong> Integrating PPG pulse oximetry or electrical impedance to detect subcutaneous capillary blood flow and thwart 3D-printed silicone spoofing; (b) <strong>Solar Battery Harvesting:</strong> Equipping nodes with LiFePO4 cells and MPPT solar chargers for off-grid outdoor laboratory gate deployment; (c) <strong>LoRaWAN Long-Range Fallback:</strong> Providing redundant campus telemetry during local Wi-Fi disruptions.
+    The operational prototype demonstrates comprehensive scalability for rollout across all PBCOE departments. Planned expansions include: (a) <strong>Anti-Spoofing Liveness Check:</strong> Adding pulse detection to confirm blood flow and prevent silicone imitation fingerprints; (b) <strong>Solar Battery Power:</strong> Equipping nodes with small solar cells and LiFePO4 batteries for off-grid outdoor gate deployment; (c) <strong>LoRaWAN Long-Range Fallback:</strong> Providing redundant campus communications during local Wi-Fi maintenance.
   </p>
 
   <div class="sec-title">13. Conclusion</div>
@@ -736,28 +706,28 @@ table.report-tbl tr:nth-child(even) td {
     [&#10003;] Oral Defense
   </div>
 
-  <table class="info-table" style="margin-top:4px;text-align:center;">
+  <table class="report-tbl" style="margin-top:4px;text-align:center;font-size:8pt;">
     <tr>
-      <td style="width:25%;height:64px;vertical-align:bottom;">
+      <td style="width:25%;height:72px;vertical-align:bottom;padding:4px;">
         <div style="font-weight:800;border-top:1.5px solid #000000;padding-top:4px;">Yuvraj V. Lokhande</div>
         <div style="font-size:7.5pt;font-weight:700;">Candidate (PRN: 24121227)</div>
       </td>
-      <td style="width:25%;height:64px;vertical-align:bottom;">
+      <td style="width:25%;height:72px;vertical-align:bottom;padding:4px;">
         <div style="font-weight:800;border-top:1.5px solid #000000;padding-top:4px;">Mr. Suhas D. Kakde</div>
         <div style="font-size:7.5pt;font-weight:700;">Course Incharge / Coord.</div>
       </td>
-      <td style="width:25%;height:64px;vertical-align:bottom;">
+      <td style="width:25%;height:72px;vertical-align:bottom;padding:4px;">
         <div style="font-weight:800;border-top:1.5px solid #000000;padding-top:4px;">Dr. Pravin B. Pokle</div>
         <div style="font-size:7.5pt;font-weight:700;">Associate Prof. &amp; HOD, ETC</div>
       </td>
-      <td style="width:25%;height:64px;vertical-align:bottom;">
+      <td style="width:25%;height:72px;vertical-align:bottom;padding:4px;">
         <div style="font-weight:800;border-top:1.5px solid #000000;padding-top:4px;">Dr. A. M. Shende</div>
         <div style="font-size:7.5pt;font-weight:700;">Principal, PBCOE Nagpur</div>
       </td>
     </tr>
   </table>
 
-  <table class="info-table" style="margin-top:4px;">
+  <table class="report-tbl" style="margin-top:4px;font-size:8pt;">
     <tr>
       <td style="width:38%;"><strong>Evaluation Status:</strong> VERIFIED &amp; ACCEPTED (GRADE 'A+')</td>
       <td style="width:24%;"><strong>Date:</strong> 26-OCT-2026</td>

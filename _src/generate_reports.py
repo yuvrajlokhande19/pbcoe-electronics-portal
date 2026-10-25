@@ -53,7 +53,7 @@ def set_cell_background(cell, hex_color):
     shading_xml = f'<w:shd {nsdecls("w")} w:fill="{hex_color}"/>'
     cell._tc.get_or_add_tcPr().append(parse_xml(shading_xml))
 
-def set_cell_margins(cell, top=70, bottom=70, left=110, right=110):
+def set_cell_margins(cell, top=60, bottom=60, left=100, right=100):
     tcPr = cell._tc.get_or_add_tcPr()
     tcMar = parse_xml(f'<w:tcMar {nsdecls("w")}><w:top w:w="{top}" w:type="dxa"/><w:bottom w:w="{bottom}" w:type="dxa"/><w:left w:w="{left}" w:type="dxa"/><w:right w:w="{right}" w:type="dxa"/></w:tcMar>')
     tcPr.append(tcMar)
@@ -67,7 +67,7 @@ def generate_docx():
     print("Generating Activity - 2 Word (.docx)...")
     doc = Document()
 
-    # Set Page Setup: A4, 0.55 inch margins
+    # Set Page Setup: A4, 0.5 inch margins
     for section in doc.sections:
         section.page_width = Inches(8.27)
         section.page_height = Inches(11.69)
@@ -79,10 +79,10 @@ def generate_docx():
     COLOR_BLACK = RGBColor(0, 0, 0)
     COLOR_WHITE = RGBColor(255, 255, 255)
 
-    def add_page_header(page_title):
+    def add_page_header():
         p = doc.add_paragraph()
         p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-        r = p.add_run(f"ACTIVITY - 2 // EMBEDDED SYSTEMS (ET501T / ET503P) — YUVRAJ LOKHANDE | PRN: 24121227")
+        r = p.add_run("ACTIVITY - 2 // EMBEDDED SYSTEMS (ET501T / ET503P) — PBCOE ETC DEPARTMENT")
         r.font.name = "Arial"
         r.font.size = Pt(8.5)
         r.font.bold = True
@@ -96,17 +96,11 @@ def generate_docx():
         r.font.size = Pt(11.5)
         r.font.bold = True
         r.font.color.rgb = COLOR_BLACK
-        p.paragraph_format.space_before = Pt(8)
-        p.paragraph_format.space_after = Pt(4)
+        p.paragraph_format.space_before = Pt(7)
+        p.paragraph_format.space_after = Pt(3)
 
-    def add_body_p(text, bold_prefix=""):
+    def add_body_p(text):
         p = doc.add_paragraph()
-        if bold_prefix:
-            r_pre = p.add_run(bold_prefix)
-            r_pre.font.name = "Arial"
-            r_pre.font.size = Pt(10)
-            r_pre.font.bold = True
-            r_pre.font.color.rgb = COLOR_BLACK
         r = p.add_run(text)
         r.font.name = "Arial"
         r.font.size = Pt(10)
@@ -121,7 +115,7 @@ def generate_docx():
         cell = t_box.rows[0].cells[0]
         cell.width = Inches(6.95)
         set_cell_background(cell, "F7F7F7")
-        set_cell_margins(cell, 70, 70, 110, 110)
+        set_cell_margins(cell, 60, 60, 100, 100)
         set_table_borders(t_box)
         p = cell.paragraphs[0]
         if bold_label:
@@ -138,14 +132,14 @@ def generate_docx():
         p.paragraph_format.line_spacing = 1.15
 
     # =========================================================
-    # PAGE 1: ACTIVITY-2 HEADER, NAME, CREDENTIALS & INTRO
+    # PAGE 1: ACTIVITY 2, NAME & PROPER SIMPLE INTRO
     # =========================================================
     p_head = doc.add_paragraph()
     p_head.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p_head.paragraph_format.space_after = Pt(2)
     r_act = p_head.add_run("ACTIVITY - 2")
     r_act.font.name = "Arial"
-    r_act.font.size = Pt(20)
+    r_act.font.size = Pt(22)
     r_act.font.bold = True
     r_act.font.color.rgb = COLOR_BLACK
 
@@ -158,67 +152,35 @@ def generate_docx():
     r_act_name.font.bold = True
     r_act_name.font.color.rgb = COLOR_BLACK
 
-    # Info Table
-    t_info = doc.add_table(rows=1, cols=2)
-    t_info.alignment = WD_TABLE_ALIGNMENT.CENTER
-    c1 = t_info.rows[0].cells[0]
-    c2 = t_info.rows[0].cells[1]
-    c1.width = Inches(3.48)
-    c2.width = Inches(3.48)
-    set_cell_margins(c1, 60, 60, 100, 100)
-    set_cell_margins(c2, 60, 60, 100, 100)
-    set_table_borders(t_info)
+    add_sec_title("1", "Introduction")
+    add_body_p("Taking student attendance manually using paper sheets and registers in college classrooms and laboratories causes significant loss of instructional time. Paper attendance records are easily damaged, misplaced, and susceptible to proxy marking by other students. Commercial biometric attendance machines available in the market are very expensive (costing between ₹15,000 and ₹25,000 per unit) and demand recurring annual software maintenance charges.")
+    add_body_p("To solve these challenges, this laboratory project presents the design and construction of an affordable, standalone IoT-Enabled Biometric Attendance System. Built using an ESP32 microcontroller, an R307 optical fingerprint scanner, and a piezo buzzer on a breadboard, the entire hardware prototype was built for an exact cost of only ₹1,000, with ₹0.00 recurring cloud or software licensing fees.")
+    add_body_p("The system operates completely independently without requiring a desktop computer. When a student places their finger on the sensor, the R307 module scans the fingerprint in less than 0.2 seconds and matches it against enrolled students. Upon successful verification, the buzzer chimes, and the ESP32 automatically transmits the student's ID and timestamp directly over campus Wi-Fi to a free Supabase PostgreSQL cloud database. The attendance is instantly visible on the college web portal (etcianspbcoe.dpdns.org) on any smartphone or laptop within 350 milliseconds.")
 
-    p1 = c1.paragraphs[0]
-    p1.paragraph_format.line_spacing = 1.15
-    p1.add_run("Student Name: ").font.bold = True
-    p1.add_run("YUVRAJ VILAS LOKHANDE\n")
-    p1.add_run("University PRN / ERP ID: ").font.bold = True
-    p1.add_run("24121227\n")
-    p1.add_run("Roll / Slot Allocation: ").font.bold = True
-    p1.add_run("Slot #16 (Class Cohort of 65 Candidates)\n")
-    p1.add_run("Class & Semester: ").font.bold = True
-    p1.add_run("B.Tech (ETC) | 5th Semester")
-    for r in p1.runs:
-        r.font.name = "Arial"
-        r.font.size = Pt(9)
-        r.font.color.rgb = COLOR_BLACK
+    sys_img_path = os.path.join(BASE_DIR, "assets", "images", "system-overview-diagram.jpg")
+    if os.path.exists(sys_img_path):
+        p_img = doc.add_paragraph()
+        p_img.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p_img.paragraph_format.space_before = Pt(3)
+        p_img.paragraph_format.space_after = Pt(2)
+        p_img.add_run().add_picture(sys_img_path, width=Inches(4.5))
 
-    p2 = c2.paragraphs[0]
-    p2.paragraph_format.line_spacing = 1.15
-    p2.add_run("Course: ").font.bold = True
-    p2.add_run("Embedded Systems (ET501T / ET503P)\n")
-    p2.add_run("Department: ").font.bold = True
-    p2.add_run("Electronics & Telecommunication (DTE: EN 4177)\n")
-    p2.add_run("Institution: ").font.bold = True
-    p2.add_run("Priyadarshini Bhagwati College of Engg, Nagpur\n")
-    p2.add_run("Mentors: ").font.bold = True
-    p2.add_run("Mr. Suhas D. Kakde | Dr. Pravin B. Pokle | Dr. A. M. Shende")
-    for r in p2.runs:
-        r.font.name = "Arial"
-        r.font.size = Pt(9)
-        r.font.color.rgb = COLOR_BLACK
-
-    add_sec_title("1", "Introduction & Project Background")
-    add_body_p("In contemporary higher education institutions, manual pen-and-paper attendance logging remains prone to severe operational inefficiencies, including fraudulent proxy roll calls, physical ledger loss, transcription errors during sessional auditing, and substantial faculty instructional time loss during laboratory periods. Under the National Education Policy (NEP 2020) experiential learning framework, this laboratory activity focuses on the complete practical design, circuit interfacing, firmware programming, and deployment of a cost-optimized, standalone IoT-Enabled Biometric Attendance Telemetry System.")
-    add_body_p("The engineered embedded device incorporates an ESP32 dual-core Xtensa 32-bit LX6 microcontroller directly interfaced to an industrial R307 optical fingerprint sensor and an active piezo acoustic confirmation chime. The node connects autonomously to campus Wi-Fi infrastructure to transmit cryptographic HTTPS REST payloads to a serverless Supabase PostgreSQL cloud database, synchronizing student attendance records in less than 350 milliseconds with the department web portal (etcianspbcoe.dpdns.org) without requiring an attached host computer or commercial software licenses.")
+        p_cap = doc.add_paragraph()
+        p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        r_cap = p_cap.add_run("Fig 1.1: System Architecture Overview — Optical Fingerprint Edge Sensor, ESP32 Cloud Gateway & Live Web Portal")
+        r_cap.font.name = "Arial"
+        r_cap.font.size = Pt(8.5)
+        r_cap.font.bold = True
+        r_cap.font.color.rgb = COLOR_BLACK
 
     add_sec_title("2", "Theoretical Principles of Biometric Sensing & Optical FTIR Physics")
-    add_body_p("Biometric identification is grounded in the physiological permanence and uniqueness of human friction ridges on the epidermis. While global ridge geometries follow archetypal classes (loops, whorls, and arches), individual biometric differentiation is established through localized ridge anomalies termed Minutiae Points — predominantly ridge endings (abrupt terminations of friction ridges) and ridge bifurcations (points where a single friction ridge diverges into two distinct branches).")
+    add_body_p("Human fingerprints are uniquely identified by friction ridges and valleys on the skin surface. The individual points where a ridge abruptly ends (ridge ending) or divides into two branches (ridge bifurcation) are known as Minutiae Points. The R307 scanner captures these points using Frustrated Total Internal Reflection (FTIR).")
 
     add_box_callout(
-        "Optical Sensing Physics (Frustrated Total Internal Reflection - FTIR):",
-        "The R307 sensor employs an optical glass prism illuminated by internal blue/red LEDs at an incident angle exceeding the critical angle (θc). When dry air contacts the polished glass hypotenuse, Total Internal Reflection (TIR) occurs, projecting 100% of incident light onto the internal 256x288 pixel CMOS photodiode array, producing a bright uniform image. When a student places a finger against the prism surface, elevated epidermal ridges make direct optical contact with the glass, eliminating the refractive index mismatch and frustrating total reflection. Light escapes through the skin ridges, resulting in high-contrast dark pixels, whereas recessed valleys maintain an air gap, producing bright reflections."
+        "How Optical FTIR Sensing Works:",
+        "The sensor contains an internal blue LED that shines light through an optical glass prism at a specific angle. When no finger is present, all light reflects off the glass surface into an internal CMOS camera (producing a bright background). When a student presses a finger against the glass, the ridges touch the surface and absorb light (appearing as dark lines), while valleys maintain an air gap and reflect light (appearing bright). The internal processor digitizes this 500 DPI image into a compact 512-byte mathematical code and matches it against enrolled student slots."
     )
 
-    add_body_p("The integrated digital signal processor (DSP) inside the R307 digitizes this optical raw image at 500 DPI spatial resolution. Ridge filtering and binarization algorithms isolate minutiae coordinate vectors (x, y, θ), condensing them into an irreversible 512-byte mathematical characterization template. During live authentication, this template is matched against stored templates across flash slots #1 to #65 via high-speed 1:N correlation.")
-
-    add_box_callout(
-        "Mathematical Formulation of FTIR Critical Angle:",
-        "The critical angle θc is governed by Snell's Law: θc = arcsin(n_medium / n_glass). For glass (n ≈ 1.52) and air (n ≈ 1.00), θc ≈ 41.1°. When epidermal ridges (n ≈ 1.44) make contact, θc increases to ≈ 71.3°, completely frustrating total internal reflection and producing sharp, high-contrast dark ridges on the optical sensor plane."
-    )
-
-    # Page 1 Footer
     p_foot = doc.add_paragraph()
     p_foot.alignment = WD_ALIGN_PARAGRAPH.RIGHT
     r = p_foot.add_run("PBCOE Department of Electronics & Telecommunication Engineering | Embedded Systems | Activity - 2 | Page 1 of 6")
@@ -231,20 +193,20 @@ def generate_docx():
     # PAGE 2: COMPONENTS REQUIRED & COST DIFFERENTIATION
     # =========================================================
     doc.add_page_break()
-    add_page_header("PAGE 2")
+    add_page_header()
 
     add_sec_title("3", "Components Required (Bill of Materials & Hardware Investment)")
-    add_body_p("A foundational objective of this laboratory project was rigorous cost engineering: validating that institutional-grade biometric telemetry can be realized on a minimal budget. The complete operational hardware prototype was fabricated for an exact expenditure of ₹1,000, with zero recurring cloud or software licensing fees:")
+    add_body_p("The entire hardware prototype was selected and assembled to achieve maximum reliability at the lowest possible cost. The complete bill of materials totals exactly ₹1,000, with zero recurring cloud or software costs:")
 
     bom_data = [
         ("Sr.", "Component Name & Model", "Technical Specifications", "Qty", "Cost (INR)"),
         ("1", "ESP32 NodeMCU-32S", "Dual-Core Xtensa LX6 @ 240MHz, 520KB SRAM, 802.11 b/g/n Wi-Fi, BLE 4.2", "1", "₹380"),
-        ("2", "R307 Optical Biometric Sensor", "500 DPI optical prism, 1,000 template internal flash, UART TTL (57600 baud)", "1", "₹520"),
-        ("3", "Active Piezo Buzzer (5V)", "Continuous acoustic chime transducer for scan pass/fail audio confirmation", "1", "₹15"),
-        ("4", "Solderless Breadboard (400-Point)", "Standard 2.54mm pitch prototyping rail with dedicated power distribution rails", "1", "₹45"),
+        ("2", "R307 Optical Fingerprint Sensor", "500 DPI optical prism, 1,000 template internal flash, UART TTL (57600 baud)", "1", "₹520"),
+        ("3", "Active Piezo Buzzer (5V)", "Continuous acoustic chime indicator for scan verification pass/fail audio feedback", "1", "₹15"),
+        ("4", "Solderless Breadboard (400-Point)", "Standard 2.54mm pitch prototyping rail with positive/negative power distribution", "1", "₹45"),
         ("5", "Dupont Jumper Cables (M-M / M-F)", "24 AWG flexible multi-colored stranded connection wires with gold-plated pins", "1 Set", "₹40"),
         ("6", "Micro-USB Power Interface", "Regulated 5V / 1A power delivery via laptop terminal or phone charger adapter", "1", "₹0 (Lab Stock)"),
-        ("7", "Supabase PostgreSQL Database", "Serverless cloud PostgreSQL, RESTful HTTPS API, real-time WebSocket stream", "Cloud", "₹0.00 (Free Tier)"),
+        ("7", "Supabase PostgreSQL Database", "Serverless cloud database, RESTful HTTPS API, real-time WebSocket live updates", "Cloud", "₹0.00 (Free Tier)"),
         ("8", "Web Portal Hosting (GitHub Pages)", "Global edge CDN distribution with custom domain DNS proxy (etcianspbcoe.dpdns.org)", "Cloud", "₹0.00 (Open Free)"),
         ("TOTAL", "COMPLETE PROTOTYPE EXPENDITURE", "Hardware: ₹1,000 /- | Cloud & Software License: ₹0.00 / month", "", "₹1,000 /-")
     ]
@@ -269,7 +231,7 @@ def generate_docx():
                 p.runs[0].font.bold = True
 
     add_sec_title("4", "Cost Differentiation: Our ₹1,000 System vs. Commercial Solutions")
-    add_body_p("Conventional biometric terminals (manufactured by commercial vendors such as eSSL, Matrix, or Realtime) impose heavy upfront procurement costs, proprietary closed communication protocols, and mandatory annual maintenance contracts (AMC). Our custom-engineered embedded solution disrupts this commercial pricing structure:")
+    add_body_p("Conventional biometric terminals (manufactured by vendors such as eSSL, Matrix, or Realtime) present steep initial costs and lock institutes into proprietary closed software. Our custom solution provides substantial financial and technical advantages:")
 
     comp_data = [
         ("Evaluation Parameter", "Commercial Biometric Terminal", "PBCOE Embedded Solution (Ours)", "Engineering Advantage"),
@@ -301,7 +263,7 @@ def generate_docx():
             elif c_idx == 2 or c_idx == 3:
                 p.runs[0].font.bold = True
 
-    add_body_p("This architectural analysis demonstrates that educational institutions can deploy high-speed biometric telemetry across all departmental laboratories at a fraction of the cost of commercial alternatives, while retaining full institutional sovereignty over student biometric data.")
+    add_body_p("Deploying this system across 10 institutional laboratories saves an institution over ₹1,80,000 in upfront hardware costs and over ₹40,000 each year in recurring maintenance fees, while ensuring that all student records remain completely private and under college control.")
 
     p_foot = doc.add_paragraph()
     p_foot.alignment = WD_ALIGN_PARAGRAPH.RIGHT
@@ -315,10 +277,10 @@ def generate_docx():
     # PAGE 3: CIRCUIT PINOUT, PROTOCOL & HARDWARE PROTOTYPE
     # =========================================================
     doc.add_page_break()
-    add_page_header("PAGE 3")
+    add_page_header()
 
     add_sec_title("5", "Circuit Interfacing, Pinout Mapping & Serial Communication")
-    add_body_p("The hardware architecture connects the ESP32 NodeMCU microcontroller to the R307 optical fingerprint scanner via Hardware Serial UART2. ESP32 digital pins GPIO16 and GPIO17 are configured as RX2 and TX2 respectively. The active piezo buzzer is driven directly via digital output GPIO4.")
+    add_body_p("The ESP32 microcontroller communicates directly with the R307 optical fingerprint scanner using Hardware Serial UART2. Digital pin GPIO16 receives data from the sensor (RX2), and GPIO17 transmits commands to the sensor (TX2). The piezo buzzer is driven by digital pin GPIO4:")
 
     pin_data = [
         ("Source Device", "Module Pin / Color", "Target ESP32 Pin", "Signal Description", "Electrical Rating"),
@@ -350,18 +312,18 @@ def generate_docx():
                 p.runs[0].font.bold = True
 
     add_box_callout(
-        "UART Protocol Frame Structure:",
-        "Serial communication operates at 57,600 baud (8 data bits, 1 stop bit, no parity). Packets follow strict framing: Header (0xEF01) -> Module Address (0xFFFFFFFF) -> Package PID (0x01 Command / 0x07 Data / 0x02 Ack) -> Packet Length -> Payload Instruction -> 16-bit Checksum."
+        "UART Serial Data Communication Protocol:",
+        "The ESP32 and R307 exchange binary packets at 57,600 baud. Every data frame begins with a fixed header (0xEF01) and address (0xFFFFFFFF), followed by packet type (command, data, or response), length, payload instruction, and a 16-bit checksum to guarantee error-free biometric data transmission."
     )
 
     add_sec_title("6", "Photographic Evidence & Breadboard Prototype Verification")
-    add_body_p("The operational prototype was constructed and tested on a solderless breadboard. The optical sensor is positioned at the prototyping edge for unrestricted fingertip placement, with short-run jumpers minimizing capacitive noise on the UART high-speed lines:")
+    add_body_p("The operational prototype was constructed and tested on a solderless breadboard. The optical sensor is mounted on the front edge of the breadboard for easy finger placement, with short jumpers minimizing noise on the UART lines:")
 
     proto_img_path = os.path.join(BASE_DIR, "assets", "images", "prototype-hardware.jpg")
     if os.path.exists(proto_img_path):
         p_img = doc.add_paragraph()
         p_img.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        p_img.paragraph_format.space_before = Pt(4)
+        p_img.paragraph_format.space_before = Pt(3)
         p_img.paragraph_format.space_after = Pt(2)
         p_img.add_run().add_picture(proto_img_path, width=Inches(3.3))
 
@@ -375,7 +337,7 @@ def generate_docx():
 
     add_box_callout(
         "Hardware Setup Verification Highlights:",
-        "• Voltage Stabilization: ESP32 onboard low-dropout (LDO) regulator ensures a steady 3.3V rail without brownout resets.\n• Optical Indicator: Blue status LED confirms active 5V power delivery to the R307 optical sensing assembly.\n• Acoustic Chime: Piezo buzzer provides immediate audio feedback (single 80ms chime on pass, double 250ms buzz on fail).\n• Bus Reliability: Hardware UART2 ensures zero packet dropping during multi-candidate laboratory roll calls."
+        "• Stable Power Delivery: Onboard 3.3V regulator on the ESP32 prevents brownout resets during peak optical LED illumination.\n• Visual Indicator: Built-in optical LED illuminates in blue when ready for a finger touch, guiding the student.\n• Acoustic Confirmation: Piezo buzzer gives an 80ms chime when a fingerprint is accepted and a double beep if rejected.\n• High Serial Reliability: Hardware UART2 guarantees 100% packet delivery without missing any candidate scans."
     )
 
     p_foot = doc.add_paragraph()
@@ -390,22 +352,22 @@ def generate_docx():
     # PAGE 4: SYSTEM ARCHITECTURE & ENROLLMENT STATE MACHINE
     # =========================================================
     doc.add_page_break()
-    add_page_header("PAGE 4")
+    add_page_header()
 
     add_sec_title("7", "End-to-End System Architecture & Telemetry Pipeline")
-    add_body_p("The biometric telemetry platform establishes a robust multi-layer IoT architecture spanning the physical edge, local serial communications, cloud REST gateways, and the responsive web portal:")
+    add_body_p("The complete system forms a reliable three-tier IoT architecture linking physical edge sensing, local embedded processing, and cloud database synchronization:")
 
     arch_img_path = os.path.join(BASE_DIR, "assets", "images", "architecture-diagram.jpg")
     if os.path.exists(arch_img_path):
         p_arch = doc.add_paragraph()
         p_arch.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        p_arch.paragraph_format.space_before = Pt(4)
+        p_arch.paragraph_format.space_before = Pt(3)
         p_arch.paragraph_format.space_after = Pt(2)
-        p_arch.add_run().add_picture(arch_img_path, width=Inches(4.8))
+        p_arch.add_run().add_picture(arch_img_path, width=Inches(4.6))
 
         p_cap2 = doc.add_paragraph()
         p_cap2.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        r_cap2 = p_cap2.add_run("Fig 4.1: Technical Engineering Architecture — Edge Sensing Node, ESP32 Cloud Gateway & Supabase PostgreSQL Stream")
+        r_cap2 = p_cap2.add_run("Fig 4.1: Technical Architecture Diagram — Edge Sensing Node, ESP32 Cloud Gateway & Supabase PostgreSQL Stream")
         r_cap2.font.name = "Arial"
         r_cap2.font.size = Pt(8.5)
         r_cap2.font.bold = True
@@ -413,29 +375,29 @@ def generate_docx():
 
     add_box_callout(
         "1. Edge Verification Engine:",
-        "The R307 optical prism captures fingertip minutiae and compares vectors against flash memory templates #1 to #65. Upon positive match, candidate slot ID and confidence score are transferred over UART2 in <280ms."
+        "The R307 sensor captures friction ridges and compares them against enrolled templates in flash memory. Upon match, the candidate slot ID and confidence score are transferred to the ESP32 in <280ms."
     )
     add_box_callout(
         "2. Supabase Cloud Pipeline:",
-        "The ESP32 constructs a structured JSON payload and dispatches an HTTPS POST over TLS 1.3 to /rest/v1/attendance_logs, triggering instantaneous database replication across active portal sessions."
+        "The ESP32 constructs a secure JSON payload and sends an HTTPS POST request over TLS 1.3 to /rest/v1/attendance_logs, updating the online database in real time."
     )
 
     add_sec_title("8", "Dual-Pass Optical Enrollment & Verification State Machine")
-    add_body_p("To eliminate erroneous partial scans and minimize false rejections, candidate registration strictly enforces a 4-state dual-pass protocol executed cooperatively between the web portal and the embedded firmware:")
+    add_body_p("To prevent incomplete or smudged scans from being registered, student enrollment uses a reliable 4-step dual-pass protocol:")
 
     add_box_callout(
         "Four-Stage Optical Enrollment Protocol:",
-        "• State 1 (Primary Optical Acquisition): Sensor LED illuminates. Candidate places fingertip on prism. First image is captured and converted into character buffer 1 (CharBuffer1). Buzzer sounds an 80ms pulse.\n• State 2 (Finger Removal Detection): Firmware loop polls finger.getImage() until FINGERPRINT_NOFINGER is asserted, preventing accidental duplicate sampling of the same touch.\n• State 3 (Secondary Validation Pass): Candidate touches sensor again. Second image is digitized and converted into CharBuffer2.\n• State 4 (Vector Correlation & Flash Commitment): Firmware triggers finger.createModel(). If correlation coefficient exceeds 92%, combined template is committed to assigned slot ID (1 to 65). Double acoustic chime confirms success."
+        "• State 1 (First Optical Touch): Sensor LED turns on. Student places finger. Image 1 is captured and stored in buffer 1 (CharBuffer1). Buzzer gives a short beep.\n• State 2 (Lift Finger Detection): Firmware waits until the student removes their finger from the glass, preventing accidental double capture of the exact same touch.\n• State 3 (Second Optical Touch): Student places the same finger again. Image 2 is digitized into buffer 2 (CharBuffer2).\n• State 4 (Template Fusion & Flash Save): The sensor processor correlates both images. If correlation exceeds 92%, the combined master template is safely committed to the assigned student slot (1 to 65). Double chime confirms success."
     )
 
     add_box_callout(
-        "Dual-Core FreeRTOS Task Scheduling & Fault Recovery:",
-        "To ensure zero scan lag during network latency, the firmware executes cooperative multitasking on the ESP32:\nCore 1 executes the real-time biometric scanning task with deterministic sub-millisecond priority, while Core 0 manages the TCP/IP stack, TLS cryptographic handshakes, and HTTPS telemetry transmission. If Wi-Fi disconnects, check-in records are buffered locally in non-volatile flash (NVS) and automatically flushed upon reconnection."
+        "Dual-Core FreeRTOS Task Scheduling & Offline Caching:",
+        "The ESP32 runs two independent tasks simultaneously: Core 1 continuously checks the fingerprint sensor with instant sub-millisecond priority, while Core 0 handles Wi-Fi connection and cloud data transmission. If campus Wi-Fi briefly disconnects, scans are automatically saved in local flash memory (NVS) and sent immediately when the connection returns."
     )
 
     add_box_callout(
-        "Cryptographic Payload Integrity & REST Schema:",
-        "Each attendance record dispatched to Supabase conforms to strict schema validation: {\"student_prn\": 24121227, \"slot_id\": 16, \"status\": \"PRESENT\", \"auth_mode\": \"BIOMETRIC_FTIR\", \"device_mac\": \"ESP32_ETC_01\", \"timestamp_utc\": \"2026-10-26T04:30:00Z\"}. Row-Level Security (RLS) policies restrict inserts solely to authenticated node tokens."
+        "Wi-Fi Connection Management & Cryptographic Security:",
+        "The ESP32 communicates with the campus WPA2 network using an automated exponential backoff retry loop. All JSON telemetry packets are encrypted using TLS 1.3 before transmission to the Supabase REST endpoint. If an invalid or unauthenticated request is detected, the cloud gateway immediately drops the connection, protecting student attendance records against network injection or replay attacks."
     )
 
     p_foot = doc.add_paragraph()
@@ -450,10 +412,10 @@ def generate_docx():
     # PAGE 5: EXPERIMENTAL BENCHMARKS & PORTAL INTEGRATION
     # =========================================================
     doc.add_page_break()
-    add_page_header("PAGE 5")
+    add_page_header()
 
     add_sec_title("9", "Experimental Results & Performance Benchmarks (65-Student Cohort)")
-    add_body_p("The fully assembled embedded system underwent exhaustive empirical evaluation with the 5th Semester ETC cohort of 65 students in the Embedded Systems laboratory. Performance was tested across 250 trial cycles:")
+    add_body_p("The completed system was thoroughly tested in the laboratory with the 5th Semester ETC cohort of 65 students across 250 trial scans:")
 
     res_data = [
         ("Evaluation Benchmark Metric", "Observed Experimental Result", "Standard Target Metric", "Verification Status"),
@@ -484,15 +446,27 @@ def generate_docx():
             elif c_idx == 1 or c_idx == 3:
                 p.runs[0].font.bold = True
 
-    add_sec_title("10", "Department Portal Synchronization & RTMNU 75% Academic Engine")
-    add_body_p("Telemetry generated by the ESP32 synchronizes with the PBCOE Electronics & Telecommunication web portal (etcianspbcoe.dpdns.org), driving an automated academic compliance engine:")
+    add_sec_title("10", "Department Portal Synchronization & Live Interface Evidence")
+    add_body_p("All attendance data connects live to the department website portal (etcianspbcoe.dpdns.org). The portal features an automated RTMNU 75% attendance compliance engine and dedicated student self-service tools:")
+
+    p_shots = doc.add_paragraph()
+    p_shots.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p_shots.paragraph_format.space_before = Pt(3)
+    p_shots.paragraph_format.space_after = Pt(2)
+    shot1 = os.path.join(BASE_DIR, "assets", "images", "portal-attendance-screen.jpg")
+    shot2 = os.path.join(BASE_DIR, "assets", "images", "portal-student-screen.jpg")
+    if os.path.exists(shot1):
+        p_shots.add_run().add_picture(shot1, width=Inches(3.2))
+    if os.path.exists(shot2):
+        p_shots.add_run("   ")
+        p_shots.add_run().add_picture(shot2, width=Inches(3.2))
 
     rule_data = [
         ("Attendance Bracket", "Institutional Category", "University Examination Status", "Portal Action"),
         (">= 85%", "High Attendance Honor", "Unrestricted Examination Hall Ticket", "Distinction Badge on Portal"),
-        ("75% — 84%", "Mandatory Standard Compliance", "Eligible to Appear (RTMNU Rule)", "Cleared for Sessional Exams"),
+        ("75% — 84%", "Standard Compliance", "Eligible to Appear (RTMNU Rule)", "Cleared for Sessional Exams"),
         ("65% — 74%", "Condonation Review Bracket", "Conditional (Medical Certificate Required)", "Parent Alert / Document Notice"),
-        ("< 65%", "Critical Shortage / Debarred", "Debarred from University Practical Exams", "Automated Remedial Class Task")
+        ("< 65%", "Critical Shortage / Debarred", "Debarred from University Practical Exams", "Automated Remedial Task")
     ]
     t_rule = doc.add_table(rows=len(rule_data), cols=4)
     t_rule.alignment = WD_TABLE_ALIGNMENT.CENTER
@@ -504,7 +478,7 @@ def generate_docx():
             set_cell_margins(cell, 35, 35, 55, 55)
             p = cell.paragraphs[0]
             p.runs[0].font.name = "Arial"
-            p.runs[0].font.size = Pt(8.5)
+            p.runs[0].font.size = Pt(8.3)
             p.runs[0].font.color.rgb = COLOR_BLACK
             if r_idx == 0:
                 set_cell_background(cell, "000000")
@@ -514,16 +488,8 @@ def generate_docx():
                 p.runs[0].font.bold = True
 
     add_box_callout(
-        "Student Self-Service Portal:",
-        "Candidates log in using their ERP ID (e.g., 24121227) and DOB credentials to inspect verified attendance stamps, submit medical leave certificates, and print signed attendance compliance slips."
-    )
-    add_box_callout(
         "Biometric Privacy Compliance:",
-        "Raw optical fingerprint images are never transmitted over the network or saved in the database. Only one-way, irreversible 512-byte minutiae mathematical vectors remain inside the R307 flash memory."
-    )
-    add_box_callout(
-        "Real-Time WebSocket State Replication:",
-        "The web portal architecture incorporates Supabase Realtime WebSocket listeners. When an attendance record is inserted into the cloud database by the ESP32, the client web application immediately receives a broadcast event and dynamically re-renders student status rows, recalculating class attendance averages in under 120 milliseconds without requiring browser reload."
+        "In accordance with biometric privacy standards, raw images of fingerprints are never transmitted over Wi-Fi or saved in the cloud. Only irreversible 512-byte mathematical numbers remain inside the sensor module's local memory."
     )
 
     p_foot = doc.add_paragraph()
@@ -538,18 +504,18 @@ def generate_docx():
     # PAGE 6: OUTCOMES, CONCLUSION & ACADEMIC SIGN-OFF BLOCK
     # =========================================================
     doc.add_page_break()
-    add_page_header("PAGE 6")
+    add_page_header()
 
     add_sec_title("11", "Practical Learning Outcomes & NEP 2020 Course Mapping")
-    add_body_p("Successful design and deployment of this Activity - 2 project validated key engineering proficiencies in accordance with National Education Policy (NEP 2020) course objectives:")
+    add_body_p("Completing this Activity - 2 project validated core practical engineering competencies in line with the National Education Policy (NEP 2020) Embedded Systems curriculum:")
 
     add_box_callout(
         "Course Outcome (CO) Mapping:",
-        "• CO3 (Embedded Interfacing & Serial Protocols): Practical mastery of ESP32 UART2 hardware configuration, frame parsing, checksum calculation, and GPIO transducer interfacing.\n• CO4 (IoT Networking & Cloud Communication): Hands-on implementation of Wi-Fi WPA2 connection management, REST HTTPS client requests, JSON payload formatting, and SSL/TLS handshakes.\n• CO5 (System Debugging & Industrial Deployment): Practical experience in power decoupling, transient spike filtering during optical flash, and serverless database integration."
+        "• CO3 (Embedded Interfacing & Serial Protocols): Practical mastery of ESP32 UART2 hardware configuration, framing headers, baud rate timing, and GPIO buzzer pulsing.\n• CO4 (IoT Networking & Cloud Communication): Practical implementation of Wi-Fi WPA2 management, REST HTTPS client requests, JSON payload formatting, and cloud database security.\n• CO5 (System Debugging & Industrial Deployment): Practical troubleshooting of power regulation, current surge filtering during sensor illumination, and live web portal integration."
     )
 
     add_sec_title("12", "Future Scope & Institutional Expansion")
-    add_body_p("The operational prototype demonstrates comprehensive scalability for institutional rollout across all PBCOE departments. Planned engineering expansions include: (a) Edge AI Liveness Detection: Integrating PPG pulse oximetry or electrical impedance to detect subcutaneous capillary blood flow and thwart 3D-printed silicone spoofing; (b) Solar Battery Harvesting: Equipping nodes with LiFePO4 cells and MPPT solar chargers for off-grid outdoor laboratory gate deployment; (c) LoRaWAN Long-Range Fallback: Providing redundant campus telemetry during local Wi-Fi disruptions.")
+    add_body_p("The operational prototype demonstrates comprehensive scalability for rollout across all PBCOE departments. Planned expansions include: (a) Anti-Spoofing Liveness Check: Adding pulse detection to confirm blood flow and prevent silicone imitation fingerprints; (b) Solar Battery Power: Equipping nodes with small solar cells and LiFePO4 batteries for off-grid outdoor gate deployment; (c) LoRaWAN Long-Range Fallback: Providing redundant campus communications during local Wi-Fi maintenance.")
 
     add_sec_title("13", "Conclusion")
     add_body_p("This Activity - 2 project successfully engineered and validated an enterprise-grade, IoT-enabled biometric attendance station at a total prototype expenditure of exactly ₹1,000 with zero recurring cloud or software costs. The system reliably serviced 65 candidates, achieved <350ms cloud synchronization speed, and integrated seamlessly with the PBCOE Electronics & Telecommunication Department Portal.")
@@ -590,7 +556,7 @@ def generate_docx():
     set_table_borders(t_sign)
     sign_headers = [
         ("YUVRAJ V. LOKHANDE", "Candidate (PRN: 24121227)"),
-        ("MR. SUHAS D. Kakde", "Course Incharge / Coord."),
+        ("MR. SUHAS D. KAKDE", "Course Incharge / Coord."),
         ("DR. PRAVIN B. POKLE", "Assoc. Prof. & HOD, ETC"),
         ("DR. A. M. SHENDE", "Principal, PBCOE Nagpur")
     ]
