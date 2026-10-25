@@ -469,11 +469,32 @@ function submitCandidateDocument() {
   const title = (document.getElementById("doc-title-input").value || "").trim();
   const type = document.getElementById("doc-type-select").value;
   const fileInput = document.getElementById("doc-file-input");
-  const fileName = (fileInput && fileInput.files[0]) ? fileInput.files[0].name : "Document_Submission.pdf";
 
-  if (!title) {
-    alert("Please enter a document title or description.");
+  if (!title || title.length < 3) {
+    alert("Validation Error: Please enter a valid document title (at least 3 characters).");
+    document.getElementById("doc-title-input").focus();
     return;
+  }
+
+  let fileName = "Document_Submission.pdf";
+  if (fileInput && fileInput.files && fileInput.files[0]) {
+    const file = fileInput.files[0];
+    fileName = file.name;
+
+    // File extension validation
+    const allowedExts = [".pdf", ".docx", ".doc", ".png", ".jpg", ".jpeg", ".txt"];
+    const fileExt = fileName.substring(fileName.lastIndexOf(".")).toLowerCase();
+    if (!allowedExts.includes(fileExt)) {
+      alert(`Validation Error: "${fileExt}" is not an accepted file format.\nAllowed formats: ${allowedExts.join(", ")}`);
+      return;
+    }
+
+    // File size validation (15MB limit)
+    const maxSizeBytes = 15 * 1024 * 1024;
+    if (file.size > maxSizeBytes) {
+      alert(`Validation Error: File size (${(file.size / (1024*1024)).toFixed(1)} MB) exceeds the maximum allowed limit of 15 MB.`);
+      return;
+    }
   }
 
   const docRecord = {

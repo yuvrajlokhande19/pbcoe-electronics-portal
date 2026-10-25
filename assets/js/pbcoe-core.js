@@ -360,16 +360,49 @@ window.PBCOE = (function () {
     localStorage.setItem("pbcoe_timetable", JSON.stringify(newTable));
   }
 
-  function loginStudent(erpId, dobPassword) {
-    const cleanId = (erpId || "").trim();
-    const cleanDob = (dobPassword || "").trim().replace(/\D/g, "");
+  let lastChatTimestamp = 0;
 
-    const s = students.find(x => x.prn === cleanId);
-    if (!s) return { success: false, message: "Student ERP / PRN ID not found in PBCOE records." };
+  function loginStudent(erpId, dobPassword) {
+    const rawId = (erpId || "").trim();
+    const cleanId = rawId.replace(/\D/g, "");
+
+    if (!rawId) {
+      return { success: false, message: "Validation Error: Please enter your ERP ID / PRN Number." };
+    }
+
+    if (cleanId.length < 6) {
+      return { success: false, message: "Validation Error: PRN / ERP ID must contain at least 6 digits (e.g. 24121227)." };
+    }
+
+    const s = students.find(x => x.prn === rawId || x.prn === cleanId);
+    if (!s) {
+      return { success: false, message: `Candidate Record Not Found: No student matching PRN "${rawId}" in PBCOE records. Please check your roll number.` };
+    }
 
     if (dobPassword !== undefined && dobPassword !== null) {
-      if (cleanDob.length < 6) {
-        return { success: false, message: "Password must be your 8-digit Date of Birth in DDMMYYYY format (e.g. 19122006)." };
+      const rawDob = (dobPassword || "").trim();
+      const cleanDob = rawDob.replace(/\D/g, "");
+
+      if (!rawDob) {
+        return { success: false, message: "Validation Error: Password is required. Please enter your 8-digit Date of Birth (DDMMYYYY)." };
+      }
+
+      if (cleanDob.length !== 8) {
+        return { success: false, message: "Validation Error: Password must be exactly 8 digits in DDMMYYYY format (e.g. 19122006 for 19 Dec 2006)." };
+      }
+
+      const day = parseInt(cleanDob.slice(0, 2), 10);
+      const month = parseInt(cleanDob.slice(2, 4), 10);
+      const year = parseInt(cleanDob.slice(4, 8), 10);
+
+      if (isNaN(day) || day < 1 || day > 31) {
+        return { success: false, message: `Validation Error: Invalid day "${cleanDob.slice(0, 2)}" in DOB. Must be between 01 and 31.` };
+      }
+      if (isNaN(month) || month < 1 || month > 12) {
+        return { success: false, message: `Validation Error: Invalid month "${cleanDob.slice(2, 4)}" in DOB. Must be between 01 and 12.` };
+      }
+      if (isNaN(year) || year < 1980 || year > 2015) {
+        return { success: false, message: `Validation Error: Invalid birth year "${year}" in DOB. Must be between 1980 and 2015.` };
       }
     }
 
@@ -387,6 +420,14 @@ window.PBCOE = (function () {
   function loginAdmin(username, password) {
     const u = (username || "").trim().toLowerCase();
     const p = (password || "").trim();
+
+    if (!u) {
+      return { success: false, message: "Validation Error: Username / Admin ID cannot be empty." };
+    }
+    if (!p) {
+      return { success: false, message: "Validation Error: Password cannot be empty." };
+    }
+
     if ((u === "admin" || u === "hod") && (p === "pbcoe2026" || p === "password123" || p === "admin123" || p === "pokle123")) {
       currentUser = {
         role: "admin",
@@ -412,7 +453,7 @@ window.PBCOE = (function () {
       localStorage.setItem("pbcoe_user", JSON.stringify(currentUser));
       return { success: true, user: currentUser };
     }
-    return { success: false, message: "Invalid Faculty/Admin ID or Password. (Hint: admin / pbcoe2026 or coordinator / pbcoe2026)" };
+    return { success: false, message: "Authentication Failed: Invalid Faculty/Admin ID or Password. (Hint: admin / pbcoe2026 or coordinator / pbcoe2026)" };
   }
 
   async function getNotices() {
@@ -431,6 +472,13 @@ window.PBCOE = (function () {
   }
 
   async function postNotice(noticeData) {
+    if (!noticeData || !noticeData.title || noticeData.title.trim().length < 3) {
+      return { success: false, message: "Validation Error: Notice headline must have at least 3 characters." };
+    }
+    if (!noticeData.content || noticeData.content.trim().length < 5) {
+      return { success: false, message: "Validation Error: Notice content must have at least 5 characters." };
+    }
+
     try {
       const res = await fetch(`${SUPABASE_URL}/rest/v1/notices`, {
         method: "POST",
@@ -443,7 +491,7 @@ window.PBCOE = (function () {
     } catch (e) {
       console.error("Failed to post notice:", e);
     }
-    return { success: false };
+    return { success: false, message: "Failed to publish notice. Please check network connection." };
   }
 
   async function getChatMessages(channel = "etc_5th_sem", limit = 50) {
@@ -462,6 +510,26 @@ window.PBCOE = (function () {
   }
 
   async function sendChatMessage(channel, messageText, senderInfo = null) {
+    const raw = (messageText || "").trim();
+    if (!raw) {
+      return { success: false, message: "Validation Error: Cannot send empty message." };
+    }
+
+    // Rate-limiting check (1 msg per 800ms)
+    const now = Date.now();
+    if (now - lastChatTimestamp < 800) {
+      return { success: false, message: "Spam Protection: Please wait a moment before sending another message." };
+    }
+    lastChatTimestamp = now;
+
+    // HTML sanitization
+    const sanitized = raw
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+
     const user = senderInfo || currentUser;
     const senderId = (user && user.data && (user.data.prn || user.data.email)) || "GUEST";
     const senderName = (user && user.data && user.data.name) || "Anonymous Student";
@@ -472,7 +540,7 @@ window.PBCOE = (function () {
       sender_name: senderName,
       sender_role: senderRole,
       channel: channel || "etc_5th_sem",
-      message: messageText
+      message: sanitized
     };
 
     try {

@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Biometric Attendance Hub — PBCOE Electronics Portal</title>
+<link rel="icon" type="image/png" href="assets/images/pbcoe-round-seal.png">
+<link rel="shortcut icon" type="image/png" href="assets/images/pbcoe-round-seal.png">
+<link rel="apple-touch-icon" href="assets/images/pbcoe-round-seal.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -652,11 +655,36 @@ function resetScannerState() {
 let enrollPollInterval = null;
 
 async function startDialogEnrollment() {
-  const prn = document.getElementById("dialog-student-select").value;
-  const slot = document.getElementById("dialog-slot-id").value;
-  const fingerType = document.getElementById("dialog-finger-type").value;
+  const prn = (document.getElementById("dialog-student-select")?.value || "").trim();
+  const rawSlot = (document.getElementById("dialog-slot-id")?.value || "").trim();
+  const fingerType = document.getElementById("dialog-finger-type")?.value || "Right Index Finger";
+
+  // Comprehensive Input Validations
+  if (!prn) {
+    alert("Validation Error: Please select a valid student candidate from the roster.");
+    return;
+  }
+
   const s = window.PBCOE.getStudentByPrn(prn);
-  if (!s) return;
+  if (!s) {
+    alert("Validation Error: Candidate record not found for PRN " + prn + ".");
+    return;
+  }
+
+  const slot = parseInt(rawSlot, 10);
+  if (isNaN(slot) || slot < 1 || slot > 127) {
+    alert("Validation Error: Flash Slot ID must be an integer between 1 and 127 (R307 hardware limit).");
+    return;
+  }
+
+  // Check if slot is already occupied by a different candidate
+  const collision = fullRoster.find(item => item.enrolled && (item.fingerprint_id == slot || item.id == slot) && item.prn !== s.prn);
+  if (collision) {
+    const confirmOverride = confirm(
+      `Slot Conflict Notice:\nSlot #${slot} is already occupied by ${collision.name} (PRN: ${collision.prn}).\n\nDo you want to reassign and overwrite Slot #${slot} with ${s.name}?`
+    );
+    if (!confirmOverride) return;
+  }
 
   const btn = document.getElementById("dialog-btn-start");
   const laser = document.getElementById("dialog-scan-laser");
