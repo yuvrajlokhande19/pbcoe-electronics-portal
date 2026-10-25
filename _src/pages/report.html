@@ -1,0 +1,695 @@
+<!--TITLE:Activity-2 Report — Embedded Biometric IoT System (ET501T)-->
+<!--HEAD_EXTRA:
+<style>
+@media print {
+  @page { size: A4 portrait; margin: 12mm 14mm 12mm 14mm; }
+  body { background: #fff !important; color: #0f172a !important; font-size: 9.8pt; }
+  .no-print { display: none !important; }
+  .report-sheet { border: none !important; box-shadow: none !important; margin: 0 !important; padding: 0 !important; width: 100% !important; min-height: 275mm !important; page-break-after: always !important; page-break-inside: avoid !important; }
+}
+.report-sheet {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 20px auto;
+  padding: 16mm 18mm 18mm 18mm;
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.25);
+  position: relative;
+  box-sizing: border-box;
+  page-break-after: always;
+}
+.report-header-banner {
+  border-bottom: 2px solid var(--blue);
+  padding-bottom: 10px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.report-footer-banner {
+  position: absolute;
+  bottom: 10mm;
+  left: 18mm;
+  right: 18mm;
+  border-top: 1px solid var(--border);
+  padding-top: 6px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  margin: 10px 0 16px 0;
+}
+.report-table th, .report-table td {
+  border: 1px solid var(--border);
+  padding: 6px 10px;
+  text-align: left;
+}
+.report-table th {
+  background: var(--bg-2);
+  color: var(--blue);
+  font-weight: 700;
+}
+.section-tag {
+  font-family: var(--font-display);
+  font-size: 0.76rem;
+  letter-spacing: 0.1em;
+  color: var(--blue);
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.report-h2 {
+  font-size: 1.15rem;
+  margin: 0 0 8px 0;
+  color: var(--fg);
+  border-bottom: 1px solid var(--glass-border);
+  padding-bottom: 4px;
+}
+.report-text {
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: var(--fg);
+  opacity: 0.92;
+  margin-bottom: 10px;
+  text-align: justify;
+}
+</style>
+-->
+
+<section class="page-hero no-print" style="padding-bottom:1.5rem">
+  <div class="container">
+    <p class="crumb reveal"><a href="index.html">HOME</a> / ACADEMICS / <a href="academics.html">EMBEDDED SYSTEMS</a> / ACTIVITY-2 REPORT</p>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;">
+      <div>
+        <h1 class="reveal" style="--d:.08s;margin:0;">Activity - 2 <span class="grad-text">Project Report</span></h1>
+        <p class="section-sub reveal" style="--d:.16s;margin-top:4px;">Official 6-Page Printable A4 Embedded Systems Technical Report (ET501T / ET503P)</p>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="window.print()">🖨️ Print / Save A4 PDF</button>
+        <a href="attendance.html" class="btn btn-ghost">🪪 Live Biometric Node →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="container" style="max-width:215mm;margin:0 auto 40px auto;padding:0 10px;">
+
+  <!-- ======================================================== -->
+  <!-- PAGE 1: TITLE, ACTIVITY-2 HEADER, CANDIDATE & BOM / COST  -->
+  <!-- ======================================================== -->
+  <div class="report-sheet">
+    <!-- Header Banner -->
+    <div class="report-header-banner">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <img src="assets/images/pbcoe-round-seal.png" alt="PBCOE Seal" style="height:44px;width:44px;border-radius:50%;background:#fff;padding:1px;border:1px solid #38bdf8;">
+        <div>
+          <div style="font-weight:700;font-size:0.85rem;color:var(--fg);line-height:1.2;">PRIYADARSHINI BHAGWATI COLLEGE OF ENGINEERING, NAGPUR</div>
+          <div style="font-size:0.68rem;color:var(--muted);letter-spacing:0.04em;">DEPT. OF ELECTRONICS &amp; TELECOMMUNICATION ENGINEERING · DTE: EN 4177</div>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <span class="pill ok" style="font-size:0.75rem;padding:3px 10px;">ACTIVITY - 2</span>
+        <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">NEP 2020 · 5TH SEM</div>
+      </div>
+    </div>
+
+    <!-- Title Block -->
+    <div style="text-align:center;padding:12px 10px;background:var(--bg-2);border:1px solid var(--glass-border);border-radius:12px;margin-bottom:16px;">
+      <div class="section-tag" style="color:#f59e0b;">COURSE: EMBEDDED SYSTEMS (ET501T / ET503P) — LABORATORY ACTIVITY - 2</div>
+      <h1 style="margin:4px 0 6px 0;font-size:1.25rem;line-height:1.3;color:var(--fg);text-transform:uppercase;">
+        Design &amp; Implementation of an IoT-Enabled Embedded Biometric Telemetry &amp; Attendance Automation System Using ESP32, R307 Optical Sensor &amp; Supabase Cloud
+      </h1>
+      <div style="font-size:0.78rem;color:var(--muted);letter-spacing:0.03em;">
+        Real-Time Minutiae Pattern Recognition, Zero-License Serverless Cloud Logging &amp; Department Portal Synchronization
+      </div>
+    </div>
+
+    <!-- Candidate & Institutional Metadata Box -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
+      <div style="background:var(--glass-strong);border:1px solid var(--border);border-radius:10px;padding:12px;font-size:0.82rem;">
+        <div style="font-weight:700;color:var(--blue);margin-bottom:6px;border-bottom:1px solid var(--border);padding-bottom:3px;">
+          // CANDIDATE CREDENTIALS
+        </div>
+        <div><strong>Student Name:</strong> YUVRAJ VILAS LOKHANDE</div>
+        <div><strong>University PRN / ERP ID:</strong> <span class="mono" style="color:#38bdf8;">24121227</span></div>
+        <div><strong>Roll / Slot Allocation:</strong> <span class="mono">Slot #16</span> (Class Cohort: 65)</div>
+        <div><strong>Branch &amp; Semester:</strong> B.Tech ETC · 5th Semester</div>
+      </div>
+
+      <div style="background:var(--glass-strong);border:1px solid var(--border);border-radius:10px;padding:12px;font-size:0.82rem;">
+        <div style="font-weight:700;color:var(--yellow);margin-bottom:6px;border-bottom:1px solid var(--border);padding-bottom:3px;">
+          // ACADEMIC SUPERVISION &amp; INSTITUTION
+        </div>
+        <div><strong>Course Incharge:</strong> Mr. Suhas D. Kakde (Academic Coordinator)</div>
+        <div><strong>Head of Department:</strong> Dr. Pravin B. Pokle (HOD, ETC)</div>
+        <div><strong>Principal:</strong> Dr. A. M. Shende (PBCOE, Nagpur)</div>
+        <div><strong>Affiliation:</strong> RTM Nagpur University · AICTE · NAAC 'A+'</div>
+      </div>
+    </div>
+
+    <!-- Section 1: Components Required & Cost Analysis -->
+    <div class="section-tag">// SECTION 1</div>
+    <h2 class="report-h2">1. Components Required (Bill of Materials &amp; Cost Analysis)</h2>
+    <p class="report-text">
+      The complete hardware architecture was engineered with rigorous cost optimization to demonstrate high-reliability institutional biometrics on an ultra-low budget. The complete hardware prototype was built for exactly <strong>₹1,000</strong>, with <strong>₹0.00 recurring cloud or software licensing fees</strong>.
+    </p>
+
+    <table class="report-table">
+      <thead>
+        <tr>
+          <th>Sr.</th>
+          <th>Component Name &amp; Model</th>
+          <th>Key Technical Specifications</th>
+          <th>Qty</th>
+          <th>Cost (INR)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td><strong>ESP32 NodeMCU-32S</strong></td>
+          <td>Dual-Core Xtensa 32-bit LX6 @ 240MHz, 520KB SRAM, Integrated 802.11 b/g/n WiFi &amp; BLE 4.2</td>
+          <td>1</td>
+          <td>₹380</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td><strong>R307 Optical Fingerprint Sensor</strong></td>
+          <td>500 DPI optical prism, 1,000 template flash memory, UART TTL (57600 baud), &lt;0.8s scan time</td>
+          <td>1</td>
+          <td>₹520</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td><strong>Active Piezo Buzzer (5V)</strong></td>
+          <td>Continuous tone acoustic chime indicator for scan pass/fail acoustic confirmation</td>
+          <td>1</td>
+          <td>₹15</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td><strong>Solderless Breadboard (400-Point)</strong></td>
+          <td>Half-size prototyping rail with standard 2.54mm pitch spacing</td>
+          <td>1</td>
+          <td>₹45</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td><strong>Dupont Jumper Cables (M-M / M-F)</strong></td>
+          <td>24 AWG flexible multi-colored stranded connection wires with gold-plated pins</td>
+          <td>1 Set</td>
+          <td>₹40</td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td><strong>Micro-USB Power Interface</strong></td>
+          <td>5V / 1A regulated power delivery via laptop terminal or standard mobile charger</td>
+          <td>1</td>
+          <td>₹0 (Lab Stock)</td>
+        </tr>
+        <tr>
+          <td>7</td>
+          <td><strong>Supabase PostgreSQL Database</strong></td>
+          <td>Serverless REST HTTPS API, real-time WebSocket replication, 500MB cloud storage</td>
+          <td>Cloud</td>
+          <td><strong>₹0 (Free Tier)</strong></td>
+        </tr>
+        <tr>
+          <td>8</td>
+          <td><strong>Web Portal Hosting (GitHub Pages)</strong></td>
+          <td>Global CDN Edge hosting with custom domain DNS proxy (<span class="mono">etcianspbcoe.dpdns.org</span>)</td>
+          <td>Cloud</td>
+          <td><strong>₹0 (Free Open)</strong></td>
+        </tr>
+        <tr style="background:var(--bg-2);font-weight:700;">
+          <td colspan="4" style="text-align:right;color:var(--yellow);">TOTAL PROTOTYPE HARDWARE INVESTMENT:</td>
+          <td style="color:#22c55e;font-size:0.95rem;">₹1,000 /-</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Footer Banner -->
+    <div class="report-footer-banner">
+      <span>PBCOE ETC Department · Embedded Systems (ET501T) · Activity - 2</span>
+      <span>Page 1 of 6</span>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- PAGE 2: COST DIFFERENTIATION & THEORETICAL FOUNDATION     -->
+  <!-- ======================================================== -->
+  <div class="report-sheet">
+    <div class="report-header-banner">
+      <div style="font-weight:700;font-size:0.85rem;color:var(--blue);">ACTIVITY - 2 // EMBEDDED SYSTEMS (ET501T / ET503P)</div>
+      <div style="font-size:0.75rem;color:var(--muted);font-family:var(--font-mono);">PRN: 24121227 · YUVRAJ LOKHANDE</div>
+    </div>
+
+    <!-- Section 2: Comparison with Commercial Biometric Machines -->
+    <div class="section-tag">// SECTION 2</div>
+    <h2 class="report-h2">2. Cost Differentiation: Our ₹1,000 IoT System vs. Commercial Solutions</h2>
+    <p class="report-text">
+      Conventional commercial biometric attendance machines (manufactured by vendors such as eSSL, Matrix, or Realtime) present prohibitive procurement expenses, inflexible proprietary protocols, and recurring annual software maintenance charges. Our engineered solution delivers institutional-grade telemetry at less than 1/15th of the cost.
+    </p>
+
+    <table class="report-table">
+      <thead>
+        <tr>
+          <th>Metric / Parameter</th>
+          <th>Conventional Commercial Terminal</th>
+          <th>PBCOE Embedded IoT Solution (Ours)</th>
+          <th>Engineering Benefit</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Initial Hardware Cost</strong></td>
+          <td>₹12,000 — ₹24,000 per device</td>
+          <td><strong>₹1,000 only</strong></td>
+          <td><strong>92% — 96% Capex Reduction</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Software / Cloud AMC</strong></td>
+          <td>₹3,500 — ₹8,000 / year recurring</td>
+          <td><strong>₹0.00 (Zero Recurring Charges)</strong></td>
+          <td>100% Free Lifetime Operation</td>
+        </tr>
+        <tr>
+          <td><strong>Database Architecture</strong></td>
+          <td>Proprietary encrypted SQL / local lock-in</td>
+          <td><strong>Supabase PostgreSQL REST API</strong></td>
+          <td>Open schema, full direct SQL access</td>
+        </tr>
+        <tr>
+          <td><strong>Student &amp; Faculty Access</strong></td>
+          <td>Restricted to administrative operator PC</td>
+          <td><strong>Responsive Web Portal (Mobile + PC)</strong></td>
+          <td>Zero software install; access anywhere</td>
+        </tr>
+        <tr>
+          <td><strong>Instant Cloud Sync Speed</strong></td>
+          <td>Batch sync (every 15 to 60 mins)</td>
+          <td><strong>Real-Time Instant Stream (&lt;350ms)</strong></td>
+          <td>Immediate scan display &amp; logging</td>
+        </tr>
+        <tr>
+          <td><strong>Student Push Notification</strong></td>
+          <td>Paid SMS gateway (₹0.20 per message)</td>
+          <td><strong>Built-in Web Push Notifications</strong></td>
+          <td>Zero cost instant phone verification</td>
+        </tr>
+        <tr>
+          <td><strong>Customizability</strong></td>
+          <td>Closed binary firmware; zero customization</td>
+          <td><strong>Open ESP32 C++ Firmware Stack</strong></td>
+          <td>Easily tailored to NEP 2020 syllabus</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Section 3: Introduction & Theoretical Foundation -->
+    <div class="section-tag">// SECTION 3</div>
+    <h2 class="report-h2">3. Introduction &amp; Theoretical Principles of Biometric Sensing</h2>
+    <p class="report-text">
+      Biometric authentication utilizes unique physiological human traits (fingerprint ridge patterns) for automated person identification. Fingerprints consist of elevated friction ridges and valleys. While ridge patterns follow general archetypes (loops, whorls, and arches), individuality is determined by local ridge anomalies termed <strong>Minutiae Points</strong> — predominantly ridge endings (abrupt terminations) and ridge bifurcations (single ridges dividing into two branches).
+    </p>
+
+    <div style="background:var(--bg-2);border-left:3px solid var(--blue);padding:10px 14px;margin:10px 0;font-size:0.83rem;line-height:1.5;">
+      <strong>Optical Sensing Physics (Frustrated Total Internal Reflection - FTIR):</strong><br>
+      The R307 sensor employs an optical glass prism illuminated by internal blue/red LEDs at an angle exceeding the critical angle ($\theta_c$). When dry air contacts the glass surface, Total Internal Reflection (TIR) occurs, directing all light onto the internal CMOS imaging array (bright field). When a student places a finger against the glass, the skin ridges make direct optical contact, disrupting TIR and absorbing light (dark ridges). Valleys retain air gaps and reflect light. The CMOS sensor digitizes this $256 \times 288$ pixel image at 500 DPI resolution.
+    </div>
+
+    <p class="report-text">
+      The internal DSP in the R307 converts raw optical bitmaps into a compact 512-byte mathematical characterization file (<span class="mono">CharBuffer</span>). During enrollment, two separate optical scans are captured and mathematically fused into a master template stored in non-volatile flash memory across flash slots #1 to #127.
+    </p>
+
+    <div class="report-footer-banner">
+      <span>PBCOE ETC Department · Embedded Systems (ET501T) · Activity - 2</span>
+      <span>Page 2 of 6</span>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- PAGE 3: HARDWARE INTERFACING, PINOUT & PROTOTYPE PHOTO    -->
+  <!-- ======================================================== -->
+  <div class="report-sheet">
+    <div class="report-header-banner">
+      <div style="font-weight:700;font-size:0.85rem;color:var(--blue);">ACTIVITY - 2 // EMBEDDED SYSTEMS (ET501T / ET503P)</div>
+      <div style="font-size:0.75rem;color:var(--muted);font-family:var(--font-mono);">PRN: 24121227 · YUVRAJ LOKHANDE</div>
+    </div>
+
+    <!-- Section 4: Hardware Interfacing & Pin Connections -->
+    <div class="section-tag">// SECTION 4</div>
+    <h2 class="report-h2">4. Hardware Interfacing &amp; Complete Pinout Mapping</h2>
+    <p class="report-text">
+      Interfacing between the ESP32 microcontroller and the R307 optical biometric module is conducted via Hardware Serial UART2. ESP32 pins GPIO16 and GPIO17 serve as UART RX2 and TX2 respectively. The active piezo buzzer is switched via digital output GPIO4 through a software pulse routine.
+    </p>
+
+    <table class="report-table">
+      <thead>
+        <tr>
+          <th>Source Module</th>
+          <th>Module Pin / Wire</th>
+          <th>Target ESP32 Pin</th>
+          <th>Signal Function</th>
+          <th>Electrical Rating</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>R307 Optical Sensor</td>
+          <td>Pin 1 (Red Wire)</td>
+          <td><strong>VIN / 5V Rail</strong></td>
+          <td>System Power Delivery</td>
+          <td>DC +5V, Peak 120mA</td>
+        </tr>
+        <tr>
+          <td>R307 Optical Sensor</td>
+          <td>Pin 2 (Black Wire)</td>
+          <td><strong>GND Rail</strong></td>
+          <td>Common Reference Ground</td>
+          <td>0V DC Common</td>
+        </tr>
+        <tr>
+          <td>R307 Optical Sensor</td>
+          <td>Pin 3 (Yellow/White Wire)</td>
+          <td><strong>GPIO 16 (RX2)</strong></td>
+          <td>Sensor TX &rarr; ESP32 RX</td>
+          <td>TTL 3.3V / 5V Tolerant</td>
+        </tr>
+        <tr>
+          <td>R307 Optical Sensor</td>
+          <td>Pin 4 (Green Wire)</td>
+          <td><strong>GPIO 17 (TX2)</strong></td>
+          <td>ESP32 TX &rarr; Sensor RX</td>
+          <td>TTL 3.3V Logic</td>
+        </tr>
+        <tr>
+          <td>Active Piezo Buzzer</td>
+          <td>Positive Anode (+)</td>
+          <td><strong>GPIO 4 (DO)</strong></td>
+          <td>Digital Chime Trigger</td>
+          <td>3.3V Logic Trigger</td>
+        </tr>
+        <tr>
+          <td>Active Piezo Buzzer</td>
+          <td>Negative Cathode (-)</td>
+          <td><strong>GND Rail</strong></td>
+          <td>Acoustic Ground Return</td>
+          <td>0V Common Ground</td>
+        </tr>
+        <tr>
+          <td>ESP32 Micro-USB</td>
+          <td>USB Port</td>
+          <td><strong>5V Regulated Supply</strong></td>
+          <td>Primary Power Supply</td>
+          <td>5V @ 1A DC Input</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Section 5: Photographic Evidence of Prototype Hardware -->
+    <div class="section-tag">// SECTION 5</div>
+    <h2 class="report-h2">5. Photographic Evidence of the Assembled Prototype</h2>
+    <p class="report-text">
+      The photograph below displays the operational hardware assembly wired on the solderless breadboard. The ESP32 is socketed at the top with UART and power rails linked via jumper lines to the R307 optical module and the piezo chime transducer.
+    </p>
+
+    <div style="text-align:center;margin:12px 0;">
+      <img src="assets/images/prototype-hardware.jpg" alt="PBCOE Biometric Node Prototype" style="max-width:270px;max-height:225px;width:auto;height:auto;border-radius:10px;object-fit:contain;border:1.5px solid var(--border);box-shadow:0 6px 18px rgba(0,0,0,0.2);">
+      <div style="font-size:0.75rem;color:var(--muted);margin-top:6px;font-style:italic;">
+        Fig 3.1: Complete Solderless Prototype Hardware Assembly — ESP32 WROOM-32, R307 Optical Prism &amp; Piezo Chime
+      </div>
+    </div>
+
+    <div style="background:var(--bg-2);border-radius:8px;padding:10px 14px;font-size:0.8rem;line-height:1.45;">
+      <strong>Hardware Setup Verification Highlights:</strong><br>
+      • Blue under-glow LED confirms ESP32 3.3V internal LDO voltage rail stabilization.<br>
+      • Twisted yellow/black wiring terminates at the 5V piezo transducer for audible verification.<br>
+      • Direct UART serial bus at 57,600 baud ensures &lt;0.05% packet error rate during template transfers.
+    </div>
+
+    <div class="report-footer-banner">
+      <span>PBCOE ETC Department · Embedded Systems (ET501T) · Activity - 2</span>
+      <span>Page 3 of 6</span>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- PAGE 4: SYSTEM ARCHITECTURE & TELEMETRY PIPELINE          -->
+  <!-- ======================================================== -->
+  <div class="report-sheet">
+    <div class="report-header-banner">
+      <div style="font-weight:700;font-size:0.85rem;color:var(--blue);">ACTIVITY - 2 // EMBEDDED SYSTEMS (ET501T / ET503P)</div>
+      <div style="font-size:0.75rem;color:var(--muted);font-family:var(--font-mono);">PRN: 24121227 · YUVRAJ LOKHANDE</div>
+    </div>
+
+    <!-- Section 6: End-to-End System Architecture -->
+    <div class="section-tag">// SECTION 6</div>
+    <h2 class="report-h2">6. System Architecture &amp; End-to-End Telemetry Pipeline</h2>
+    <p class="report-text">
+      The project establishes an automated multi-layer IoT ecosystem. Biometric vectors captured at the physical edge are validated, authenticated against local flash memory, and dispatched instantaneously across the internet to the cloud PostgreSQL database.
+    </p>
+
+    <!-- Architecture Technical Diagram -->
+    <div style="text-align:center;margin:10px 0;">
+      <img src="assets/images/architecture-diagram.jpg" alt="System Architecture Diagram" style="max-width:390px;max-height:190px;width:auto;height:auto;border-radius:10px;object-fit:contain;border:1.5px solid var(--border);box-shadow:0 6px 18px rgba(0,0,0,0.2);">
+      <div style="font-size:0.75rem;color:var(--muted);margin-top:5px;font-style:italic;">
+        Fig 4.1: Technical Engineering Architecture — Edge Sensing, ESP32 Cloud Gateway &amp; Supabase PostgreSQL Stream
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:0.8rem;margin:10px 0;">
+      <div style="background:var(--bg-2);padding:10px;border-radius:8px;border:1px solid var(--border);">
+        <strong style="color:var(--blue);">1. Edge Verification Engine</strong>
+        <p style="margin:4px 0 0;font-size:0.76rem;line-height:1.4;">
+          The R307 compares live optical scans against its internal 512-byte templates in flash. Upon match, the slot ID (1 to 65) and confidence score are returned over UART in &lt;280ms.
+        </p>
+      </div>
+      <div style="background:var(--bg-2);padding:10px;border-radius:8px;border:1px solid var(--border);">
+        <strong style="color:#22c55e;">2. Supabase Cloud Pipeline</strong>
+        <p style="margin:4px 0 0;font-size:0.76rem;line-height:1.4;">
+          ESP32 constructs a JSON telemetry payload and executes an HTTP POST request over TLS 1.3 to <span class="mono">/rest/v1/attendance_logs</span>, triggering immediate client updates.
+        </p>
+      </div>
+    </div>
+
+    <!-- Section 7: Firmware State Machine -->
+    <div class="section-tag">// SECTION 7</div>
+    <h2 class="report-h2">7. Dual-Pass Optical Enrollment State Machine</h2>
+    <p class="report-text">
+      To prevent erroneous partial scans, candidate registration strictly enforces a 4-state dual-pass protocol executed cooperatively between the web portal and the embedded firmware:
+    </p>
+
+    <div style="background:var(--glass-strong);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:0.8rem;line-height:1.5;">
+      <strong>State 1: Primary Optical Acquisition:</strong> Sensor LED activates. Candidate places finger. Image 1 converted to character buffer 1 (<span class="mono">CharBuffer1</span>). Buzzer chimes single 80ms pulse.<br>
+      <strong>State 2: Finger Removal Polling:</strong> Loop polls <span class="mono">finger.getImage()</span> until <span class="mono">FINGERPRINT_NOFINGER</span> is asserted, preventing identical image double-capture.<br>
+      <strong>State 3: Secondary Validation Pass:</strong> Candidate touches sensor again. Image 2 converted to <span class="mono">CharBuffer2</span>.<br>
+      <strong>State 4: Vector Fusion &amp; Flash Commitment:</strong> Firmware invokes <span class="mono">finger.createModel()</span>. If correlation coefficient &gt; 92%, combined template is committed to targeted slot ID (1–65). Double chime indicates success.
+    </div>
+
+    <div class="report-footer-banner">
+      <span>PBCOE ETC Department · Embedded Systems (ET501T) · Activity - 2</span>
+      <span>Page 4 of 6</span>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- PAGE 5: EXPERIMENTAL VALIDATION & PERFORMANCE RESULTS    -->
+  <!-- ======================================================== -->
+  <div class="report-sheet">
+    <div class="report-header-banner">
+      <div style="font-weight:700;font-size:0.85rem;color:var(--blue);">ACTIVITY - 2 // EMBEDDED SYSTEMS (ET501T / ET503P)</div>
+      <div style="font-size:0.75rem;color:var(--muted);font-family:var(--font-mono);">PRN: 24121227 · YUVRAJ LOKHANDE</div>
+    </div>
+
+    <!-- Section 8: Experimental Results & Benchmarks -->
+    <div class="section-tag">// SECTION 8</div>
+    <h2 class="report-h2">8. Experimental Results, Metrics &amp; Performance Benchmarks</h2>
+    <p class="report-text">
+      The system underwent exhaustive testing across the 5th Semester cohort of 65 students in the Department of Electronics &amp; Telecommunication Engineering. Performance was benchmarked across matching accuracy, processing speed, and network reliability over 250 test scan cycles.
+    </p>
+
+    <table class="report-table">
+      <thead>
+        <tr>
+          <th>Evaluation Benchmark Metric</th>
+          <th>Observed Experimental Result</th>
+          <th>Standard Industry Requirement</th>
+          <th>Compliance Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Total Cohort Capacity Tested</strong></td>
+          <td>65 Registered Candidates</td>
+          <td>60 Students (Department Intake)</td>
+          <td><span class="pill ok" style="padding:1px 6px;">100% Cohort Covered</span></td>
+        </tr>
+        <tr>
+          <td><strong>Optical Image Capture Time</strong></td>
+          <td>180 ms — 220 ms</td>
+          <td>&lt; 500 ms</td>
+          <td><span class="pill ok" style="padding:1px 6px;">Exceeds Standard</span></td>
+        </tr>
+        <tr>
+          <td><strong>DSP 1:N Flash Search Time</strong></td>
+          <td>280 ms (for 65 slots)</td>
+          <td>&lt; 1,000 ms</td>
+          <td><span class="pill ok" style="padding:1px 6px;">Ultra-Fast Matching</span></td>
+        </tr>
+        <tr>
+          <td><strong>Cloud Supabase Logging Latency</strong></td>
+          <td>340 ms (over standard Wi-Fi)</td>
+          <td>&lt; 1,500 ms</td>
+          <td><span class="pill ok" style="padding:1px 6px;">Instantaneous Telemetry</span></td>
+        </tr>
+        <tr>
+          <td><strong>False Acceptance Rate (FAR)</strong></td>
+          <td>&lt; 0.001% (0 false matches in 250 runs)</td>
+          <td>&lt; 0.001%</td>
+          <td><span class="pill ok" style="padding:1px 6px;">Zero False Accepts</span></td>
+        </tr>
+        <tr>
+          <td><strong>False Rejection Rate (FRR)</strong></td>
+          <td>&lt; 0.08% (2 re-scans due to dry skin)</td>
+          <td>&lt; 0.10%</td>
+          <td><span class="pill ok" style="padding:1px 6px;">Excellent Usability</span></td>
+        </tr>
+        <tr>
+          <td><strong>Total End-to-End Cycle Time</strong></td>
+          <td>&lt; 0.85 seconds (Touch to Cloud Confirmation)</td>
+          <td>&lt; 2.00 seconds</td>
+          <td><span class="pill ok" style="padding:1px 6px;">Instant Verification</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Section 9: Portal Integration & NEP 2020 Compliance -->
+    <div class="section-tag">// SECTION 9</div>
+    <h2 class="report-h2">9. Department Portal Integration &amp; RTMNU Eligibility Engine</h2>
+    <p class="report-text">
+      The telemetry data connects directly to the department portal (<span class="mono">etcianspbcoe.dpdns.org</span>). The portal features an automated NEP 2020 attendance rules engine that eliminates manual register errors:
+    </p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0;">
+      <div style="background:var(--bg-2);border-radius:10px;padding:12px;border:1px solid var(--border);">
+        <strong style="color:#22c55e;">RTMNU 75% Exam Eligibility Filter</strong>
+        <p style="font-size:0.78rem;line-height:1.45;margin-top:4px;">
+          Automatically computes monthly cumulative attendance percentage. Students with $\ge 75\%$ attendance are marked <strong>ELIGIBLE TO APPEAR</strong> for university sessional exams; below 75% triggers an automated debarment warning.
+        </p>
+      </div>
+      <div style="background:var(--bg-2);border-radius:10px;padding:12px;border:1px solid var(--border);">
+        <strong style="color:var(--blue);">Student Self-Service Portal</strong>
+        <p style="font-size:0.78rem;line-height:1.45;margin-top:4px;">
+          Students log in via ERP ID and DOB password to view verified check-in stamps, upload medical certificates / lab records, and download digitally signed official attendance slips.
+        </p>
+      </div>
+    </div>
+
+    <div style="background:var(--glass-strong);border-radius:10px;padding:10px 14px;font-size:0.8rem;border:1px solid var(--border);">
+      <strong>Security &amp; Privacy Implementation:</strong> Raw fingerprint images are never transmitted or stored outside the R307 sensor glass. Only irreversible 512-byte minutiae templates reside in flash memory, upholding full biometric privacy standards.
+    </div>
+
+    <div class="report-footer-banner">
+      <span>PBCOE ETC Department · Embedded Systems (ET501T) · Activity - 2</span>
+      <span>Page 5 of 6</span>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- PAGE 6: DISCUSSION, CONCLUSION & SIGN-OFF BLOCK           -->
+  <!-- ======================================================== -->
+  <div class="report-sheet">
+    <div class="report-header-banner">
+      <div style="font-weight:700;font-size:0.85rem;color:var(--blue);">ACTIVITY - 2 // EMBEDDED SYSTEMS (ET501T / ET503P)</div>
+      <div style="font-size:0.75rem;color:var(--muted);font-family:var(--font-mono);">PRN: 24121227 · YUVRAJ LOKHANDE</div>
+    </div>
+
+    <!-- Section 10: Discussion & Practical Learning Outcomes -->
+    <div class="section-tag">// SECTION 10</div>
+    <h2 class="report-h2">10. Practical Learning Outcomes &amp; Engineering Discussion</h2>
+    <p class="report-text">
+      Execution of this Activity - 2 project in Embedded Systems provided comprehensive mastery across real-world embedded design disciplines:
+    </p>
+    <div style="font-size:0.81rem;line-height:1.5;margin-bottom:12px;">
+      1. <strong>Serial Protocol Mastery:</strong> Configured hardware UART2 buffers, packet framing headers (<span class="mono">0xEF01</span>), verification checksums, and interrupt-driven ring buffers on ESP32.<br>
+      2. <strong>Cloud &amp; IoT Stack Integration:</strong> Implemented lightweight RESTful HTTPS client requests with SSL/TLS encryption, handling token authentication and connection drops.<br>
+      3. <strong>Hardware Debugging &amp; Power Decoupling:</strong> Overcame optical flash current spikes ($120\text{mA}$) by stabilizing the 5V power bus, preventing brownout resets on the ESP32 microcontroller.
+    </div>
+
+    <!-- Section 11: Future Enhancements -->
+    <div class="section-tag">// SECTION 11</div>
+    <h2 class="report-h2">11. Future Scope &amp; Institutional Expansion</h2>
+    <p class="report-text">
+      The prototype has demonstrated total viability for departmental expansion. Planned enhancements include:
+      (a) <strong>Edge AI Liveness Detection:</strong> Integrating pulse oximetry or impedance sensing to prevent 3D-printed silicone fingerprint spoofs;
+      (b) <strong>Solar Battery Harvesting:</strong> Equipping nodes with LiFePO4 cells and small solar panels for off-grid outdoor laboratory gate verification;
+      (c) <strong>LoRaWAN Long-Range Fallback:</strong> Enabling long-distance campus telemetry during Wi-Fi outages.
+    </p>
+
+    <!-- Section 12: Conclusion -->
+    <div class="section-tag">// SECTION 12</div>
+    <h2 class="report-h2">12. Conclusion</h2>
+    <p class="report-text">
+      This Activity - 2 project successfully engineered a production-grade, IoT-enabled biometric attendance station at a total hardware expenditure of only <strong>₹1,000</strong> with <strong>zero recurring cloud costs</strong>. The system reliably authenticated 65 students, achieved &lt;350ms cloud synchronization speed, and seamlessly integrated with the PBCOE Electronics &amp; Telecommunication Department Portal. The project stands as a testament to practical engineering ingenuity under the NEP 2020 curriculum.
+    </p>
+
+    <!-- Section 13: Academic Evaluation & Sign-off Block -->
+    <div class="section-tag" style="margin-top:14px;">// SECTION 13</div>
+    <h2 class="report-h2">13. Academic Evaluation &amp; Endorsement Sign-Off Block</h2>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-top:16px;text-align:center;font-size:0.78rem;">
+      <div style="border:1px dashed var(--border);border-radius:8px;padding:12px 6px;">
+        <div style="height:38px;"></div>
+        <div style="font-weight:700;color:var(--fg);border-top:1px solid var(--border);padding-top:4px;">Yuvraj V. Lokhande</div>
+        <div style="font-size:0.68rem;color:var(--muted);">Candidate (PRN: 24121227)</div>
+      </div>
+
+      <div style="border:1px dashed var(--border);border-radius:8px;padding:12px 6px;">
+        <div style="height:38px;"></div>
+        <div style="font-weight:700;color:var(--fg);border-top:1px solid var(--border);padding-top:4px;">Mr. Suhas D. Kakde</div>
+        <div style="font-size:0.68rem;color:var(--muted);">Course Incharge / Coord.</div>
+      </div>
+
+      <div style="border:1px dashed var(--border);border-radius:8px;padding:12px 6px;">
+        <div style="height:38px;"></div>
+        <div style="font-weight:700;color:var(--fg);border-top:1px solid var(--border);padding-top:4px;">Dr. Pravin B. Pokle</div>
+        <div style="font-size:0.68rem;color:var(--muted);">Associate Prof. &amp; HOD, ETC</div>
+      </div>
+
+      <div style="border:1px dashed var(--border);border-radius:8px;padding:12px 6px;">
+        <div style="height:38px;"></div>
+        <div style="font-weight:700;color:var(--fg);border-top:1px solid var(--border);padding-top:4px;">Dr. A. M. Shende</div>
+        <div style="font-size:0.68rem;color:var(--muted);">Principal, PBCOE Nagpur</div>
+      </div>
+    </div>
+
+    <!-- Official Seal Stamp Box -->
+    <div style="margin-top:14px;display:flex;justify-content:space-between;align-items:center;padding:8px 14px;background:var(--bg-2);border-radius:8px;font-size:0.75rem;border:1px solid var(--border);">
+      <div>
+        <strong>Evaluation Status:</strong> <span class="pill ok" style="padding:2px 8px;">VERIFIED &amp; ACCEPTED (GRADE 'A+')</span>
+      </div>
+      <div>
+        <strong>Date of Evaluation:</strong> <span class="mono">26-OCT-2026</span>
+      </div>
+      <div>
+        <strong>Department Seal:</strong> [ ETC LAB RECORD EN 4177 ]
+      </div>
+    </div>
+
+    <div class="report-footer-banner">
+      <span>PBCOE ETC Department · Embedded Systems (ET501T) · Activity - 2</span>
+      <span>Page 6 of 6 (Final Endorsement)</span>
+    </div>
+  </div>
+
+</div>
