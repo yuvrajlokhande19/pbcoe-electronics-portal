@@ -5,8 +5,8 @@
     <p class="crumb reveal"><a href="index.html">HOME</a> / PORTALS / FACULTY &amp; ADMIN</p>
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;">
       <div>
-        <h1 class="reveal" style="--d:.08s;margin:0;">Faculty Console: <span class="grad-text">Dr. Dipalee M. Kate (HOD)</span></h1>
-        <p class="section-sub reveal" style="--d:.16s mono;margin-top:6px;">HEAD OF DEPARTMENT · ELECTRONICS &amp; TELECOMMUNICATION (ETC) · PBCOE NAGPUR</p>
+        <h1 class="reveal" style="--d:.08s;margin:0;">Faculty Console: <span class="grad-text" id="fac-console-title">Dr. Pravin B. Pokle (HOD)</span></h1>
+        <p class="section-sub reveal" style="--d:.16s mono;margin-top:6px;" id="fac-console-sub">HEAD OF DEPARTMENT · ELECTRONICS &amp; TELECOMMUNICATION (ETC) · PBCOE NAGPUR</p>
       </div>
       <div style="display:flex;gap:10px;">
         <button class="btn btn-sm btn-ghost" onclick="exportAttendanceCsv()">Export CSV 📊</button>
@@ -65,6 +65,7 @@
         <button class="btn btn-sm btn-primary" id="btn-fac-roster" onclick="switchFacTab('roster')">Student Candidate Roster (65)</button>
         <button class="btn btn-sm btn-ghost" id="btn-fac-timetable" onclick="switchFacTab('timetable')">🗓️ Timetable &amp; Schedule Editor</button>
         <button class="btn btn-sm btn-ghost" id="btn-fac-override" onclick="switchFacTab('override')">✏️ Manual Attendance Override</button>
+        <button class="btn btn-sm btn-ghost" id="btn-fac-notices" onclick="switchFacTab('notices')">📌 Notice Publisher</button>
         <button class="btn btn-sm btn-ghost" id="btn-fac-settings" onclick="switchFacTab('settings')">⚙️ Thresholds &amp; Settings</button>
       </div>
 
@@ -232,11 +233,61 @@
           </div>
 
           <div class="field" style="margin-bottom:20px;">
-            <label>Firebase Realtime Database Endpoint</label>
-            <input type="text" class="input" id="cfg-firebase" placeholder="https://<YOUR-PROJECT>-default-rtdb.firebaseio.com">
+            <label>Supabase Cloud PostgreSQL Endpoint</label>
+            <input type="text" class="input" id="cfg-firebase" placeholder="https://vobyuijfocigsbahkvab.supabase.co" readonly style="opacity:0.8;">
           </div>
 
           <button class="btn btn-primary" style="width:100%;" onclick="saveAdminSettings()">Save Preferences</button>
+        </div>
+      </div>
+
+      <!-- TAB 5: NOTICE PUBLISHER -->
+      <div id="fac-tab-notices" style="display:none;">
+        <div class="card reveal" style="max-width:700px;margin:0 auto 2rem;padding:26px;">
+          <h3 style="margin-top:0;">Publish Official Notice to Supabase Cloud</h3>
+          <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1.2rem;">Notices published here immediately sync across the Home Notice Board and Student Portal.</p>
+          
+          <div class="field" style="margin-bottom:14px;">
+            <label>Notice Headline / Title</label>
+            <input type="text" id="notice-pub-title" class="input" placeholder="e.g. 5th Semester NEP Sessional Exam Timetable">
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+            <div class="field">
+              <label>Category</label>
+              <select id="notice-pub-cat" class="select">
+                <option value="Exam">Exam Schedule</option>
+                <option value="Lab">Lab Practical Submission</option>
+                <option value="Placement">Training &amp; Placement</option>
+                <option value="Event">Student Forum / Workshop</option>
+                <option value="General">General Academic Alert</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Target Audience</label>
+              <select id="notice-pub-target" class="select">
+                <option value="ALL">All Students &amp; Faculty</option>
+                <option value="STUDENTS">5th Sem Students Only</option>
+                <option value="FACULTY">Faculty Members</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field" style="margin-bottom:14px;">
+            <label>Notice Content &amp; Instructions</label>
+            <textarea id="notice-pub-content" class="textarea" rows="4" placeholder="Detailed notification instructions for candidates..."></textarea>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
+            <input type="checkbox" id="notice-pub-pin" checked style="width:18px;height:18px;accent-color:#38bdf8;">
+            <label for="notice-pub-pin" style="margin:0;cursor:pointer;font-size:0.9rem;">Pin this notice to top of Portal feed</label>
+          </div>
+
+          <div style="display:flex;gap:10px;">
+            <button class="btn btn-primary" onclick="submitFacultyNotice()">Publish to Live Portal 📌</button>
+            <button class="btn btn-ghost" onclick="document.getElementById('notice-pub-title').value='';document.getElementById('notice-pub-content').value='';">Clear</button>
+          </div>
+          <div id="notice-pub-status" style="margin-top:12px;font-size:0.85rem;display:none;"></div>
         </div>
       </div>
 
@@ -260,6 +311,11 @@ async function initFacultyConsole() {
   document.getElementById("admin-gate").style.display = "none";
   document.getElementById("admin-content").style.display = "block";
 
+  if (user && user.data && user.data.name) {
+    document.getElementById("fac-console-title").innerText = user.data.name;
+    document.getElementById("fac-console-sub").innerText = `${user.data.designation || 'FACULTY'} · PBCOE NAGPUR`;
+  }
+
   facultyStudents = window.PBCOE.getStudents();
   activeTimetable = window.PBCOE.getTimetable();
 
@@ -268,7 +324,8 @@ async function initFacultyConsole() {
   renderTimetableDay();
   updateRiskCount();
 
-  document.getElementById("cfg-firebase").value = window.PBCOE.getFirebaseUrl();
+  const cfgSupabase = document.getElementById("cfg-firebase");
+  if (cfgSupabase) cfgSupabase.value = window.PBCOE.getSupabaseUrl();
 }
 
 function submitGateLogin() {
@@ -287,10 +344,42 @@ function submitGateLogin() {
 }
 
 function switchFacTab(tab) {
-  ['roster', 'timetable', 'override', 'settings'].forEach(t => {
-    document.getElementById(`fac-tab-${t}`).style.display = (t === tab) ? 'block' : 'none';
-    document.getElementById(`btn-fac-${t}`).className = "btn btn-sm " + (t === tab ? 'btn-primary' : 'btn-ghost');
+  ['roster', 'timetable', 'override', 'notices', 'settings'].forEach(t => {
+    const el = document.getElementById(`fac-tab-${t}`);
+    const btn = document.getElementById(`btn-fac-${t}`);
+    if (el) el.style.display = (t === tab) ? 'block' : 'none';
+    if (btn) btn.className = "btn btn-sm " + (t === tab ? 'btn-primary' : 'btn-ghost');
   });
+}
+
+async function submitFacultyNotice() {
+  const title = (document.getElementById("notice-pub-title").value || "").trim();
+  const content = (document.getElementById("notice-pub-content").value || "").trim();
+  const category = document.getElementById("notice-pub-cat").value;
+  const target = document.getElementById("notice-pub-target").value;
+  const pinned = document.getElementById("notice-pub-pin").checked;
+  const stat = document.getElementById("notice-pub-status");
+  if (!title || !content) {
+    alert("Please enter both notice headline and instructions.");
+    return;
+  }
+  const user = window.PBCOE.getCurrentUser();
+  const author = (user && user.data && user.data.name) || "Dr. Pravin B. Pokle (HOD, ETC)";
+  const res = await window.PBCOE.postNotice({
+    title, content, category, target_audience: target, pinned, author
+  });
+  if (res && res.success) {
+    stat.style.display = "block";
+    stat.className = "pill ok";
+    stat.innerText = "✔ Notice successfully published to Supabase Cloud!";
+    document.getElementById("notice-pub-title").value = "";
+    document.getElementById("notice-pub-content").value = "";
+    setTimeout(() => { stat.style.display = "none"; }, 4000);
+  } else {
+    stat.style.display = "block";
+    stat.className = "pill bad";
+    stat.innerText = "✖ Could not publish notice. Check Supabase connection.";
+  }
 }
 
 function renderFacultyRoster(list) {

@@ -18,18 +18,50 @@ const char* supabaseBaseUrl = "https://vobyuijfocigsbahkvab.supabase.co";
 const char* supabaseApiKey  = "sb_publishable_wIYMMvFnNFMXyFavLagzIA_4rBYuOMN";
 
 // ========================================================
-// 2. Hardware UART on GPIO 4 (D4) & GPIO 2 (D2)
+// 2. Hardware UART on GPIO 4 (D4) & GPIO 2 (D2) + Buzzer D5
 // ========================================================
-#define SENSOR_RX 4  // Sensor Yellow (TX) -> ESP32 D4 (GPIO 4)
-#define SENSOR_TX 2  // Sensor Green (RX)  -> ESP32 D2 (GPIO 2)
+#define SENSOR_RX 4    // Sensor Yellow (TX) -> ESP32 D4 (GPIO 4)
+#define SENSOR_TX 2    // Sensor Green (RX)  -> ESP32 D2 (GPIO 2)
+#define BUZZER_PIN 5   // Buzzer (+) -> ESP32 D5 (GPIO 5), Buzzer (-) -> GND
 
 HardwareSerial mySerial(2);
 Adafruit_Fingerprint finger = Adafruit_Fingerprint(&mySerial);
 WebServer server(80);
 Preferences prefs;
 
+// Buzzer Acoustic Feedback Machine
+void playBuzzerTone(int freq, int durationMs) {
+  tone(BUZZER_PIN, freq, durationMs);
+  delay(durationMs);
+  noTone(BUZZER_PIN);
+}
+
+// 1. Successful Attendance Check-in: Two crisp high-pitch beeps
+void soundCheckInSuccess() {
+  playBuzzerTone(2200, 90);
+  delay(40);
+  playBuzzerTone(2700, 140);
+}
+
+// 2. Double Scan (Already Marked Present within 30s): Fast chirp
+void soundDoubleScan() {
+  playBuzzerTone(2900, 50);
+  delay(35);
+  playBuzzerTone(3300, 50);
+}
+
+// 3. Unrecognized Fingerprint / Error: Low warning buzz
+void soundUnrecognized() {
+  playBuzzerTone(550, 480);
+}
+
+// 4. Optical Pass Captured: Short confirmation pip
+void soundEnrollStep() {
+  playBuzzerTone(2400, 70);
+}
+
 // ========================================================
-// 3. Built-in Roster of 65 PBCOE Candidates
+// 3. Built-in Roster of 65 PBCOE Candidates (5th Sem ETC)
 // ========================================================
 struct StudentCandidate {
   uint8_t id;
@@ -132,7 +164,7 @@ void saveStudent(int id, String name, String roll) {
 }
 
 // ========================================================
-// 4. State Management
+// 4. State Management & Anti-Duplicate Scan Filter
 // ========================================================
 enum SystemMode { MODE_ATTENDANCE, MODE_ENROLLING };
 SystemMode currentMode = MODE_ATTENDANCE;
@@ -144,6 +176,9 @@ String enrollTargetRoll = "";
 String enrollStepMsg = "Idle";
 int enrollProgress = 0; // 0: Idle, 1: Pass 1, 2: Lift, 3: Pass 2
 unsigned long enrollStartTime = 0;
+
+int lastScannedSlot = -1;
+unsigned long lastScannedTime = 0;
 
 void setCorsHeaders() {
   server.sendHeader("Access-Control-Allow-Origin", "*");
@@ -277,6 +312,7 @@ void checkBiometricCommands() {
             enrollStepMsg = "Step 1: Place finger flat on optical sensor";
             enrollStartTime = millis();
 
+            soundEnrollStep();
             updateCommandStatus(cmdId, "STEP_1");
             Serial.println(">> [STEP 1] Optical LED Active! Place finger on sensor glass now...");
           }
@@ -294,6 +330,7 @@ void processEnrollment() {
   // Check for 45-second timeout
   if (millis() - enrollStartTime > 45000) {
     Serial.println(">> [ENROLL] Registration timed out (45s). Returning to attendance mode.");
+    soundUnrecognized();
     updateCommandStatus(activeCommandId, "FAILED");
     currentMode = MODE_ATTENDANCE;
     enrollProgress = 0;
@@ -308,12 +345,11 @@ void processEnrollment() {
       Serial.println(">> [ENROLL] Image 1 captured! Converting to template...");
       p = finger.image2Tz(1);
       if (p == FINGERPRINT_OK) {
+        soundEnrollStep();
         Serial.println(">> [STEP 2] Template 1 generated successfully! Lift finger now...");
         enrollStepMsg = "Image 1 OK! Lift finger...";
         enrollProgress = 2;
         updateCommandStatus(activeCommandId, "LIFT_FINGER");
-      } else {
-        Serial.printf(">> [ENROLL] Error converting image 1: %d\n", p);
       }
     }
   } 
@@ -321,6 +357,7 @@ void processEnrollment() {
   else if (enrollProgress == 2) {
     uint8_t p = finger.getImage();
     if (p == FINGERPRINT_NOFINGER) {
+      soundEnrollStep();
       Serial.println(">> [STEP 3] Finger lifted. Place SAME finger again (Pass 2 of 2)...");
       enrollStepMsg = "Place SAME finger again (Pass 2)...";
       enrollProgress = 3;
@@ -344,6 +381,11 @@ void processEnrollment() {
             markStudentEnrolledInSupabase(enrollTargetRoll, enrollTargetID);
             updateCommandStatus(activeCommandId, "SUCCESS");
 
+            // Double celebration chime
+            soundCheckInSuccess();
+            delay(120);
+            soundCheckInSuccess();
+
             Serial.println("===================================================");
             Serial.printf(">> [SUCCESS] Successfully enrolled slot #%d for %s!\n", enrollTargetID, enrollTargetName.c_str());
             Serial.println("===================================================\n");
@@ -353,14 +395,14 @@ void processEnrollment() {
             enrollProgress = 0;
             activeCommandId = 0;
           } else {
-            Serial.printf(">> [FAIL] Flash store error: %d\n", p);
+            soundUnrecognized();
             updateCommandStatus(activeCommandId, "FAILED");
             currentMode = MODE_ATTENDANCE;
             enrollProgress = 0;
             activeCommandId = 0;
           }
         } else {
-          Serial.println(">> [FAIL] Fingerprints did not match! Biometric model rejected.");
+          soundUnrecognized();
           updateCommandStatus(activeCommandId, "FAILED");
           currentMode = MODE_ATTENDANCE;
           enrollProgress = 0;
@@ -372,11 +414,11 @@ void processEnrollment() {
 }
 
 // ========================================================
-// 7. Attendance Scanning Loop
+// 7. Attendance Scanning Loop with Buzzer Audio Patterns
 // ========================================================
 void processAttendance() {
   static unsigned long lastCheck = 0;
-  if (millis() - lastCheck > 200) {
+  if (millis() - lastCheck > 180) {
     lastCheck = millis();
 
     uint8_t p = finger.getImage();
@@ -389,13 +431,23 @@ void processAttendance() {
           String name, roll;
           getStudentInfo(id, name, roll);
 
-          Serial.println("\n---------------------------------------------------");
-          Serial.printf(">> [MATCH] Slot #%d | %s | PRN: %s (Score: %d)\n", id, name.c_str(), roll.c_str(), finger.confidence);
-          Serial.println("---------------------------------------------------");
+          // Check if double scan within 30 seconds
+          if (id == lastScannedSlot && (millis() - lastScannedTime < 30000)) {
+            Serial.printf(">> [DOUBLE SCAN] Slot #%d (%s) already attended!\n", id, name.c_str());
+            soundDoubleScan();
+          } else {
+            Serial.println("\n---------------------------------------------------");
+            Serial.printf(">> [MATCH] Slot #%d | %s | PRN: %s (Score: %d)\n", id, name.c_str(), roll.c_str(), finger.confidence);
+            Serial.println("---------------------------------------------------");
 
-          syncAttendanceToSupabase(id, name, roll, "Present", finger.confidence);
+            soundCheckInSuccess();
+            lastScannedSlot = id;
+            lastScannedTime = millis();
+            syncAttendanceToSupabase(id, name, roll, "Present", finger.confidence);
+          }
         } else if (p == FINGERPRINT_NOTFOUND) {
           Serial.println("\n>> [UNKNOWN] Unregistered fingerprint detected on optical prism.");
+          soundUnrecognized();
           syncAttendanceToSupabase(0, "Unregistered Student", "N/A", "Unregistered", 0);
         }
       }
@@ -403,7 +455,7 @@ void processAttendance() {
       // Wait until finger is removed so single touch doesn't double-trigger
       while (finger.getImage() != FINGERPRINT_NOFINGER) {
         server.handleClient();
-        delay(40);
+        delay(30);
       }
     }
   }
@@ -428,6 +480,7 @@ void handleSerialCommands() {
           currentMode = MODE_ENROLLING;
           enrollProgress = 1;
           enrollStartTime = millis();
+          soundEnrollStep();
           Serial.printf("\n[SERIAL] Manual enrollment triggered for Slot #%d (%s)\n", targetSlot, sName.c_str());
           Serial.println(">> Place finger on sensor glass now (Pass 1 of 2)...");
         }
@@ -435,8 +488,10 @@ void handleSerialCommands() {
     } else if (cmd == "LIST") {
       finger.getTemplateCount();
       Serial.printf("R307 Template Count: %d\n", finger.templateCount);
+    } else if (cmd == "BEEP") {
+      soundCheckInSuccess();
     } else if (cmd == "HELP") {
-      Serial.println("Commands: ENROLL <id> | LIST | HELP");
+      Serial.println("Commands: ENROLL <id> | LIST | BEEP | HELP");
     }
   }
 }
@@ -448,11 +503,20 @@ void setup() {
   Serial.begin(115200);
   delay(1000);
 
+  pinMode(BUZZER_PIN, OUTPUT);
+  digitalWrite(BUZZER_PIN, LOW);
+
+  // Power-on chirp melody
+  playBuzzerTone(2000, 70);
+  delay(30);
+  playBuzzerTone(2500, 90);
+
   prefs.begin("students", false);
 
   Serial.println("\n=======================================================");
   Serial.println("  PBCOE Biometric Node v2026 (Pure Cloud Supabase)     ");
-  Serial.println("  Full Dual-Pass Enrollment & Live Attendance Stream   ");
+  Serial.println("  Department of Electronics & Telecommunication (ETC)  ");
+  Serial.println("  Hardware: ESP32 + R307 + D5 Buzzer + Cloud Sync      ");
   Serial.println("=======================================================");
 
   // Connect to WiFi
@@ -470,6 +534,7 @@ void setup() {
   if (WiFi.status() == WL_CONNECTED) {
     Serial.printf("\n[WiFi] Connected! Node IP: http://%s\n", WiFi.localIP().toString().c_str());
     Serial.printf("[Supabase] Connected to: %s\n", supabaseBaseUrl);
+    playBuzzerTone(2800, 60);
   } else {
     Serial.println("\n[WiFi] Failed to connect! Node will continue offline polling.");
   }
@@ -491,6 +556,8 @@ void setup() {
   server.on("/", []() {
     setCorsHeaders();
     String h = "<h1>PBCOE Biometric Node v2026 Active</h1>";
+    h += "<p>Department: Electronics & Telecommunication (ETC)</p>";
+    h += "<p>HOD: Dr. Pravin B. Pokle</p>";
     h += "<p>Connected to Supabase Cloud: " + String(supabaseBaseUrl) + "</p>";
     h += "<p>Enrolled Templates: " + String(finger.templateCount) + "</p>";
     server.send(200, "text/html", h);
@@ -512,6 +579,7 @@ void setup() {
       currentMode = MODE_ENROLLING;
       enrollProgress = 1;
       enrollStartTime = millis();
+      soundEnrollStep();
 
       server.send(200, "application/json", "{\"status\":\"ENROLL_STARTED\",\"slot\":" + String(tid) + "}");
     } else {
@@ -520,7 +588,7 @@ void setup() {
   });
 
   server.begin();
-  Serial.println("[System] Biometric Attendance System Ready. Place finger to test...\n");
+  Serial.println("[System] Biometric Attendance System Ready with D5 Buzzer. Place finger to test...\n");
 }
 
 void loop() {

@@ -20,6 +20,7 @@
       <button class="tab active" data-tab="gpio">▣ GPIO SIMULATOR</button>
       <button class="tab" data-tab="wave">∿ WAVEFORM MATCH</button>
       <button class="tab" data-tab="vhdl">⌘ VHDL BUILDER</button>
+      <button class="tab" data-tab="embedded">⚙ 5TH SEM EMBEDDED (ET501T)</button>
     </div>
 
     <!-- ================= GAME 1: GPIO ================= -->
@@ -71,6 +72,67 @@
         <br>
         <div class="word-tiles" id="vhdl-tiles"></div>
         <p class="center mono" id="vhdl-msg" style="margin-top:1.1rem;font-size:.95rem;color:var(--muted)">Click tokens in the correct sequence.</p>
+      </div>
+    </div>
+
+    <!-- ================= GAME 4: 5TH SEM EMBEDDED (ET501T) ================= -->
+    <div class="tab-panel" id="tab-embedded">
+      <div class="glass game-shell reveal zoom">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.8rem;margin-bottom:1.2rem">
+          <div>
+            <h3 style="margin:0;color:#38bdf8;">ET501T · EMBEDDED SYSTEMS &amp; BIOMETRIC HARDWARE LAB</h3>
+            <p style="margin:2px 0 0;font-size:0.8rem;color:var(--muted);">Timer 1 Baud Math · ESP32 D5 Buzzer Bitmasking · R307 Optical Packet Decoders</p>
+          </div>
+          <span class="score-pill">EXP POINTS <b id="emb-score">0</b></span>
+        </div>
+
+        <div class="grid-2" style="gap:1.5rem;align-items:stretch;">
+          <!-- Task 1: Baud Rate Reload Value -->
+          <div style="background:#090d16;border:1px solid var(--border);border-radius:14px;padding:18px;">
+            <span class="pill ok" style="font-size:0.7rem;">CHALLENGE 1</span>
+            <h4 style="margin:8px 0 4px;color:#f8fafc;">8051 Timer 1 Reload (TH1)</h4>
+            <p style="font-size:0.82rem;color:var(--muted);line-height:1.4;">
+              Given Crystal = <strong>11.0592 MHz</strong> and Target Baud = <strong>9600 bps</strong> (SMOD=0).<br>
+              Formula: <code>TH1 = 256 - (11059200 / (384 × Baud))</code>. What is the Hex value?
+            </p>
+            <div style="display:flex;gap:8px;margin-top:12px;">
+              <input type="text" id="emb-th1-input" class="input mono" placeholder="e.g. 0xFD" style="max-width:140px;text-transform:uppercase;">
+              <button class="btn btn-sm btn-accent" onclick="checkTh1Answer()">Verify TH1</button>
+            </div>
+            <div id="emb-th1-res" class="mono" style="margin-top:8px;font-size:0.8rem;color:var(--muted);">Enter 2-digit hex</div>
+          </div>
+
+          <!-- Task 2: ESP32 GPIO Bitmask -->
+          <div style="background:#090d16;border:1px solid var(--border);border-radius:14px;padding:18px;">
+            <span class="pill mid" style="font-size:0.7rem;">CHALLENGE 2</span>
+            <h4 style="margin:8px 0 4px;color:#f8fafc;">ESP32 GPIO 5 (Buzzer) &amp; GPIO 4 (RX)</h4>
+            <p style="font-size:0.82rem;color:var(--muted);line-height:1.4;">
+              Calculate the combined bitmask <code>(1 &lt;&lt; 5) | (1 &lt;&lt; 4)</code> in Decimal:
+            </p>
+            <div style="display:flex;gap:8px;margin-top:12px;">
+              <input type="number" id="emb-mask-input" class="input mono" placeholder="Decimal value" style="max-width:140px;">
+              <button class="btn btn-sm btn-primary" onclick="checkMaskAnswer()">Verify Mask</button>
+            </div>
+            <div id="emb-mask-res" class="mono" style="margin-top:8px;font-size:0.8rem;color:var(--muted);">Hint: 32 + 16 = ?</div>
+          </div>
+        </div>
+
+        <!-- Task 3: Biometric Handshake Decoder -->
+        <div style="margin-top:1.5rem;background:#090d16;border:1px solid var(--border);border-radius:14px;padding:18px;">
+          <span class="pill ok" style="font-size:0.7rem;">CHALLENGE 3</span>
+          <h4 style="margin:8px 0 4px;color:#f8fafc;">R307 Optical Sensor Header &amp; Handshake</h4>
+          <p style="font-size:0.82rem;color:var(--muted);line-height:1.4;">
+            Every R307 UART frame begins with a fixed 2-byte start code. What is this magic header?
+          </p>
+          <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;">
+            <button class="btn btn-sm btn-ghost" onclick="checkR307Header('0xAA55')">0xAA55</button>
+            <button class="btn btn-sm btn-ghost" onclick="checkR307Header('0xEF01')">0xEF01</button>
+            <button class="btn btn-sm btn-ghost" onclick="checkR307Header('0x7E7E')">0x7E7E</button>
+            <button class="btn btn-sm btn-ghost" onclick="checkR307Header('0xFFFF')">0xFFFF</button>
+          </div>
+          <div id="emb-r307-res" class="mono" style="margin-top:8px;font-size:0.8rem;color:var(--muted);">Select standard Adafruit / PBCOE R307 frame identifier</div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -266,5 +328,51 @@ function placeTile(btn) {
 }
 $("#vhdl-clear").addEventListener("click", loadPuzzle);
 loadPuzzle();
+
+/* ============ GAME 4: 5TH SEM EMBEDDED CHALLENGE ============ */
+let embScore = 0;
+function addEmbScore(pts) {
+  embScore += pts;
+  const el = document.getElementById("emb-score");
+  if (el) el.textContent = embScore;
+}
+
+window.checkTh1Answer = function() {
+  const val = (document.getElementById("emb-th1-input").value || "").trim().toUpperCase();
+  const res = document.getElementById("emb-th1-res");
+  if (val === "0xFD" || val === "FD" || val === "253") {
+    res.textContent = "✔ CORRECT! TH1 = 256 - 3 = 253 (0xFD) gives exact 9600 baud rate! (+50 XP)";
+    res.style.color = "#22c55e";
+    addEmbScore(50);
+  } else {
+    res.textContent = "✖ Incorrect reload value. Remember: 11059200 / (384 * 9600) = 3. 256 - 3 = 253 = 0xFD";
+    res.style.color = "#ef4444";
+  }
+};
+
+window.checkMaskAnswer = function() {
+  const val = parseInt(document.getElementById("emb-mask-input").value, 10);
+  const res = document.getElementById("emb-mask-res");
+  if (val === 48) {
+    res.textContent = "✔ SPOT ON! (1 << 5) = 32, (1 << 4) = 16. Combined = 48 (0x30)! (+50 XP)";
+    res.style.color = "#22c55e";
+    addEmbScore(50);
+  } else {
+    res.textContent = "✖ Not quite. 1<<5 is 32 (GPIO 5 buzzer) and 1<<4 is 16 (GPIO 4 RX). 32 + 16 = 48.";
+    res.style.color = "#ef4444";
+  }
+};
+
+window.checkR307Header = function(ans) {
+  const res = document.getElementById("emb-r307-res");
+  if (ans === "0xEF01") {
+    res.textContent = "✔ EXCELLENT! 0xEF01 is the universal packet start code for R307 optical prism! (+50 XP)";
+    res.style.color = "#22c55e";
+    addEmbScore(50);
+  } else {
+    res.textContent = `✖ ${ans} is not the R307 header. Standard packet preamble is 0xEF01.`;
+    res.style.color = "#ef4444";
+  }
+};
 })();
 </script>

@@ -319,38 +319,38 @@ window.PBCOE = (function () {
     }
     return {
       MON: [
-        { time: "09:00 - 10:00", subject: "Microcontrollers & Embedded C", room: "E-101", faculty: "Prof. R. Saxena" },
-        { time: "10:00 - 11:00", subject: "Digital Signal Processing", room: "E-108", faculty: "Dr. K. Iyer" },
-        { time: "11:00 - 12:00", subject: "Antenna & Microwave Theory", room: "E-310", faculty: "Prof. P. Deshmukh" },
-        { time: "13:00 - 14:00", subject: "Elective: IoT Embedded Systems", room: "E-115", faculty: "Prof. A. Joshi" },
-        { time: "14:00 - 16:00", subject: "MicroC Hands-on Lab", room: "E-101 Embedded Lab", faculty: "Prof. R. Saxena" }
+        { time: "09:00 - 10:00", subject: "ET501T Embedded Systems", room: "E-101", faculty: "Dr. Pravin B. Pokle (HOD)" },
+        { time: "10:00 - 11:00", subject: "ET502T Communication Electronics", room: "E-108", faculty: "Mr. Suhas D. Kakde" },
+        { time: "11:00 - 12:00", subject: "ET505T Signals & Systems", room: "E-310", faculty: "Mrs. Jayshri Shelke" },
+        { time: "13:00 - 14:00", subject: "ET506-1T Digital System Design using VHDL", room: "E-115", faculty: "Mrs. Nisha Naukarkar" },
+        { time: "14:00 - 16:00", subject: "ET503P Embedded Systems Lab", room: "E-101 IoT Lab", faculty: "Dr. Jayant Y. Hande" }
       ],
       TUE: [
-        { time: "09:00 - 10:00", subject: "Digital Communication", room: "E-204", faculty: "Dr. S. Patil" },
-        { time: "10:00 - 11:00", subject: "Microcontrollers & Embedded C", room: "E-101", faculty: "Prof. R. Saxena" },
-        { time: "11:00 - 12:00", subject: "Mentor Group Discussion", room: "Room 202", faculty: "Faculty Team" },
-        { time: "13:00 - 14:00", subject: "DSP Problem Solving", room: "E-108", faculty: "Dr. K. Iyer" },
-        { time: "14:00 - 16:00", subject: "Digital Communication Lab", room: "E-204 Comm Bay", faculty: "Dr. S. Patil" }
+        { time: "09:00 - 10:00", subject: "ET502T Communication Electronics", room: "E-204", faculty: "Mr. Suhas D. Kakde" },
+        { time: "10:00 - 11:00", subject: "ET501T Embedded Systems", room: "E-101", faculty: "Dr. Pravin B. Pokle" },
+        { time: "11:00 - 12:00", subject: "ET505T Signals & Systems", room: "Room 202", faculty: "Mrs. Jayshri Shelke" },
+        { time: "13:00 - 14:00", subject: "Academic Mentoring & Doubts", room: "E-108", faculty: "Mr. Suhas D. Kakde" },
+        { time: "14:00 - 16:00", subject: "ET504P Communication Electronics Lab", room: "E-204 Comm Bay", faculty: "Mr. Suhas D. Kakde" }
       ],
       WED: [
-        { time: "09:00 - 10:00", subject: "Antenna & Microwave Theory", room: "E-310", faculty: "Prof. P. Deshmukh" },
-        { time: "10:00 - 11:00", subject: "Elective: IoT Embedded Systems", room: "E-115", faculty: "Prof. A. Joshi" },
-        { time: "11:00 - 12:00", subject: "Digital Signal Processing", room: "E-108", faculty: "Dr. K. Iyer" },
-        { time: "13:00 - 14:00", subject: "Open Hardware Bench", room: "E-101", faculty: "Open Access" },
-        { time: "14:00 - 16:00", subject: "Capstone Project Work", room: "Project Hub", faculty: "Project Guides" }
+        { time: "09:00 - 10:00", subject: "ET505T Signals & Systems", room: "E-310", faculty: "Mrs. Jayshri Shelke" },
+        { time: "10:00 - 11:00", subject: "ET506-1T Digital System Design using VHDL", room: "E-115", faculty: "Mrs. Nisha Naukarkar" },
+        { time: "11:00 - 12:00", subject: "ET501T Embedded Systems", room: "E-101", faculty: "Dr. Pravin B. Pokle" },
+        { time: "13:00 - 14:00", subject: "Biometric & IoT Project Hub", room: "E-101", faculty: "Dr. Jayant Y. Hande" },
+        { time: "14:00 - 16:00", subject: "ET507P VHDL Hardware Lab", room: "E-205 FPGA Lab", faculty: "Mrs. Nisha Naukarkar" }
       ],
       THU: [
-        { time: "09:00 - 10:00", subject: "Digital Communication", room: "E-204", faculty: "Dr. S. Patil" },
-        { time: "10:00 - 11:00", subject: "Antenna & Microwave Theory", room: "E-310", faculty: "Prof. P. Deshmukh" },
-        { time: "11:00 - 12:00", subject: "Microcontrollers & Embedded C", room: "E-101", faculty: "Prof. R. Saxena" },
-        { time: "13:00 - 14:00", subject: "Training & Placement Cell", room: "Auditorium", faculty: "T&P Officers" },
-        { time: "14:00 - 16:00", subject: "FPGA & VHDL Workstation", room: "E-204 FPGA Lab", faculty: "Prof. V. Sharma" }
+        { time: "09:00 - 10:00", subject: "ET502T Communication Electronics", room: "E-204", faculty: "Mr. Suhas D. Kakde" },
+        { time: "10:00 - 11:00", subject: "ET505T Signals & Systems", room: "E-310", faculty: "Mrs. Jayshri Shelke" },
+        { time: "11:00 - 12:00", subject: "ET501T Embedded Systems", room: "E-101", faculty: "Dr. Pravin B. Pokle" },
+        { time: "13:00 - 14:00", subject: "Training & Placement Cell", room: "Auditorium", faculty: "Dr. Pravin M. Palkar" },
+        { time: "14:00 - 16:00", subject: "Continuous Assessment / Remedial", room: "E-101", faculty: "Faculty Cohort" }
       ],
       FRI: [
-        { time: "09:00 - 10:00", subject: "DSP Lab Pre-work", room: "E-108", faculty: "Dr. K. Iyer" },
-        { time: "10:00 - 12:00", subject: "DSP Simulation Lab", room: "E-108 Simulation Bay", faculty: "Dr. K. Iyer" },
-        { time: "13:00 - 14:00", subject: "Technical Seminar & Paper Review", room: "Seminar Hall", faculty: "HOD / Faculty" },
-        { time: "14:00 - 15:00", subject: "Robotics & IoT Club", room: "Student Activity Center", faculty: "Club Leads" },
+        { time: "09:00 - 10:00", subject: "ET506-1T VHDL Advanced Synthesis", room: "E-108", faculty: "Mrs. Nisha Naukarkar" },
+        { time: "10:00 - 12:00", subject: "Mini-Project / Simulation Lab", room: "E-108 Simulation Bay", faculty: "Dr. Jayant Y. Hande" },
+        { time: "13:00 - 14:00", subject: "Technical Seminar & Paper Review", room: "Seminar Hall", faculty: "Dr. Pravin B. Pokle" },
+        { time: "14:00 - 15:00", subject: "Robotics & IoT Club Workshop", room: "Student Activity Center", faculty: "Faculty Leads" },
         { time: "15:00 - 17:00", subject: "Open Hardware Lab Access", room: "E-101", faculty: "Lab Incharges" }
       ]
     };
@@ -387,11 +387,11 @@ window.PBCOE = (function () {
   function loginAdmin(username, password) {
     const u = (username || "").trim().toLowerCase();
     const p = (password || "").trim();
-    if (u === "admin" && (p === "pbcoe2026" || p === "password123" || p === "admin123")) {
+    if ((u === "admin" || u === "hod") && (p === "pbcoe2026" || p === "password123" || p === "admin123" || p === "pokle123")) {
       currentUser = {
         role: "admin",
         data: {
-          name: "Dr. Dipalee M. Kate",
+          name: "Dr. Pravin B. Pokle",
           designation: "Associate Professor & Head of Department (ETC)",
           email: "hod.etc@pbcoe.edu.in",
           college: "Priyadarshini Bhagwati College of Engineering, Nagpur"
@@ -399,8 +399,95 @@ window.PBCOE = (function () {
       };
       localStorage.setItem("pbcoe_user", JSON.stringify(currentUser));
       return { success: true, user: currentUser };
+    } else if ((u === "coordinator" || u === "kakde") && (p === "pbcoe2026" || p === "kakde123")) {
+      currentUser = {
+        role: "admin",
+        data: {
+          name: "Mr. Suhas D. Kakde",
+          designation: "Assistant Professor & Academic Coordinator (ETC)",
+          email: "suhas.kakde@pbcoe.edu.in",
+          college: "Priyadarshini Bhagwati College of Engineering, Nagpur"
+        }
+      };
+      localStorage.setItem("pbcoe_user", JSON.stringify(currentUser));
+      return { success: true, user: currentUser };
     }
-    return { success: false, message: "Invalid Admin ID or Password. (Hint: admin / pbcoe2026)" };
+    return { success: false, message: "Invalid Faculty/Admin ID or Password. (Hint: admin / pbcoe2026 or coordinator / pbcoe2026)" };
+  }
+
+  async function getNotices() {
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/notices?order=pinned.desc,created_at.desc`, {
+        headers: getSupabaseHeaders(),
+        cache: "no-store"
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (e) {
+      console.warn("Failed to fetch notices:", e);
+    }
+    return [];
+  }
+
+  async function postNotice(noticeData) {
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/notices`, {
+        method: "POST",
+        headers: { ...getSupabaseHeaders(), "Prefer": "return=representation" },
+        body: JSON.stringify(noticeData)
+      });
+      if (res.ok) {
+        return { success: true, data: await res.json() };
+      }
+    } catch (e) {
+      console.error("Failed to post notice:", e);
+    }
+    return { success: false };
+  }
+
+  async function getChatMessages(channel = "etc_5th_sem", limit = 50) {
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/chat_messages?channel=eq.${channel}&order=created_at.asc&limit=${limit}`, {
+        headers: getSupabaseHeaders(),
+        cache: "no-store"
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (e) {
+      console.warn("Failed to fetch chat messages:", e);
+    }
+    return [];
+  }
+
+  async function sendChatMessage(channel, messageText, senderInfo = null) {
+    const user = senderInfo || currentUser;
+    const senderId = (user && user.data && (user.data.prn || user.data.email)) || "GUEST";
+    const senderName = (user && user.data && user.data.name) || "Anonymous Student";
+    const senderRole = (user && user.role) || "student";
+
+    const payload = {
+      sender_id: senderId,
+      sender_name: senderName,
+      sender_role: senderRole,
+      channel: channel || "etc_5th_sem",
+      message: messageText
+    };
+
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/chat_messages`, {
+        method: "POST",
+        headers: { ...getSupabaseHeaders(), "Prefer": "return=representation" },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        return { success: true, data: await res.json() };
+      }
+    } catch (e) {
+      console.error("Failed to post chat message:", e);
+    }
+    return { success: false };
   }
 
   function logout() {
@@ -432,6 +519,10 @@ window.PBCOE = (function () {
     triggerCloudEnrollment: triggerCloudEnrollment,
     getBiometricCommandStatus: getBiometricCommandStatus,
     markStudentEnrolled: markStudentEnrolled,
+    getNotices: getNotices,
+    postNotice: postNotice,
+    getChatMessages: getChatMessages,
+    sendChatMessage: sendChatMessage,
     getSupabaseUrl: () => SUPABASE_URL,
     getSupabaseKey: () => SUPABASE_KEY
   };
