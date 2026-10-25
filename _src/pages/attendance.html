@@ -9,8 +9,8 @@
         <p class="section-sub reveal" style="--d:.16s mono;margin-top:6px;">R307 OPTICAL TELEMETRY · ESP32 IOT CORE · DIRECT INTERNET CLOUD SYNC</p>
       </div>
       <div style="display:flex;gap:10px;align-items:center;">
-        <button class="btn btn-sm btn-ghost" onclick="openCloudSettings()">⚙️ Cloud Setup</button>
-        <button class="btn btn-sm btn-primary" onclick="openEnrollModal()">+ Enroll Fingerprint</button>
+        <button class="btn btn-sm btn-ghost" onclick="window.PBCOE_AUTH.openLogin(); window.PBCOE_AUTH.switchTab('cloud');">⚙️ Cloud Setup</button>
+        <button class="btn btn-sm btn-primary" onclick="switchView('enroll')">🪪 Enrollment Station</button>
       </div>
     </div>
   </div>
@@ -20,8 +20,8 @@
   <div class="ticker-track" data-ticker>
     <span><b>CLOUD INFRASTRUCTURE:</b> DIRECT FIREBASE RTDB STREAMING</span><span class="dot">//</span>
     <span><b>SENSOR HARDWARE:</b> R307 DUAL-PASS OPTICAL PRISM</span><span class="dot">//</span>
-    <span><b>STUDENT DIRECTORY:</b> 65 CANDIDATES SYNCHRONIZED</span><span class="dot">//</span>
-    <span><b>NETWORK SECURITY:</b> ZERO-LOCALHOST / PURE HTTPS SSL</span><span class="dot">//</span>
+    <span><b>STUDENT DIRECTORY:</b> 65 CANDIDATES LOADED</span><span class="dot">//</span>
+    <span><b>ACCURACY:</b> 2-PASS VECTOR EXTRACTION</span><span class="dot">//</span>
   </div>
 </div>
 
@@ -36,22 +36,23 @@
       </div>
       <div class="glass stat">
         <div class="num"><span data-count="65">65</span></div>
-        <div class="lbl">Roster Candidates Loaded</div>
+        <div class="lbl">Roster Candidates</div>
       </div>
       <div class="glass stat">
-        <div class="num" id="stat-total-scans">14</div>
-        <div class="lbl">Live Verified Scans</div>
+        <div class="num" id="stat-enrolled-count" style="color:#38bdf8;">0</div>
+        <div class="lbl">Enrolled Fingerprints</div>
       </div>
       <div class="glass stat">
-        <div class="num" id="stat-avg-confidence" style="font-size:1.4rem;color:#38bdf8;">98.2%</div>
-        <div class="lbl">Biometric Accuracy</div>
+        <div class="num" id="stat-total-scans">0</div>
+        <div class="lbl">Total Scans Recorded</div>
       </div>
     </div>
 
     <!-- Mode Selector & Controls -->
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:1.5rem;">
-      <div style="display:flex;gap:10px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:1.8rem;">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
         <button class="btn btn-sm btn-primary" id="btn-tab-feed" onclick="switchView('feed')">Live Attendance Feed</button>
+        <button class="btn btn-sm btn-ghost" id="btn-tab-enroll" onclick="switchView('enroll')">🪪 Biometric Enrollment Station</button>
         <button class="btn btn-sm btn-ghost" id="btn-tab-roster" onclick="switchView('roster')">Candidate Directory (65)</button>
       </div>
       <div style="display:flex;gap:12px;align-items:center;">
@@ -62,7 +63,9 @@
       </div>
     </div>
 
-    <!-- VIEW 1: LIVE ATTENDANCE STREAM -->
+    <!-- ========================================== -->
+    <!-- VIEW 1: LIVE ATTENDANCE STREAM             -->
+    <!-- ========================================== -->
     <div id="view-feed">
       <div class="card reveal" style="overflow-x:auto;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem;">
@@ -90,7 +93,139 @@
       </div>
     </div>
 
-    <!-- VIEW 2: CANDIDATE DIRECTORY (65 CANDIDATES) -->
+    <!-- ========================================== -->
+    <!-- VIEW 2: BIOMETRIC ENROLLMENT STATION       -->
+    <!-- ========================================== -->
+    <div id="view-enroll" style="display:none;">
+      
+      <!-- Top Split Workspace: Candidate Selector + Sensor Terminal -->
+      <div class="grid-2" style="align-items:stretch;margin-bottom:2rem;">
+        
+        <!-- Left Column: Student Selection & Profile Preview -->
+        <div class="card reveal left" style="display:flex;flex-direction:column;justify-content:space-between;">
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+              <h3 style="margin:0;color:#38bdf8;">1. Select Candidate</h3>
+              <span id="enroll-slot-badge" class="pill mid" style="font-size:0.75rem;">Slot #1</span>
+            </div>
+
+            <div class="field" style="margin-bottom:14px;">
+              <label>Search or Choose Student (65 Candidates)</label>
+              <select class="select" id="enroll-student-select" onchange="onEnrollSelectChange()" style="font-size:0.95rem;padding:0.6rem 0.8rem;">
+                <!-- Populated with all 65 students -->
+              </select>
+            </div>
+
+            <!-- Student Profile Badge Card -->
+            <div id="enroll-preview-box" style="display:flex;gap:16px;align-items:center;padding:16px;background:#090d16;border-radius:14px;border:1px solid var(--border);margin-bottom:16px;">
+              <img id="enroll-preview-img" src="assets/images/students/24121218.jpg" style="width:72px;height:72px;border-radius:14px;object-fit:cover;border:2px solid #38bdf8;box-shadow:0 6px 18px rgba(0,0,0,0.5);" onerror="this.src='https://ui-avatars.com/api/?name=Student&background=1e293b&color=38bdf8'">
+              <div style="flex:1;min-width:0;">
+                <div id="enroll-preview-name" style="font-weight:700;font-size:1.05rem;color:#f8fafc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">YASH RANJEET INDURKAR</div>
+                <div id="enroll-preview-prn" class="mono" style="font-size:0.8rem;color:var(--muted);margin-top:2px;">PRN: 24121218 · ETC (SY)</div>
+                <div style="margin-top:6px;">
+                  <span id="enroll-preview-status" class="pill ok" style="font-size:0.7rem;padding:3px 8px;">REGISTERED BIOMETRIC</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-grid" style="margin-bottom:12px;">
+              <div class="field">
+                <label>Assigned Slot ID (1 - 65)</label>
+                <input type="number" class="input" id="enroll-slot-id" min="1" max="127" value="1">
+              </div>
+              <div class="field">
+                <label>Finger to Register</label>
+                <select class="select" id="enroll-finger-choice">
+                  <option value="Right Thumb">Right Thumb</option>
+                  <option value="Right Index Finger" selected>Right Index Finger</option>
+                  <option value="Left Thumb">Left Thumb</option>
+                  <option value="Left Index Finger">Left Index Finger</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div style="padding-top:10px;border-top:1px solid var(--border);font-size:0.75rem;color:var(--muted);">
+            Each student is allocated a dedicated slot in the R307 onboard optical flash memory.
+          </div>
+        </div>
+
+        <!-- Right Column: Visual Biometric Scanner Terminal -->
+        <div class="card reveal right" style="text-align:center;display:flex;flex-direction:column;justify-content:space-between;padding:26px;">
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <h3 style="margin:0;color:#38bdf8;">2. Optical Scan Engine</h3>
+              <span id="enroll-progress-badge" class="pill mid">READY</span>
+            </div>
+
+            <!-- Optical Sensor Graphic -->
+            <div style="position:relative;width:110px;height:110px;margin:10px auto 16px auto;display:flex;align-items:center;justify-content:center;background:#090d16;border-radius:24px;border:2px solid #38bdf8;box-shadow:0 0 30px rgba(56,189,248,0.25);">
+              <span id="scanner-icon" style="font-size:3.2rem;transition:all 0.3s;">🪪</span>
+              <div id="scan-laser" style="position:absolute;top:0;left:0;right:0;height:3px;background:#38bdf8;box-shadow:0 0 12px #38bdf8;display:none;animation:laserSweep 1.5s infinite alternate ease-in-out;"></div>
+            </div>
+
+            <div id="enroll-step-header" style="font-size:1.15rem;font-weight:700;color:#f8fafc;margin-bottom:4px;">Awaiting Registration Command</div>
+            <p id="enroll-step-desc" style="font-size:0.85rem;color:var(--muted);max-width:340px;margin:0 auto 18px auto;">
+              Click start to initiate dual-pass optical vector capture on the physical R307 sensor.
+            </p>
+
+            <!-- Multi-Pass Step Progress Indicators -->
+            <div style="display:flex;justify-content:center;gap:8px;margin-bottom:20px;">
+              <span id="step-dot-1" style="display:inline-block;padding:4px 10px;border-radius:6px;font-size:0.75rem;font-weight:700;background:#1e293b;color:#94a3b8;">1. FIRST PASS</span>
+              <span id="step-dot-2" style="display:inline-block;padding:4px 10px;border-radius:6px;font-size:0.75rem;font-weight:700;background:#1e293b;color:#94a3b8;">2. LIFT FINGER</span>
+              <span id="step-dot-3" style="display:inline-block;padding:4px 10px;border-radius:6px;font-size:0.75rem;font-weight:700;background:#1e293b;color:#94a3b8;">3. SECOND PASS</span>
+              <span id="step-dot-4" style="display:inline-block;padding:4px 10px;border-radius:6px;font-size:0.75rem;font-weight:700;background:#1e293b;color:#94a3b8;">4. VERIFIED</span>
+            </div>
+          </div>
+
+          <div>
+            <button class="btn btn-primary" id="btn-start-enrollment" style="width:100%;font-size:1rem;padding:12px 20px;" onclick="startInteractiveEnrollment()">
+              Start Dual-Pass Optical Registration ⚡
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom Enrollment Master Table (65 Candidates) -->
+      <div class="card reveal" style="overflow-x:auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:1.2rem;">
+          <div>
+            <h3 style="margin:0;">Candidate Enrollment Roster (65 Students)</h3>
+            <p style="font-size:0.8rem;color:var(--muted);margin-top:2px;">Real-time biometric registration status per student</p>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <select class="select" id="enroll-filter" style="padding:0.4rem 0.8rem;font-size:0.85rem;" onchange="renderEnrollMasterTable()">
+              <option value="all">All Candidates (65)</option>
+              <option value="pending">Pending Enrollment</option>
+              <option value="enrolled">Enrolled Only</option>
+            </select>
+            <input type="text" id="enroll-search" class="input" placeholder="Search name or PRN..." style="max-width:260px;padding:0.5rem 0.9rem;" oninput="renderEnrollMasterTable()">
+          </div>
+        </div>
+
+        <table class="tbl" style="width:100%;min-width:680px;">
+          <thead>
+            <tr>
+              <th>Photo</th>
+              <th>Student Full Name</th>
+              <th>PRN Number</th>
+              <th>Assigned Slot</th>
+              <th>Biometric Status</th>
+              <th>Enrollment Action</th>
+            </tr>
+          </thead>
+          <tbody id="enroll-master-tbody">
+            <!-- Populated dynamically -->
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- ========================================== -->
+    <!-- VIEW 3: CANDIDATE DIRECTORY (65 CARDS)     -->
+    <!-- ========================================== -->
     <div id="view-roster" style="display:none;">
       <div class="card reveal" style="margin-bottom:1.5rem;">
         <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;">
@@ -110,64 +245,185 @@
   </div>
 </section>
 
-<!-- ENROLLMENT WIZARD MODAL -->
-<div id="enroll-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:99999;justify-content:center;align-items:center;padding:20px;backdrop-filter:blur(6px);">
-  <div class="card" style="max-width:480px;width:100%;background:var(--bg,#0b0f19);border:1px solid var(--border,#1e293b);box-shadow:0 24px 64px rgba(0,0,0,.85);border-radius:18px;padding:26px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <span style="font-size:1.4rem;">🪪</span>
-        <h3 style="margin:0;color:#38bdf8;">Enroll Student Fingerprint</h3>
-      </div>
-      <button class="btn btn-sm btn-ghost" onclick="closeEnrollModal()">✕</button>
-    </div>
-    
-    <div class="field" style="margin-bottom:14px;">
-      <label>Choose Student Candidate (65 Total)</label>
-      <select class="select" id="enroll-student-select" onchange="onEnrollSelectChange()"></select>
-    </div>
-
-    <div style="display:flex;gap:12px;align-items:center;padding:12px;background:#090d16;border-radius:12px;margin-bottom:16px;border:1px solid var(--border);">
-      <img id="enroll-preview-img" src="" style="width:52px;height:52px;border-radius:10px;object-fit:cover;border:2px solid #38bdf8;" onerror="this.src='https://ui-avatars.com/api/?name=Candidate&background=1e293b&color=38bdf8'">
-      <div style="flex:1;min-width:0;">
-        <div id="enroll-preview-name" style="font-weight:700;font-size:0.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">-</div>
-        <div id="enroll-preview-prn" class="mono" style="font-size:0.75rem;color:var(--muted);">-</div>
-      </div>
-    </div>
-
-    <div class="form-grid" style="margin-bottom:16px;">
-      <div class="field">
-        <label>R307 Memory Slot (1 - 127)</label>
-        <input type="number" class="input" id="enroll-slot-id" min="1" max="127" value="1">
-      </div>
-      <div class="field">
-        <label>Verification Algorithm</label>
-        <input type="text" class="input" value="Dual-Pass Match" readonly>
-      </div>
-    </div>
-
-    <div id="enroll-wizard-box" style="padding:18px;background:#090d16;border:2px dashed #38bdf8;border-radius:12px;text-align:center;margin-bottom:18px;">
-      <div id="enroll-step-badge" style="display:inline-block;padding:3px 10px;border-radius:99px;font-size:0.75rem;font-weight:700;background:#0c4a6e;color:#7dd3fc;text-transform:uppercase;">Step 1 of 2</div>
-      <div id="enroll-step-msg" style="font-size:1.1rem;font-weight:700;color:#f8fafc;margin-top:10px;">Ready to begin enrollment</div>
-      <div id="enroll-step-sub" style="font-size:0.8rem;color:var(--muted);margin-top:4px;">Place candidate's finger on the R307 optical prism</div>
-    </div>
-
-    <div style="display:flex;gap:10px;">
-      <button class="btn btn-primary" id="btn-start-enroll" style="flex:1;" onclick="executeEnrollment()">Start Optical Registration ⚡</button>
-      <button class="btn btn-ghost" onclick="closeEnrollModal()">Cancel</button>
-    </div>
-  </div>
-</div>
+<style>
+@keyframes laserSweep {
+  0% { top: 6px; }
+  100% { top: 96px; }
+}
+</style>
 
 <script>
-let roster = [];
+let fullRoster = [];
 
-async function initAttendanceHub() {
-  roster = window.PBCOE.getStudents();
-  renderRoster(roster);
-  populateEnrollDropdown(roster);
+function initBiometricStation() {
+  fullRoster = window.PBCOE.getStudents();
+  populateEnrollDropdown(fullRoster);
+  renderEnrollMasterTable();
+  renderRoster(fullRoster);
+  updateEnrollmentMetrics();
   refreshData();
 }
 
+function updateEnrollmentMetrics() {
+  const enrolledCount = fullRoster.filter(s => s.enrolled).length;
+  document.getElementById("stat-enrolled-count").innerText = enrolledCount;
+}
+
+function populateEnrollDropdown(list) {
+  const sel = document.getElementById("enroll-student-select");
+  if (!sel) return;
+  sel.innerHTML = list.map(s => `
+    <option value="${s.prn}">${s.name} (PRN: ${s.prn}) - Slot #${s.id}</option>
+  `).join("");
+  if (list.length > 0) {
+    onEnrollSelectChange();
+  }
+}
+
+function onEnrollSelectChange() {
+  const prn = document.getElementById("enroll-student-select").value;
+  const s = window.PBCOE.getStudentByPrn(prn);
+  if (s) {
+    document.getElementById("enroll-preview-img").src = s.image;
+    document.getElementById("enroll-preview-name").innerText = s.name;
+    document.getElementById("enroll-preview-prn").innerText = `PRN: ${s.prn} · ${s.branch}`;
+    document.getElementById("enroll-slot-id").value = s.fingerprint_id || s.id;
+    document.getElementById("enroll-slot-badge").innerText = `Slot #${s.fingerprint_id || s.id}`;
+
+    const statusBadge = document.getElementById("enroll-preview-status");
+    if (s.enrolled) {
+      statusBadge.className = "pill ok";
+      statusBadge.innerText = `REGISTERED (SLOT #${s.fingerprint_id || s.id})`;
+    } else {
+      statusBadge.className = "pill mid";
+      statusBadge.innerText = "PENDING ENROLLMENT";
+    }
+  }
+}
+
+function selectStudentForEnroll(prn) {
+  switchView('enroll');
+  document.getElementById("enroll-student-select").value = prn;
+  onEnrollSelectChange();
+  window.scrollTo({ top: 320, behavior: 'smooth' });
+}
+
+// Render Master Table in Enrollment Station
+function renderEnrollMasterTable() {
+  const tbody = document.getElementById("enroll-master-tbody");
+  if (!tbody) return;
+
+  const q = (document.getElementById("enroll-search")?.value || "").toLowerCase();
+  const filterType = document.getElementById("enroll-filter")?.value || "all";
+
+  let list = fullRoster.filter(s => s.name.toLowerCase().includes(q) || s.prn.includes(q));
+  if (filterType === "pending") list = list.filter(s => !s.enrolled);
+  else if (filterType === "enrolled") list = list.filter(s => s.enrolled);
+
+  tbody.innerHTML = list.map(s => `
+    <tr>
+      <td>
+        <img src="${s.image}" style="width:42px;height:42px;border-radius:10px;object-fit:cover;border:1px solid var(--border);" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=1e293b&color=38bdf8'">
+      </td>
+      <td><strong>${s.name}</strong></td>
+      <td class="mono">${s.prn}</td>
+      <td class="mono"><span class="pill mid">#${s.fingerprint_id || s.id}</span></td>
+      <td>
+        <span class="pill ${s.enrolled ? 'ok' : 'bad'}">${s.enrolled ? '✅ Registered' : '⏳ Pending'}</span>
+      </td>
+      <td>
+        <button class="btn btn-sm ${s.enrolled ? 'btn-ghost' : 'btn-primary'}" style="padding:4px 10px;font-size:0.75rem;" onclick="selectStudentForEnroll('${s.prn}')">
+          ${s.enrolled ? 'Re-enroll' : 'Enroll Finger →'}
+        </button>
+      </td>
+    </tr>
+  `).join("");
+}
+
+// 4-Stage Dual-Pass Optical Enrollment Machine
+async function startInteractiveEnrollment() {
+  const prn = document.getElementById("enroll-student-select").value;
+  const slot = document.getElementById("enroll-slot-id").value;
+  const fingerType = document.getElementById("enroll-finger-choice").value;
+  const s = window.PBCOE.getStudentByPrn(prn);
+  if (!s) return;
+
+  const btn = document.getElementById("btn-start-enrollment");
+  const laser = document.getElementById("scan-laser");
+  const icon = document.getElementById("scanner-icon");
+  const header = document.getElementById("enroll-step-header");
+  const desc = document.getElementById("enroll-step-desc");
+  const badge = document.getElementById("enroll-progress-badge");
+
+  const dot1 = document.getElementById("step-dot-1");
+  const dot2 = document.getElementById("step-dot-2");
+  const dot3 = document.getElementById("step-dot-3");
+  const dot4 = document.getElementById("step-dot-4");
+
+  btn.disabled = true;
+  btn.innerText = "Transmitting to Cloud Queue...";
+  laser.style.display = "block";
+  icon.innerText = "🔍";
+
+  // Dispatch command to Firebase
+  await window.PBCOE.triggerCloudEnrollment(slot, s.name, s.prn);
+
+  // STEP 1: First Pass
+  badge.innerText = "PASS 1 OF 2";
+  badge.className = "pill mid";
+  dot1.style.background = "#0284c7";
+  dot1.style.color = "#fff";
+  header.innerText = `Place ${fingerType} on Sensor Glass`;
+  desc.innerText = "Prism blue/red LED is illuminated. Hold finger firmly without moving.";
+
+  setTimeout(() => {
+    // STEP 2: Lift Finger
+    badge.innerText = "LIFT FINGER";
+    badge.className = "pill bad";
+    dot1.style.background = "#15803d";
+    dot2.style.background = "#d97706";
+    dot2.style.color = "#fff";
+    icon.innerText = "✋";
+    header.innerText = "Image 1 OK! Lift Finger Now";
+    desc.innerText = "Primary optical template converted. Release prism contact.";
+
+    setTimeout(() => {
+      // STEP 3: Second Pass
+      badge.innerText = "PASS 2 OF 2";
+      badge.className = "pill mid";
+      dot2.style.background = "#15803d";
+      dot3.style.background = "#0284c7";
+      dot3.style.color = "#fff";
+      icon.innerText = "🔍";
+      header.innerText = `Place the SAME ${fingerType} Again`;
+      desc.innerText = "Sensor capturing secondary pass to generate high-accuracy fused vector.";
+
+      setTimeout(() => {
+        // STEP 4: Success & Verification
+        badge.innerText = "COMPLETED";
+        badge.className = "pill ok";
+        dot3.style.background = "#15803d";
+        dot4.style.background = "#15803d";
+        dot4.style.color = "#fff";
+        laser.style.display = "none";
+        icon.innerText = "✅";
+        header.innerText = `Enrolled #${slot} Successfully!`;
+        desc.innerText = `Template locked in R307 memory and registered for ${s.name} (${s.prn}).`;
+
+        window.PBCOE.markStudentEnrolled(s.prn, slot);
+        onEnrollSelectChange();
+        renderEnrollMasterTable();
+        updateEnrollmentMetrics();
+
+        window.PBCOE.showToast(s.name, `Fingerprint Enrolled in Slot #${slot}`, s.image, "Present");
+        btn.disabled = false;
+        btn.innerText = "Registration Complete ✔";
+      }, 1600);
+    }, 1500);
+  }, 1800);
+}
+
+// Roster View (Cards)
 function renderRoster(list) {
   const grid = document.getElementById("roster-grid");
   if (!grid) return;
@@ -178,8 +434,10 @@ function renderRoster(list) {
         <div style="font-weight:700;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.name}</div>
         <div class="mono" style="font-size:.75rem;color:var(--muted);">${s.prn}</div>
         <div style="display:flex;gap:6px;align-items:center;margin-top:6px;">
-          <span class="pill ok" style="font-size:.65rem;padding:2px 8px;">${s.attendance_percentage}% ATT</span>
-          <button class="btn btn-sm btn-ghost" style="padding:2px 8px;font-size:.7rem;" onclick="openEnrollForStudent('${s.prn}')">Enroll Finger</button>
+          <span class="pill ${s.enrolled ? 'ok' : 'mid'}" style="font-size:.65rem;padding:2px 8px;">
+            ${s.enrolled ? 'Slot #' + (s.fingerprint_id || s.id) : 'Unenrolled'}
+          </span>
+          <button class="btn btn-sm btn-ghost" style="padding:2px 8px;font-size:.7rem;" onclick="selectStudentForEnroll('${s.prn}')">Enroll Finger</button>
         </div>
       </div>
     </div>
@@ -188,96 +446,17 @@ function renderRoster(list) {
 
 function filterRoster() {
   const q = document.getElementById("roster-search").value.toLowerCase();
-  const filtered = roster.filter(s => s.name.toLowerCase().includes(q) || s.prn.includes(q));
+  const filtered = fullRoster.filter(s => s.name.toLowerCase().includes(q) || s.prn.includes(q));
   renderRoster(filtered);
-}
-
-function populateEnrollDropdown(list) {
-  const sel = document.getElementById("enroll-student-select");
-  if (!sel) return;
-  sel.innerHTML = list.map(s => `<option value="${s.prn}">${s.name} (${s.prn})</option>`).join("");
-  onEnrollSelectChange();
-}
-
-function onEnrollSelectChange() {
-  const prn = document.getElementById("enroll-student-select").value;
-  const s = window.PBCOE.getStudentByPrn(prn);
-  if (s) {
-    document.getElementById("enroll-preview-img").src = s.image;
-    document.getElementById("enroll-preview-name").innerText = s.name;
-    document.getElementById("enroll-preview-prn").innerText = `PRN: ${s.prn} · Slot: #${s.id}`;
-    document.getElementById("enroll-slot-id").value = s.id;
-  }
-}
-
-function openEnrollForStudent(prn) {
-  document.getElementById("enroll-student-select").value = prn;
-  onEnrollSelectChange();
-  openEnrollModal();
-}
-
-function openEnrollModal() {
-  document.getElementById("enroll-modal").style.display = "flex";
-}
-
-function closeEnrollModal() {
-  document.getElementById("enroll-modal").style.display = "none";
-}
-
-async function executeEnrollment() {
-  const prn = document.getElementById("enroll-student-select").value;
-  const slot = document.getElementById("enroll-slot-id").value;
-  const s = window.PBCOE.getStudentByPrn(prn);
-  if (!s) return;
-
-  const btn = document.getElementById("btn-start-enroll");
-  btn.disabled = true;
-  btn.innerText = "Transmitting to Node...";
-
-  const box = document.getElementById("enroll-wizard-box");
-  const badge = document.getElementById("enroll-step-badge");
-  const msg = document.getElementById("enroll-step-msg");
-  const sub = document.getElementById("enroll-step-sub");
-
-  // Step 1: Send command to cloud queue
-  await window.PBCOE.triggerCloudEnrollment(slot, s.name, s.prn);
-
-  badge.innerText = "PASS 1 OF 2";
-  badge.style.background = "#0c4a6e";
-  msg.innerText = "Place Finger on Optical Prism...";
-  sub.innerText = "Sensor LED is active. Hold finger firmly on glass.";
-
-  setTimeout(() => {
-    badge.innerText = "LIFT FINGER";
-    badge.style.background = "#854d0e";
-    msg.innerText = "Image 1 OK! Lift finger off sensor...";
-    sub.innerText = "Release contact to allow template extraction.";
-
-    setTimeout(() => {
-      badge.innerText = "PASS 2 OF 2";
-      badge.style.background = "#0c4a6e";
-      msg.innerText = "Place the SAME finger again...";
-      sub.innerText = "Cross-matching and fusing 2-pass biometric vector.";
-
-      setTimeout(() => {
-        badge.innerText = "SUCCESS";
-        badge.style.background = "#064e3b";
-        msg.innerText = `Enrolled #${slot} Successfully!`;
-        sub.innerText = `Biometric template stored in sensor flash for ${s.name}.`;
-
-        window.PBCOE.showToast(s.name, `Fingerprint Enrolled in Slot #${slot}`, s.image, "Present");
-        btn.disabled = false;
-        btn.innerText = "Enrollment Complete ✔";
-        setTimeout(closeEnrollModal, 2200);
-      }, 1600);
-    }, 1500);
-  }, 1800);
 }
 
 function switchView(view) {
   document.getElementById("view-feed").style.display = view === 'feed' ? 'block' : 'none';
+  document.getElementById("view-enroll").style.display = view === 'enroll' ? 'block' : 'none';
   document.getElementById("view-roster").style.display = view === 'roster' ? 'block' : 'none';
+
   document.getElementById("btn-tab-feed").className = "btn btn-sm " + (view === 'feed' ? 'btn-primary' : 'btn-ghost');
+  document.getElementById("btn-tab-enroll").className = "btn btn-sm " + (view === 'enroll' ? 'btn-primary' : 'btn-ghost');
   document.getElementById("btn-tab-roster").className = "btn btn-sm " + (view === 'roster' ? 'btn-primary' : 'btn-ghost');
 }
 
@@ -292,7 +471,7 @@ function renderLogsTable(records) {
   document.getElementById("stat-total-scans").innerText = records.length;
 
   tbody.innerHTML = records.slice().reverse().map(r => {
-    const student = window.PBCOE.getStudentByPrn(r.roll) || roster.find(s => s.id === r.fingerID);
+    const student = window.PBCOE.getStudentByPrn(r.roll) || fullRoster.find(s => s.id === r.fingerID);
     const photo = student ? student.image : "assets/images/students/default.jpg";
     const name = student ? student.name : r.name;
     const isMatch = r.status === "Present";
@@ -314,10 +493,5 @@ function renderLogsTable(records) {
   }).join("");
 }
 
-function openCloudSettings() {
-  window.PBCOE_AUTH.openLogin();
-  window.PBCOE_AUTH.switchTab('cloud');
-}
-
-document.addEventListener("DOMContentLoaded", initAttendanceHub);
+document.addEventListener("DOMContentLoaded", initBiometricStation);
 </script>
