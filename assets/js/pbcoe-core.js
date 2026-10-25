@@ -319,39 +319,39 @@ window.PBCOE = (function () {
     }
     return {
       MON: [
-        { time: "09:00 - 10:00", subject: "ET501T Embedded Systems", room: "E-101", faculty: "Dr. Pravin B. Pokle (HOD)" },
-        { time: "10:00 - 11:00", subject: "ET502T Communication Electronics", room: "E-108", faculty: "Mr. Suhas D. Kakde" },
-        { time: "11:00 - 12:00", subject: "ET505T Signals & Systems", room: "E-310", faculty: "Mrs. Jayshri Shelke" },
-        { time: "13:00 - 14:00", subject: "ET506-1T Digital System Design using VHDL", room: "E-115", faculty: "Mrs. Nisha Naukarkar" },
-        { time: "14:00 - 16:00", subject: "ET503P Embedded Systems Lab", room: "E-101 IoT Lab", faculty: "Dr. Jayant Y. Hande" }
+        { time: "09:00 - 10:00", subject: "ET501T Embedded Systems", room: "E-101", faculty: "Mr. Suhas D. Kakde (Academic Coordinator)" },
+        { time: "10:00 - 11:00", subject: "ET502T Communication Electronics", room: "E-108", faculty: "Mrs. Jayshri Salodkar (Shelke)" },
+        { time: "11:00 - 12:00", subject: "ET505T Signals & Systems", room: "E-310", faculty: "Mrs. Nisha N. Naukarkar" },
+        { time: "13:00 - 14:00", subject: "ET506-1T Digital System Design using VHDL", room: "E-115", faculty: "Dr. Jayant Y. Hande" },
+        { time: "14:00 - 16:00", subject: "ET503P Embedded Systems Lab", room: "E-101 IoT Lab", faculty: "Mr. Suhas D. Kakde" }
       ],
       TUE: [
-        { time: "09:00 - 10:00", subject: "ET502T Communication Electronics", room: "E-204", faculty: "Mr. Suhas D. Kakde" },
-        { time: "10:00 - 11:00", subject: "ET501T Embedded Systems", room: "E-101", faculty: "Dr. Pravin B. Pokle" },
-        { time: "11:00 - 12:00", subject: "ET505T Signals & Systems", room: "Room 202", faculty: "Mrs. Jayshri Shelke" },
+        { time: "09:00 - 10:00", subject: "ET502T Communication Electronics", room: "E-204", faculty: "Mrs. Jayshri Salodkar (Shelke)" },
+        { time: "10:00 - 11:00", subject: "ET501T Embedded Systems", room: "E-101", faculty: "Mr. Suhas D. Kakde" },
+        { time: "11:00 - 12:00", subject: "ET505T Signals & Systems", room: "Room 202", faculty: "Mrs. Nisha N. Naukarkar" },
         { time: "13:00 - 14:00", subject: "Academic Mentoring & Doubts", room: "E-108", faculty: "Mr. Suhas D. Kakde" },
-        { time: "14:00 - 16:00", subject: "ET504P Communication Electronics Lab", room: "E-204 Comm Bay", faculty: "Mr. Suhas D. Kakde" }
+        { time: "14:00 - 16:00", subject: "ET507P VHDL FPGA Lab", room: "E-205 FPGA Lab", faculty: "Dr. Jayant Y. Hande" }
       ],
       WED: [
-        { time: "09:00 - 10:00", subject: "ET505T Signals & Systems", room: "E-310", faculty: "Mrs. Jayshri Shelke" },
-        { time: "10:00 - 11:00", subject: "ET506-1T Digital System Design using VHDL", room: "E-115", faculty: "Mrs. Nisha Naukarkar" },
-        { time: "11:00 - 12:00", subject: "ET501T Embedded Systems", room: "E-101", faculty: "Dr. Pravin B. Pokle" },
+        { time: "09:00 - 10:00", subject: "ET505T Signals & Systems", room: "E-310", faculty: "Mrs. Nisha N. Naukarkar" },
+        { time: "10:00 - 11:00", subject: "ET506-1T Digital System Design using VHDL", room: "E-115", faculty: "Dr. Jayant Y. Hande" },
+        { time: "11:00 - 12:00", subject: "ET501T Embedded Systems", room: "E-101", faculty: "Mr. Suhas D. Kakde" },
         { time: "13:00 - 14:00", subject: "Biometric & IoT Project Hub", room: "E-101", faculty: "Dr. Jayant Y. Hande" },
-        { time: "14:00 - 16:00", subject: "ET507P VHDL Hardware Lab", room: "E-205 FPGA Lab", faculty: "Mrs. Nisha Naukarkar" }
+        { time: "14:00 - 16:00", subject: "ET504P Communication Electronics Lab", room: "E-204 Comm Bay", faculty: "Mrs. Jayshri Salodkar (Shelke)" }
       ],
       THU: [
-        { time: "09:00 - 10:00", subject: "ET502T Communication Electronics", room: "E-204", faculty: "Mr. Suhas D. Kakde" },
-        { time: "10:00 - 11:00", subject: "ET505T Signals & Systems", room: "E-310", faculty: "Mrs. Jayshri Shelke" },
-        { time: "11:00 - 12:00", subject: "ET501T Embedded Systems", room: "E-101", faculty: "Dr. Pravin B. Pokle" },
+        { time: "09:00 - 10:00", subject: "ET502T Communication Electronics", room: "E-204", faculty: "Mrs. Jayshri Salodkar (Shelke)" },
+        { time: "10:00 - 11:00", subject: "ET505T Signals & Systems", room: "E-310", faculty: "Mrs. Nisha N. Naukarkar" },
+        { time: "11:00 - 12:00", subject: "ET501T Embedded Systems", room: "E-101", faculty: "Mr. Suhas D. Kakde" },
         { time: "13:00 - 14:00", subject: "Training & Placement Cell", room: "Auditorium", faculty: "Dr. Pravin M. Palkar" },
-        { time: "14:00 - 16:00", subject: "Continuous Assessment / Remedial", room: "E-101", faculty: "Faculty Cohort" }
+        { time: "14:00 - 16:00", subject: "ET507P VHDL Hardware Synthesis Lab", room: "E-205 FPGA Lab", faculty: "Dr. Jayant Y. Hande" }
       ],
       FRI: [
-        { time: "09:00 - 10:00", subject: "ET506-1T VHDL Advanced Synthesis", room: "E-108", faculty: "Mrs. Nisha Naukarkar" },
-        { time: "10:00 - 12:00", subject: "Mini-Project / Simulation Lab", room: "E-108 Simulation Bay", faculty: "Dr. Jayant Y. Hande" },
-        { time: "13:00 - 14:00", subject: "Technical Seminar & Paper Review", room: "Seminar Hall", faculty: "Dr. Pravin B. Pokle" },
-        { time: "14:00 - 15:00", subject: "Robotics & IoT Club Workshop", room: "Student Activity Center", faculty: "Faculty Leads" },
-        { time: "15:00 - 17:00", subject: "Open Hardware Lab Access", room: "E-101", faculty: "Lab Incharges" }
+        { time: "09:00 - 10:00", subject: "ET506-1T VHDL Advanced Synthesis", room: "E-108", faculty: "Dr. Jayant Y. Hande" },
+        { time: "10:00 - 12:00", subject: "Mini-Project / Simulation Lab", room: "E-108 Simulation Bay", faculty: "Mr. Suhas D. Kakde" },
+        { time: "13:00 - 14:00", subject: "Technical Seminar & Paper Review", room: "Seminar Hall", faculty: "Dr. Pravin B. Pokle (HOD)" },
+        { time: "14:00 - 15:00", subject: "Robotics & Embedded Club", room: "Student Activity Center", faculty: "Mr. Suhas D. Kakde" },
+        { time: "15:00 - 17:00", subject: "Open Hardware Lab Access", room: "E-101", faculty: "Dr. Jayant Y. Hande" }
       ]
     };
   }
