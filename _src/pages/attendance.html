@@ -6,11 +6,11 @@
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;">
       <div>
         <h1 class="reveal" style="--d:.08s;margin:0;">Biometric <span class="grad-text">Attendance Station</span></h1>
-        <p class="section-sub reveal" style="--d:.16s mono;margin-top:6px;">R307 OPTICAL TELEMETRY · ESP32 IOT CORE · DIRECT INTERNET CLOUD SYNC</p>
+        <p class="section-sub reveal" style="--d:.16s mono;margin-top:6px;">R307 OPTICAL TELEMETRY · ESP32 IOT CORE · DIRECT SUPABASE CLOUD SYNC</p>
       </div>
       <div style="display:flex;gap:10px;align-items:center;">
-        <button class="btn btn-sm btn-ghost" onclick="window.PBCOE_AUTH.openLogin(); window.PBCOE_AUTH.switchTab('cloud');">⚙️ Cloud Setup</button>
-        <button class="btn btn-sm btn-primary" onclick="openEnrollDialog()">+ Enroll Fingerprint 🪪</button>
+        <button class="btn btn-sm btn-ghost" onclick="window.PBCOE_AUTH.openLogin()">🔐 Portal Login</button>
+        <button class="btn btn-sm btn-primary" onclick="openEnrollDialog()">+ Enroll Fingerprint ⚡</button>
       </div>
     </div>
   </div>
@@ -18,10 +18,10 @@
 
 <div class="ticker marquee-light" aria-hidden="true">
   <div class="ticker-track" data-ticker>
-    <span><b>CLOUD INFRASTRUCTURE:</b> DIRECT FIREBASE RTDB STREAMING</span><span class="dot">//</span>
+    <span><b>CLOUD BACKEND:</b> SUPABASE POSTGRESQL REST STREAM</span><span class="dot">//</span>
     <span><b>SENSOR HARDWARE:</b> R307 DUAL-PASS OPTICAL PRISM</span><span class="dot">//</span>
-    <span><b>STUDENT DIRECTORY:</b> 65 CANDIDATES LOADED</span><span class="dot">//</span>
-    <span><b>ACCURACY:</b> 2-PASS VECTOR EXTRACTION</span><span class="dot">//</span>
+    <span><b>COHORT DIRECTORY:</b> 65 CANDIDATES ACTIVE</span><span class="dot">//</span>
+    <span><b>ACCURACY:</b> 2-PASS VECTOR FUSION</span><span class="dot">//</span>
   </div>
 </div>
 
@@ -30,30 +30,36 @@
 
     <!-- Node Telemetry Metrics Cards -->
     <div class="stats-grid" data-stagger style="margin-bottom:1.8rem">
-      <div class="glass stat">
-        <div class="num" id="stat-cloud-status" style="font-size:1.4rem;color:#22c55e;">CONNECTED</div>
-        <div class="lbl">Firebase Cloud Bus</div>
+      <div class="glass stat" style="border-top:3px solid #22c55e;">
+        <div class="num" id="stat-cloud-status" style="font-size:1.4rem;color:#22c55e;">ONLINE</div>
+        <div class="lbl">Supabase Cloud Bus</div>
       </div>
-      <div class="glass stat">
+      <div class="glass stat" style="cursor:pointer;" onclick="switchEnrollView('all')">
         <div class="num"><span data-count="65">65</span></div>
-        <div class="lbl">Roster Candidates</div>
+        <div class="lbl">Total Candidates</div>
       </div>
-      <div class="glass stat">
-        <div class="num" id="stat-enrolled-count" style="color:#38bdf8;">0</div>
-        <div class="lbl">Enrolled Fingerprints</div>
+      <div class="glass stat" style="cursor:pointer;" onclick="switchEnrollView('enrolled')">
+        <div class="num" id="stat-enrolled-count" style="color:#22c55e;">3</div>
+        <div class="lbl">🟢 Enrolled Fingerprints</div>
       </div>
-      <div class="glass stat">
-        <div class="num" id="stat-total-scans">0</div>
-        <div class="lbl">Total Scans Recorded</div>
+      <div class="glass stat" style="cursor:pointer;" onclick="switchEnrollView('pending')">
+        <div class="num" id="stat-pending-count" style="color:#f59e0b;">62</div>
+        <div class="lbl">⏳ Pending Registration</div>
+      </div>
+      <div class="glass stat" style="cursor:pointer;" onclick="switchView('feed')">
+        <div class="num" id="stat-total-scans" style="color:#38bdf8;">0</div>
+        <div class="lbl">⚡ Scans Recorded</div>
       </div>
     </div>
 
     <!-- Mode Selector & Controls -->
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:1.8rem;">
-      <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <button class="btn btn-sm btn-primary" id="btn-tab-feed" onclick="switchView('feed')">Live Attendance Feed</button>
-        <button class="btn btn-sm btn-ghost" id="btn-tab-enroll" onclick="switchView('enroll')">🪪 Registration Roster (65)</button>
-        <button class="btn btn-sm btn-ghost" id="btn-tab-roster" onclick="switchView('roster')">Candidate Directory</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-sm btn-primary" id="btn-tab-feed" onclick="switchView('feed')">⚡ Live Attendance Feed</button>
+        <button class="btn btn-sm btn-ghost" id="btn-tab-enrolled" onclick="switchEnrollView('enrolled')">🟢 Enrolled Fingerprints (<span id="tab-cnt-enrolled">3</span>)</button>
+        <button class="btn btn-sm btn-ghost" id="btn-tab-pending" onclick="switchEnrollView('pending')">⏳ Not Enrolled (<span id="tab-cnt-pending">62</span>)</button>
+        <button class="btn btn-sm btn-ghost" id="btn-tab-all" onclick="switchEnrollView('all')">📋 All Candidates (65)</button>
+        <button class="btn btn-sm btn-ghost" id="btn-tab-roster" onclick="switchView('roster')">🪪 Candidate Directory</button>
       </div>
       <div style="display:flex;gap:12px;align-items:center;">
         <label style="display:flex;align-items:center;gap:6px;font-size:.85rem;cursor:pointer;color:var(--muted);">
@@ -265,13 +271,17 @@
 <script>
 let fullRoster = [];
 
-function initBiometricStation() {
+async function initBiometricStation() {
+  await window.PBCOE.init();
   fullRoster = window.PBCOE.getStudents();
   populateDialogDropdown(fullRoster);
   renderEnrollMasterTable();
   renderRoster(fullRoster);
   updateEnrollmentMetrics();
   refreshData();
+
+  // Poll live attendance logs every 2 seconds
+  setInterval(refreshData, 2000);
 
   // Check URL query parameter to auto-open dialog if directed
   const urlParams = new URLSearchParams(window.location.search);
@@ -282,8 +292,21 @@ function initBiometricStation() {
 }
 
 function updateEnrollmentMetrics() {
+  fullRoster = window.PBCOE.getStudents();
   const enrolledCount = fullRoster.filter(s => s.enrolled).length;
-  document.getElementById("stat-enrolled-count").innerText = enrolledCount;
+  const pendingCount = fullRoster.length - enrolledCount;
+
+  const enrEl = document.getElementById("stat-enrolled-count");
+  if (enrEl) enrEl.innerText = enrolledCount;
+
+  const penEl = document.getElementById("stat-pending-count");
+  if (penEl) penEl.innerText = pendingCount;
+
+  const tabEnr = document.getElementById("tab-cnt-enrolled");
+  if (tabEnr) tabEnr.innerText = enrolledCount;
+
+  const tabPen = document.getElementById("tab-cnt-pending");
+  if (tabPen) tabPen.innerText = pendingCount;
 }
 
 // Dialog Box Operations
@@ -530,9 +553,41 @@ function switchView(view) {
   document.getElementById("view-enroll").style.display = view === 'enroll' ? 'block' : 'none';
   document.getElementById("view-roster").style.display = view === 'roster' ? 'block' : 'none';
 
-  document.getElementById("btn-tab-feed").className = "btn btn-sm " + (view === 'feed' ? 'btn-primary' : 'btn-ghost');
-  document.getElementById("btn-tab-enroll").className = "btn btn-sm " + (view === 'enroll' ? 'btn-primary' : 'btn-ghost');
-  document.getElementById("btn-tab-roster").className = "btn btn-sm " + (view === 'roster' ? 'btn-primary' : 'btn-ghost');
+  ["btn-tab-feed", "btn-tab-enrolled", "btn-tab-pending", "btn-tab-all", "btn-tab-roster"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.className = "btn btn-sm btn-ghost";
+  });
+
+  if (view === 'feed') {
+    const btn = document.getElementById("btn-tab-feed");
+    if (btn) btn.className = "btn btn-sm btn-primary";
+  } else if (view === 'roster') {
+    const btn = document.getElementById("btn-tab-roster");
+    if (btn) btn.className = "btn btn-sm btn-primary";
+  }
+}
+
+function switchEnrollView(filter) {
+  switchView('enroll');
+  const sel = document.getElementById("enroll-filter");
+  if (sel) sel.value = filter;
+  renderEnrollMasterTable();
+
+  ["btn-tab-feed", "btn-tab-enrolled", "btn-tab-pending", "btn-tab-all", "btn-tab-roster"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.className = "btn btn-sm btn-ghost";
+  });
+
+  if (filter === 'enrolled') {
+    const btn = document.getElementById("btn-tab-enrolled");
+    if (btn) btn.className = "btn btn-sm btn-primary";
+  } else if (filter === 'pending') {
+    const btn = document.getElementById("btn-tab-pending");
+    if (btn) btn.className = "btn btn-sm btn-primary";
+  } else {
+    const btn = document.getElementById("btn-tab-all");
+    if (btn) btn.className = "btn btn-sm btn-primary";
+  }
 }
 
 function refreshData() {
@@ -543,24 +598,39 @@ function renderLogsTable(records) {
   const tbody = document.getElementById("attendance-tbody");
   if (!tbody) return;
 
-  document.getElementById("stat-total-scans").innerText = records.length;
+  const totalScansEl = document.getElementById("stat-total-scans");
+  if (totalScansEl) totalScansEl.innerText = records.length;
 
-  tbody.innerHTML = records.slice().reverse().map(r => {
-    const student = window.PBCOE.getStudentByPrn(r.roll) || fullRoster.find(s => s.id === r.fingerID);
-    const photo = student ? student.image : "assets/images/students/default.jpg";
-    const name = student ? student.name : r.name;
-    const isMatch = r.status === "Present";
-    const score = r.confidence || (isMatch ? 96 : 0);
-    const dateStr = r.timestamp ? new Date(r.timestamp).toLocaleTimeString() : new Date().toLocaleTimeString();
+  if (!records || records.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:2.5rem;color:var(--muted);">No scans recorded yet. Place finger on R307 sensor to test.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = records.map(r => {
+    const prn = r.prn || r.roll || "";
+    const fid = (r.fingerprint_id != null) ? r.fingerprint_id : r.fingerID;
+    const student = (prn ? window.PBCOE.getStudentByPrn(prn) : null) || 
+                    fullRoster.find(s => (s.fingerprint_id && s.fingerprint_id === fid) || s.id === fid);
+    const photo = (student && student.image) ? student.image : "assets/images/students/default.jpg";
+    const name = (student && student.name) || r.student_name || r.name || ("Candidate #" + fid);
+    const isMatch = (r.status === "Present" || r.status === "OK");
+    const score = (r.confidence != null) ? r.confidence : (isMatch ? 96 : 0);
+    const timeVal = r.created_at || r.timestamp;
+    const dateStr = timeVal ? new Date(timeVal).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : new Date().toLocaleTimeString();
 
     return `
       <tr>
         <td>
-          <img src="${photo}" style="width:42px;height:42px;border-radius:10px;object-fit:cover;border:1px solid var(--border);" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=1e293b&color=38bdf8'">
+          <img src="${photo}" style="width:42px;height:42px;border-radius:10px;object-fit:cover;border:1.5px solid ${isMatch ? '#22c55e' : '#f59e0b'};" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=1e293b&color=38bdf8'">
         </td>
-        <td><strong>${name}</strong></td>
-        <td class="mono">${r.roll || 'N/A'}</td>
-        <td><span class="pill ${isMatch ? 'ok' : 'mid'}">${r.status}</span></td>
+        <td>
+          <strong>${name}</strong>
+          ${student ? `<div style="font-size:0.75rem;color:var(--muted);">${student.branch}</div>` : ''}
+        </td>
+        <td class="mono">${prn || (student ? student.prn : 'N/A')}</td>
+        <td>
+          <span class="pill ${isMatch ? 'ok' : 'mid'}">${isMatch ? '✅ Present' : (r.status || 'Scanned')}</span>
+        </td>
         <td><strong style="color:#38bdf8;">${score > 0 ? score + '%' : '-'}</strong></td>
         <td class="mono" style="font-size:.8rem;color:var(--muted);">${dateStr}</td>
       </tr>

@@ -68,9 +68,8 @@
 
     <!-- Modal Tabs -->
     <div style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:12px;">
-      <button id="auth-tab-student" class="btn btn-sm btn-primary" style="flex:1;" onclick="PBCOE_AUTH.switchTab('student')">👨‍🎓 Student</button>
+      <button id="auth-tab-student" class="btn btn-sm btn-primary" style="flex:1;" onclick="PBCOE_AUTH.switchTab('student')">👨‍🎓 Student Portal</button>
       <button id="auth-tab-admin" class="btn btn-sm btn-ghost" style="flex:1;" onclick="PBCOE_AUTH.switchTab('admin')">🛡️ Faculty / Admin</button>
-      <button id="auth-tab-cloud" class="btn btn-sm btn-ghost" style="padding:4px 8px;" title="Firebase Settings" onclick="PBCOE_AUTH.switchTab('cloud')">⚙️</button>
     </div>
 
     <!-- STUDENT LOGIN TAB -->
@@ -113,16 +112,9 @@
       <p style="font-size:0.75rem;color:var(--muted);text-align:center;margin-top:10px;">Default credentials: <code>admin</code> / <code>pbcoe2026</code></p>
     </div>
 
-    <!-- CLOUD FIREBASE CONFIG TAB -->
-    <div id="auth-pane-cloud" style="display:none;">
-      <div class="field" style="margin-bottom:14px;">
-        <label>Firebase Realtime Database URL</label>
-        <input type="text" class="input" id="auth-cloud-url" placeholder="https://<YOUR-PROJECT>-default-rtdb.firebaseio.com">
-      </div>
-      <p style="font-size:0.8rem;color:var(--muted);line-height:1.4;margin-bottom:16px;">
-        This connects your website and ESP32 directly through cloud Internet. Zero localhost dependency!
-      </p>
-      <button class="btn btn-sm btn-primary" style="width:100%;" onclick="PBCOE_AUTH.saveCloudConfig()">Save Firebase URL</button>
+    <div style="margin-top:16px;text-align:center;font-size:0.75rem;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:6px;">
+      <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#22c55e;"></span>
+      <span>Cloud Supabase PostgreSQL Active (Pure Internet)</span>
     </div>
 
   </div>
@@ -140,13 +132,8 @@ window.PBCOE_AUTH = {
   switchTab: function(tab) {
     document.getElementById("auth-pane-student").style.display = tab === 'student' ? 'block' : 'none';
     document.getElementById("auth-pane-admin").style.display = tab === 'admin' ? 'block' : 'none';
-    document.getElementById("auth-pane-cloud").style.display = tab === 'cloud' ? 'block' : 'none';
     document.getElementById("auth-tab-student").className = "btn btn-sm " + (tab === 'student' ? 'btn-primary' : 'btn-ghost');
     document.getElementById("auth-tab-admin").className = "btn btn-sm " + (tab === 'admin' ? 'btn-primary' : 'btn-ghost');
-    document.getElementById("auth-tab-cloud").className = "btn btn-sm " + (tab === 'cloud' ? 'btn-primary' : 'btn-ghost');
-    if (tab === 'cloud') {
-      document.getElementById("auth-cloud-url").value = window.PBCOE ? window.PBCOE.getFirebaseUrl() : '';
-    }
   },
   populateStudentDropdown: function() {
     if (!window.PBCOE) return;
@@ -205,14 +192,6 @@ window.PBCOE_AUTH = {
     } else {
       err.style.display = "block";
       err.innerText = res.message;
-    }
-  },
-  saveCloudConfig: function() {
-    const u = document.getElementById("auth-cloud-url").value.trim();
-    if (u) {
-      window.PBCOE.setFirebaseUrl(u);
-      alert("Firebase Realtime Database URL updated successfully!");
-      this.switchTab('student');
     }
   },
   updateNavUser: function() {

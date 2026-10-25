@@ -367,10 +367,14 @@ window.PBCOE = (function () {
     location.reload();
   }
 
+  // Automatically sync with Supabase in background
+  syncStudentsWithSupabase();
+
   return {
     init: async function () {
       await syncStudentsWithSupabase();
     },
+    syncStudents: syncStudentsWithSupabase,
     getStudents: () => students,
     getStudentByPrn: (prn) => students.find(s => s.prn === prn),
     getAttendanceLogs: () => attendanceLogs,
