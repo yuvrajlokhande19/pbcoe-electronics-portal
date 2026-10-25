@@ -79,7 +79,7 @@
         <span class="orbit-tag b" style="top:10px;left:-20px;">ESP32 · NODE</span>
         <span class="orbit-tag y" style="top:20px;right:-25px;">CLK 240MHz</span>
         <span class="orbit-tag r" style="bottom:18px;left:-20px;">R307 · OPTICAL</span>
-        <span class="orbit-tag b" style="bottom:10px;right:-20px;border-color:#a855f7;color:#c084fc;">SUPABASE · CLOUD</span>
+        <span class="orbit-tag b" style="bottom:10px;right:-20px;">ARM · CORTEX-M4</span>
       </div>
 
       <!-- Live Mini Spectrum Monitor HUD -->
@@ -175,7 +175,7 @@
           <span class="pill ok" style="margin-bottom:8px;display:inline-block;">ACTIVE HARDWARE STATION</span>
           <h3 style="margin:0 0 10px;font-size:1.35rem;color:var(--fg);">ESP32 + R307 Optical Biometric Pipeline</h3>
           <p style="font-size:0.9rem;line-height:1.6;color:var(--muted);">
-            High-accuracy dual-pass optical fingerprint acquisition node stationed in the department. Captures 500 DPI biometric ridges via the R307 prism sensor, converts minutiae vectors into secure encrypted templates, and transmits real-time telemetry packets directly to Supabase Cloud PostgreSQL over WiFi.
+            High-accuracy dual-pass optical fingerprint acquisition node stationed in the department. Captures 500 DPI biometric ridges via the R307 prism sensor, converts minutiae vectors into secure encrypted templates, and transmits real-time telemetry packets directly to the central institutional attendance database over Wi-Fi.
           </p>
           <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;">
             <a href="attendance.html" class="btn btn-sm btn-primary">Open Live Attendance Station ⚡</a>
@@ -191,7 +191,7 @@
             <span>Optical Sensor:</span><strong style="color:var(--fg);">R307 Dual-Pass 500 DPI</strong>
           </div>
           <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);">
-            <span>Cloud Bus:</span><strong style="color:var(--fg);">Supabase REST HTTPS</strong>
+            <span>Network Protocol:</span><strong style="color:var(--fg);">IEEE 802.11 b/g/n HTTPS</strong>
           </div>
           <div style="display:flex;justify-content:space-between;padding:4px 0;">
             <span>Registered Cohort:</span><strong style="color:#22c55e;">65 Students Active</strong>
@@ -406,7 +406,7 @@
         <div class="icon-chip" style="background:linear-gradient(135deg,#0284c7,#38bdf8);font-weight:700;">IOT-NODE</div>
         <h3>Biometric IoT System</h3>
         <p style="font-size:0.85rem;color:var(--muted);margin-top:4px;">Incharge: Mr. Suhas D. Kakde &amp; Dr. Jayant Hande</p>
-        <p style="margin-top:8px;font-size:0.88rem;line-height:1.5;">Real-time R307 optical fingerprint scanner connected to ESP32 node and Supabase Cloud PostgreSQL backend.</p>
+        <p style="margin-top:8px;font-size:0.88rem;line-height:1.5;">Real-time R307 optical fingerprint scanner connected to ESP32 node with direct wireless cloud telemetry and student portal sync.</p>
         <div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap;">
           <span class="pill ok">Active Hardware</span>
           <a href="attendance.html" class="pill ok">Open Biometric Station ⚡</a>
@@ -438,8 +438,40 @@
     </div>
 
     <div id="home-notices-container" class="grid-3">
-      <div class="card" style="text-align:center;color:var(--muted);padding:30px;">
-        Loading live notices from Supabase...
+      <div class="card reveal zoom" style="border-top:3px solid var(--blue);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span class="pill ok" style="font-size:0.7rem;">EXAMINATION</span>
+          <small style="color:var(--muted);font-size:0.72rem;">26/10/2026</small>
+        </div>
+        <h4 style="margin:0 0 8px;font-size:1.02rem;color:var(--fg);">B.Tech 5th Sem Sessional-I Examination Schedule</h4>
+        <p style="font-size:0.86rem;color:var(--fg);opacity:0.88;line-height:1.5;">Sessional-I examination for Embedded Systems (ET501T), Communication Electronics (ET502T), and VHDL (ET506-1T) commences from next week.</p>
+        <div style="margin-top:12px;font-size:0.76rem;color:var(--muted);border-top:1px solid var(--glass-border);padding-top:8px;">
+          Issued by: <strong style="color:var(--fg);">Dr. Pravin B. Pokle (HOD, ETC)</strong>
+        </div>
+      </div>
+
+      <div class="card reveal zoom" style="border-top:3px solid var(--glass-border);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span class="pill ok" style="font-size:0.7rem;">BIOMETRICS</span>
+          <small style="color:var(--muted);font-size:0.72rem;">26/10/2026</small>
+        </div>
+        <h4 style="margin:0 0 8px;font-size:1.02rem;color:var(--fg);">Biometric Registration &amp; Optical Slot Allocation</h4>
+        <p style="font-size:0.86rem;color:var(--fg);opacity:0.88;line-height:1.5;">All 65 candidates of the 5th semester cohort must complete R307 optical fingerprint registration at Biometric Station #1 for RTMNU attendance records.</p>
+        <div style="margin-top:12px;font-size:0.76rem;color:var(--muted);border-top:1px solid var(--glass-border);padding-top:8px;">
+          Issued by: <strong style="color:var(--fg);">Mr. Suhas D. Kakde (Academic Coordinator)</strong>
+        </div>
+      </div>
+
+      <div class="card reveal zoom" style="border-top:3px solid var(--glass-border);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span class="pill mid" style="font-size:0.7rem;">WORKSHOP</span>
+          <small style="color:var(--muted);font-size:0.72rem;">26/10/2026</small>
+        </div>
+        <h4 style="margin:0 0 8px;font-size:1.02rem;color:var(--fg);">Hands-on VHDL &amp; FPGA Synthesis Workshop</h4>
+        <p style="font-size:0.86rem;color:var(--fg);opacity:0.88;line-height:1.5;">A weekend hands-on workshop on Xilinx Vivado workstation simulation and FPGA bitstream generation will be held in the VLSI Lab.</p>
+        <div style="margin-top:12px;font-size:0.76rem;color:var(--muted);border-top:1px solid var(--glass-border);padding-top:8px;">
+          Issued by: <strong style="color:var(--fg);">Dr. Jayant Y. Hande</strong>
+        </div>
       </div>
     </div>
   </div>

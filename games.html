@@ -78,28 +78,34 @@
 
     <!-- STUDENT LOGIN TAB -->
     <div id="auth-pane-student">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <label style="font-weight:700;font-size:0.75rem;text-transform:uppercase;color:var(--muted);">ERP ID / PRN Number</label>
+        <button type="button" class="btn btn-sm btn-ghost" onclick="PBCOE_AUTH.quickFillStudent('24121227', '19122006')" style="font-size:0.72rem;padding:2px 8px;border:1px dashed var(--blue);color:var(--blue);">⚡ 1-Click: Yuvraj (24121227)</button>
+      </div>
       <div class="field" style="margin-bottom:12px;">
-        <label style="font-weight:700;font-size:0.8rem;text-transform:uppercase;color:var(--muted);">ERP ID / PRN Number</label>
         <input type="text" class="input" id="auth-student-prn" placeholder="e.g. 24121227" oninput="PBCOE_AUTH.syncPrnInput()">
       </div>
 
-      <div class="field" style="margin-bottom:14px;">
-        <label style="font-weight:700;font-size:0.8rem;text-transform:uppercase;color:var(--muted);">Password (DOB in DDMMYYYY)</label>
+      <div class="field" style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <label style="font-weight:700;font-size:0.75rem;text-transform:uppercase;color:var(--muted);">Password (DOB in DDMMYYYY)</label>
+          <span style="font-size:0.7rem;color:var(--muted);cursor:pointer;" onclick="PBCOE_AUTH.togglePassVisibility('auth-student-dob')">👁️ Show/Hide</span>
+        </div>
         <input type="password" class="input" id="auth-student-dob" placeholder="e.g. 19122006 (8 Digits)" maxlength="8">
-        <p style="font-size:0.72rem;color:var(--muted);margin-top:4px;">Enter your 8-digit birthdate (e.g. 19122006 for 19 Dec 2006).</p>
+        <p style="font-size:0.72rem;color:var(--muted);margin-top:4px;">Format: 8 digits (e.g. 19122006 for 19 Dec 2006).</p>
       </div>
 
-      <div class="field" style="margin-bottom:14px;">
+      <div class="field" style="margin-bottom:12px;">
         <label style="font-size:0.75rem;color:var(--muted);">Or Select Candidate Name (65 Cohort)</label>
         <select class="select" id="auth-student-select" onchange="PBCOE_AUTH.previewStudent()" style="font-size:0.85rem;padding:0.4rem 0.6rem;">
           <option value="">-- Choose Candidate --</option>
         </select>
       </div>
 
-      <div id="auth-student-preview" style="display:flex;align-items:center;gap:12px;padding:10px;background:#090d16;border-radius:12px;margin-bottom:16px;border:1px solid var(--border);">
-        <img id="auth-preview-img" src="assets/images/students/24121227.jpg" style="width:50px;height:50px;border-radius:10px;object-fit:cover;border:2px solid #38bdf8;" onerror="this.src='https://ui-avatars.com/api/?name=PBCOE&background=1e293b&color=38bdf8'">
+      <div id="auth-student-preview" style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--bg-2);border-radius:12px;margin-bottom:14px;border:1px solid var(--glass-border);">
+        <img id="auth-preview-img" src="assets/images/students/24121227.jpg" style="width:48px;height:48px;border-radius:10px;object-fit:cover;border:2px solid var(--blue);" onerror="this.src='https://ui-avatars.com/api/?name=PBCOE&background=1e293b&color=38bdf8'">
         <div style="flex:1;min-width:0;">
-          <div id="auth-preview-name" style="font-weight:700;font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Select or Enter ERP ID</div>
+          <div id="auth-preview-name" style="font-weight:700;font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--fg);">Select or Enter ERP ID</div>
           <div id="auth-preview-sub" class="mono" style="font-size:0.75rem;color:var(--muted);">PRN: - · Attendance: -</div>
         </div>
       </div>
@@ -110,22 +116,28 @@
 
     <!-- FACULTY & ADMIN LOGIN TAB -->
     <div id="auth-pane-admin" style="display:none;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <label style="font-weight:700;font-size:0.75rem;text-transform:uppercase;color:var(--muted);">Admin / Faculty ID</label>
+        <button type="button" class="btn btn-sm btn-ghost" onclick="PBCOE_AUTH.quickFillAdmin()" style="font-size:0.72rem;padding:2px 8px;border:1px dashed var(--yellow);color:var(--yellow);">⚡ 1-Click: Default Admin</button>
+      </div>
       <div class="field" style="margin-bottom:14px;">
-        <label>Admin ID / Faculty Username</label>
         <input type="text" class="input" id="auth-admin-user" value="admin" placeholder="admin">
       </div>
-      <div class="field" style="margin-bottom:18px;">
-        <label>Password</label>
+      <div class="field" style="margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <label style="font-weight:700;font-size:0.75rem;text-transform:uppercase;color:var(--muted);">Password</label>
+          <span style="font-size:0.7rem;color:var(--muted);cursor:pointer;" onclick="PBCOE_AUTH.togglePassVisibility('auth-admin-pass')">👁️ Show/Hide</span>
+        </div>
         <input type="password" class="input" id="auth-admin-pass" value="pbcoe2026" placeholder="Enter password">
       </div>
       <div id="auth-admin-err" style="color:#f87171;font-size:0.8rem;margin-bottom:12px;display:none;"></div>
       <button class="btn btn-accent" style="width:100%;font-size:1rem;" onclick="PBCOE_AUTH.submitAdminLogin()">Unlock Admin Console ⚡</button>
-      <p style="font-size:0.75rem;color:var(--muted);text-align:center;margin-top:10px;">Default credentials: <code>admin</code> / <code>pbcoe2026</code></p>
+      <p style="font-size:0.75rem;color:var(--muted);text-align:center;margin-top:10px;">Authorized Access: Dr. Pravin Pokle (HOD) &amp; ETC Faculty Coordinators</p>
     </div>
 
     <div style="margin-top:16px;text-align:center;font-size:0.75rem;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:6px;">
       <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#22c55e;"></span>
-      <span>Cloud Supabase PostgreSQL Active (Pure Internet)</span>
+      <span>PBCOE Department of Electronics &amp; Telecommunication (DTE: EN 4177)</span>
     </div>
 
   </div>
@@ -145,6 +157,21 @@ window.PBCOE_AUTH = {
     document.getElementById("auth-pane-admin").style.display = tab === 'admin' ? 'block' : 'none';
     document.getElementById("auth-tab-student").className = "btn btn-sm " + (tab === 'student' ? 'btn-primary' : 'btn-ghost');
     document.getElementById("auth-tab-admin").className = "btn btn-sm " + (tab === 'admin' ? 'btn-primary' : 'btn-ghost');
+  },
+  quickFillStudent: function(prn, dob) {
+    document.getElementById("auth-student-prn").value = prn;
+    document.getElementById("auth-student-dob").value = dob;
+    this.syncPrnInput();
+  },
+  quickFillAdmin: function() {
+    document.getElementById("auth-admin-user").value = "admin";
+    document.getElementById("auth-admin-pass").value = "pbcoe2026";
+  },
+  togglePassVisibility: function(inputId) {
+    const el = document.getElementById(inputId);
+    if (el) {
+      el.type = el.type === "password" ? "text" : "password";
+    }
   },
   populateStudentDropdown: function() {
     if (!window.PBCOE) return;

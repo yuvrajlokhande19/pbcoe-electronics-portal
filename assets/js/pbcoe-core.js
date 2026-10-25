@@ -246,6 +246,23 @@ window.PBCOE = (function () {
         }
       }
     } catch(e) {}
+
+    // Apply local storage overrides for instantaneous local persistence
+    try {
+      const saved = JSON.parse(localStorage.getItem("pbcoe_enrolled_map") || "{}");
+      Object.keys(saved).forEach(prn => {
+        const match = students.find(x => x.prn === prn);
+        if (match) {
+          if (saved[prn] && saved[prn].enrolled) {
+            match.enrolled = true;
+            match.fingerprint_id = parseInt(saved[prn].slot, 10);
+          } else if (saved[prn] && saved[prn].enrolled === false) {
+            match.enrolled = false;
+            delete match.fingerprint_id;
+          }
+        }
+      });
+    } catch(e) {}
   }
 
   // Mark student as enrolled and update Supabase
@@ -267,6 +284,43 @@ window.PBCOE = (function () {
         });
       } catch(e) {}
     }
+  }
+
+  // Remove student biometric registration and free slot
+  async function removeStudentFingerprint(prn) {
+    const s = students.find(x => x.prn === prn);
+    if (!s) return { success: false, message: "Student record not found." };
+    const oldSlot = s.fingerprint_id || s.id;
+    s.enrolled = false;
+    delete s.fingerprint_id;
+
+    try {
+      const saved = JSON.parse(localStorage.getItem("pbcoe_enrolled_map") || "{}");
+      saved[prn] = { enrolled: false, slot: null, timestamp: Date.now() };
+      localStorage.setItem("pbcoe_enrolled_map", JSON.stringify(saved));
+
+      // Update in Supabase cloud
+      await fetch(`${SUPABASE_URL}/rest/v1/students?prn=eq.${prn}`, {
+        method: "PATCH",
+        headers: getSupabaseHeaders(),
+        body: JSON.stringify({ enrolled: false, fingerprint_id: null })
+      });
+
+      // Dispatch DELETE command to ESP32 node
+      await fetch(`${SUPABASE_URL}/rest/v1/biometric_commands`, {
+        method: "POST",
+        headers: getSupabaseHeaders(),
+        body: JSON.stringify({
+          command: "DELETE",
+          target_id: parseInt(oldSlot, 10),
+          student_name: s.name,
+          roll_no: prn,
+          status: "PENDING"
+        })
+      });
+    } catch(e) {}
+
+    return { success: true, message: `Biometric template for ${s.name} (Slot #${oldSlot}) removed successfully.` };
   }
 
   // Trigger Cloud Enrollment via Supabase
@@ -588,6 +642,7 @@ window.PBCOE = (function () {
     triggerCloudEnrollment: triggerCloudEnrollment,
     getBiometricCommandStatus: getBiometricCommandStatus,
     markStudentEnrolled: markStudentEnrolled,
+    removeStudentFingerprint: removeStudentFingerprint,
     getNotices: getNotices,
     postNotice: postNotice,
     getChatMessages: getChatMessages,
