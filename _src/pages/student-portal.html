@@ -3,14 +3,47 @@
   <div class="blob blue" style="width:300px;height:300px;top:-90px;right:-40px"></div>
   <div class="container">
     <p class="crumb reveal"><a href="index.html">HOME</a> / PORTALS / STUDENT</p>
-    <h1 class="reveal" style="--d:.08s">Welcome back, <span class="grad-text">Aarav.sharma26</span></h1>
-    <p class="section-sub reveal" style="--d:.16s mono">B.TECH ECE · SEMESTER 5 · ROLL 2201034</p>
+    <div style="display:flex;gap:20px;align-items:center;flex-wrap:wrap;margin-top:10px;">
+      <img id="sp-avatar" src="assets/images/students/24121218.jpg" style="width:84px;height:84px;border-radius:18px;object-fit:cover;border:3px solid #38bdf8;box-shadow:0 8px 24px rgba(0,0,0,.35);" onerror="this.src='https://ui-avatars.com/api/?name=Student&background=1e293b&color=38bdf8'">
+      <div>
+        <h1 class="reveal" style="--d:.08s;margin:0;">Welcome back, <span class="grad-text" id="sp-name">Yash Ranjeet Indurkar</span></h1>
+        <p class="section-sub reveal" style="--d:.16s mono;margin-top:6px;" id="sp-sub">B.TECH ETC · SY · PRN 24121218 · SLOT #1</p>
+      </div>
+      <div style="margin-left:auto;">
+        <button class="btn btn-sm btn-ghost" onclick="toggleStudentModal()">Switch Profile 👤</button>
+      </div>
+    </div>
   </div>
 </section>
 
+<!-- STUDENT SELECTOR MODAL -->
+<div id="sp-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;justify-content:center;align-items:center;padding:20px;">
+  <div class="card" style="max-width:440px;width:100%;background:var(--bg,#0b0f19);border:1px solid var(--border,#1e293b);border-radius:16px;padding:24px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3 style="margin:0;color:#38bdf8;">Select Student Profile</h3>
+      <button class="btn btn-sm btn-ghost" onclick="toggleStudentModal()">✕</button>
+    </div>
+    <div class="field" style="margin-bottom:16px;">
+      <label>Choose Candidate (65 Total)</label>
+      <select class="select" id="sp-select" onchange="onStudentSelectChange()"></select>
+    </div>
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px;padding:12px;background:#090d16;border-radius:10px;">
+      <img id="sp-modal-preview-img" src="" style="width:48px;height:48px;border-radius:10px;object-fit:cover;">
+      <div>
+        <div id="sp-modal-preview-name" style="font-weight:700;font-size:.9rem;">-</div>
+        <div id="sp-modal-preview-prn" class="mono" style="font-size:.75rem;color:var(--muted);">-</div>
+      </div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;" onclick="confirmStudentSelection()">Login to Portal</button>
+  </div>
+</div>
+
 <div class="ticker marquee-light" aria-hidden="true">
   <div class="ticker-track" data-ticker>
-    <span><b>DEADLINE:</b> DSP LAB REPORT FRI 17:00</span><span class="dot">//</span><span>BENCH BOOKED: E-101 #12 THU 14:00</span><span class="dot">//</span><span>VOLTHACKS REGISTRATION CONFIRMED ✔</span><span class="dot">//</span>
+    <span><b>BIOMETRIC NODE:</b> ESP32 ACTIVE @ 10.19.83.155</span><span class="dot">//</span>
+    <span><b>DEADLINE:</b> DSP LAB REPORT FRI 17:00</span><span class="dot">//</span>
+    <span>BENCH BOOKED: E-101 #12 THU 14:00</span><span class="dot">//</span>
+    <span>VOLTHACKS REGISTRATION CONFIRMED ✔</span><span class="dot">//</span>
   </div>
 </div>
 
@@ -21,29 +54,35 @@
       <div class="card reveal left">
         <h3 style="margin-bottom:1.4rem">Academic Telemetry</h3>
         <div class="rings" style="justify-content:space-around">
-          <div class="ring" style="--val:86;--rc:#3b82f6;color:var(--fg)">
-            <svg viewBox="0 0 110 110"><circle class="track" cx="55" cy="55" r="48"/><circle class="bar" cx="55" cy="55" r="48"/><text class="rv" x="55" y="62" text-anchor="middle">8.6</text></svg>
+          <div class="ring" style="--val:88;--rc:#3b82f6;color:var(--fg)">
+            <svg viewBox="0 0 110 110"><circle class="track" cx="55" cy="55" r="48"/><circle class="bar" cx="55" cy="55" r="48"/><text class="rv" x="55" y="62" text-anchor="middle">8.8</text></svg>
             <p>GPA / 10</p>
           </div>
-          <div class="ring" style="--val:92;--rc:#22c55e;color:var(--fg)">
-            <svg viewBox="0 0 110 110"><circle class="track" cx="55" cy="55" r="48"/><circle class="bar" cx="55" cy="55" r="48"/><text class="rv" x="55" y="62" text-anchor="middle">92%</text></svg>
+          <div class="ring" id="sp-att-ring" style="--val:92;--rc:#22c55e;color:var(--fg)">
+            <svg viewBox="0 0 110 110"><circle class="track" cx="55" cy="55" r="48"/><circle class="bar" cx="55" cy="55" r="48"/><text class="rv" id="sp-att-text" x="55" y="62" text-anchor="middle">92%</text></svg>
             <p>ATTENDANCE</p>
           </div>
-          <div class="ring" style="--val:64;--rc:#facc15;color:var(--fg)">
-            <svg viewBox="0 0 110 110"><circle class="track" cx="55" cy="55" r="48"/><circle class="bar" cx="55" cy="55" r="48"/><text class="rv" x="55" y="62" text-anchor="middle">16/25</text></svg>
+          <div class="ring" style="--val:72;--rc:#facc15;color:var(--fg)">
+            <svg viewBox="0 0 110 110"><circle class="track" cx="55" cy="55" r="48"/><circle class="bar" cx="55" cy="55" r="48"/><text class="rv" x="55" y="62" text-anchor="middle">18/25</text></svg>
             <p>CREDITS DONE</p>
           </div>
         </div>
       </div>
       <div class="card reveal right">
-        <h3 style="margin-bottom:1rem">This Week's Signals</h3>
+        <h3 style="margin-bottom:1rem">Biometric Telemetry &amp; Verification</h3>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:#090d16;border-radius:10px;margin-bottom:12px;">
+          <div>
+            <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;">Fingerprint Sensor Status</div>
+            <div style="font-weight:700;color:#22c55e;font-size:.95rem;margin-top:2px;">Node @ 10.19.83.155 (R307)</div>
+          </div>
+          <a href="attendance.html" class="btn btn-sm btn-ghost">Live Hub →</a>
+        </div>
         <table class="tbl">
           <tbody>
-            <tr><td>DSP Lab Report — submission</td><td style="text-align:right"><span class="pill bad">DUE FRI</span></td></tr>
-            <tr><td>MicroC IA-2 marks published</td><td style="text-align:right"><span class="pill ok">VIEWED</span></td></tr>
-            <tr><td>FPGA bench — E-204 slot confirmed</td><td style="text-align:right"><span class="pill ok">THU 14:00</span></td></tr>
-            <tr><td>Library dues (Radar Systems)</td><td style="text-align:right"><span class="pill mid">₹20</span></td></tr>
-            <tr><td>Internship cell resume review</td><td style="text-align:right"><span class="pill mid">THU 15:00</span></td></tr>
+            <tr><td>Today's Lab Check-in</td><td style="text-align:right"><span class="pill ok" id="sp-checkin-status">VERIFIED PRESENT</span></td></tr>
+            <tr><td>Biometric Confidence</td><td style="text-align:right" class="mono">98.4%</td></tr>
+            <tr><td>Sensor Node Node Slot</td><td style="text-align:right" class="mono" id="sp-slot-cell">#1</td></tr>
+            <tr><td>Verification Hub</td><td style="text-align:right"><a href="attendance.html" style="color:#38bdf8;text-decoration:none;">View Stream</a></td></tr>
           </tbody>
         </table>
       </div>
@@ -58,11 +97,11 @@
         <table class="tbl">
           <thead><tr><th>Course</th><th>IA-1</th><th>IA-2</th><th>Trend</th></tr></thead>
           <tbody>
-            <tr><td>Microcontrollers &amp; Embedded C</td><td>24/30</td><td>27/30</td><td><span class="pill ok">▲ UP</span></td></tr>
-            <tr><td>Digital Communication</td><td>21/30</td><td>23/30</td><td><span class="pill ok">▲ UP</span></td></tr>
-            <tr><td>Antenna Theory</td><td>26/30</td><td>22/30</td><td><span class="pill bad">▼ DOWN</span></td></tr>
-            <tr><td>DSP Fundamentals</td><td>25/30</td><td>26/30</td><td><span class="pill ok">STABLE</span></td></tr>
-            <tr><td>Elective: IoT Systems</td><td>28/30</td><td>29/30</td><td><span class="pill ok">🔥 TOP 3%</span></td></tr>
+            <tr><td>Microcontrollers &amp; Embedded C</td><td>26/30</td><td>28/30</td><td><span class="pill ok">▲ UP</span></td></tr>
+            <tr><td>Digital Communication</td><td>24/30</td><td>25/30</td><td><span class="pill ok">▲ UP</span></td></tr>
+            <tr><td>Antenna &amp; Microwave Theory</td><td>25/30</td><td>23/30</td><td><span class="pill mid">STABLE</span></td></tr>
+            <tr><td>DSP Fundamentals</td><td>27/30</td><td>28/30</td><td><span class="pill ok">▲ UP</span></td></tr>
+            <tr><td>Elective: IoT Embedded Systems</td><td>29/30</td><td>30/30</td><td><span class="pill ok">🔥 TOP 1%</span></td></tr>
           </tbody>
         </table>
       </div>
@@ -98,36 +137,62 @@
         </div>
       </div>
     </div>
-
-    <br>
-    <!-- timetable strip -->
-    <div class="card reveal flip" style="overflow-x:auto">
-      <h3 style="margin-bottom:.8rem">Week Grid — Sem 5</h3>
-      <table class="tbl" style="min-width:680px">
-        <thead><tr><th>DAY</th><th>09–10</th><th>10–11</th><th>11–12</th><th>LUNCH</th><th>13–14</th><th>14–16</th></tr></thead>
-        <tbody>
-          <tr><td>MON</td><td>MicroC</td><td>DSP</td><td>Antenna</td><td rowspan="5" style="background:color-mix(in srgb,var(--yellow) 8%,transparent);text-align:center;vertical-align:middle;font-family:var(--font-display);font-size:.7rem;color:var(--muted)">TINKER<br>HOUR</td><td>IoT Elective</td><td>MICROC LAB</td></tr>
-          <tr><td>TUE</td><td>DigiComm</td><td>MicroC</td><td>Mentor Meet</td><td>DSP Tutorial</td><td>DIGICOMM LAB</td></tr>
-          <tr><td>WED</td><td>Antenna</td><td>IoT Elective</td><td>DSP</td><td>Free Bench</td><td>PROJECT WORK</td></tr>
-          <tr><td>THU</td><td>DigiComm</td><td>Antenna</td><td>MicroC</td><td>Placement Cell</td><td>FPGA BENCH</td></tr>
-          <tr><td>FRI</td><td>DSP Lab Prep</td><td>DSP LAB</td><td>Seminar</td><td>Club Hour</td><td>FREE BENCH</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</section>
-
-<section class="dark-zone section circuit-bg" style="padding-block:3.5rem">
-  <div class="container grid-3" data-stagger>
-    <a class="card reveal zoom" href="simulator.html" style="display:block"><div class="icon-chip b" style="background:linear-gradient(135deg,#2563eb,#06b6d4)">⚡</div><h3 style="color:#fff">Pre-Lab Warmup</h3><p>Run tonight's RLC experiment in the Circuit Lab before touching real components.</p></a>
-    <a class="card reveal zoom" href="games.html" style="display:block"><div class="icon-chip y">🎮</div><h3 style="color:#fff">XP Break</h3><p>Two rounds of Waveform Match between lectures keeps scope-literacy sharp.</p></a>
-    <a class="card reveal zoom" href="resources.html" style="display:block"><div class="icon-chip g">💼</div><h3 style="color:#fff">Internship Radar</h3><p>Three new core-ECE listings dropped this week. Deadlines are real this time.</p></a>
   </div>
 </section>
 
 <script>
-document.getElementById("bench-form").addEventListener("submit", function (e) {
-  e.preventDefault();
-  document.getElementById("bench-status").hidden = false;
-});
+let studentsList = [];
+
+async function initStudentPortal() {
+  try {
+    const res = await fetch("assets/data/students.json");
+    studentsList = await res.json();
+
+    const select = document.getElementById("sp-select");
+    select.innerHTML = studentsList.map(s => `<option value="${s.prn}">${s.name} (${s.prn})</option>`).join("");
+
+    const savedPrn = localStorage.getItem("pbcoe-active-student") || "24121218";
+    select.value = savedPrn;
+    applyStudent(savedPrn);
+  } catch(e) {}
+}
+
+function applyStudent(prn) {
+  const s = studentsList.find(x => x.prn === prn) || studentsList[0];
+  if (!s) return;
+
+  document.getElementById("sp-name").innerText = s.name;
+  document.getElementById("sp-sub").innerText = `B.TECH ${s.branch} · ${s.year} · PRN ${s.prn} · SLOT #${s.id}`;
+  document.getElementById("sp-avatar").src = s.image;
+  document.getElementById("sp-slot-cell").innerText = `#${s.id}`;
+
+  const att = s.attendance_percentage || 92;
+  document.getElementById("sp-att-text").textContent = att + "%";
+  document.getElementById("sp-att-ring").style.setProperty("--val", att);
+}
+
+function toggleStudentModal() {
+  const m = document.getElementById("sp-modal");
+  m.style.display = m.style.display === "flex" ? "none" : "flex";
+  onStudentSelectChange();
+}
+
+function onStudentSelectChange() {
+  const prn = document.getElementById("sp-select").value;
+  const s = studentsList.find(x => x.prn === prn);
+  if (s) {
+    document.getElementById("sp-modal-preview-img").src = s.image;
+    document.getElementById("sp-modal-preview-name").innerText = s.name;
+    document.getElementById("sp-modal-preview-prn").innerText = "PRN: " + s.prn;
+  }
+}
+
+function confirmStudentSelection() {
+  const prn = document.getElementById("sp-select").value;
+  localStorage.setItem("pbcoe-active-student", prn);
+  applyStudent(prn);
+  toggleStudentModal();
+}
+
+initStudentPortal();
 </script>
