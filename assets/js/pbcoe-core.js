@@ -1,12 +1,16 @@
 /**
- * PBCOE Electronics Portal — Central Core & Firebase Engine v2026
- * Pure Cloud-Connected Architecture with Synchronous Embedded Roster
+ * PBCOE Electronics Portal — Central Core & Supabase Engine v2026
+ * Pure Cloud-Connected Architecture via Official Supabase Backend
  */
 
 window.PBCOE = (function () {
   "use strict";
 
-  // Built-in verified 65-student cohort for 0ms synchronous instant load
+  // Official Supabase Credentials
+  const SUPABASE_URL = "https://vobyuijfocigsbahkvab.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_wIYMMvFnNFMXyFavLagzIA_4rBYuOMN";
+
+  // Built-in 65-student cohort for 0ms instant display while syncing with cloud
   const EMBEDDED_ROSTER = [
     { id: 1, fingerprint_id: 1, prn: "24121218", name: "YASH RANJEET INDURKAR", branch: "ETC (Electronics & Telecom)", year: "Second Year (SY)", image: "assets/images/students/24121218.jpg", enrolled: true, attendance_percentage: 97 },
     { id: 2, fingerprint_id: 2, prn: "24121222", name: "SAHILKUMAR RUSTAM KHOBRAGADE", branch: "ETC (Electronics & Telecom)", year: "Second Year (SY)", image: "assets/images/students/24121222.jpg", enrolled: true, attendance_percentage: 85 },
@@ -75,10 +79,6 @@ window.PBCOE = (function () {
     { id: 65, fingerprint_id: 65, prn: "24121220", name: "PIYUSH PRADIP KAMDE", branch: "ETC (Electronics & Telecom)", year: "Second Year (SY)", image: "assets/images/students/24121220.jpg", enrolled: false, attendance_percentage: 86 }
   ];
 
-  const DEFAULT_FIREBASE = "https://my-project-1-602b7-default-rtdb.firebaseio.com";
-  let firebaseUrl = localStorage.getItem("pbcoe_firebase_url") || DEFAULT_FIREBASE;
-
-  // Initialize students array with EMBEDDED_ROSTER immediately
   let students = JSON.parse(JSON.stringify(EMBEDDED_ROSTER));
   
   // Merge locally stored enrollment overrides
@@ -94,48 +94,20 @@ window.PBCOE = (function () {
 
   let attendanceLogs = [];
   let currentUser = JSON.parse(localStorage.getItem("pbcoe_user") || "null");
-  let lastKnownScanTime = 0;
+  let lastKnownScanId = 0;
   let audioContext = null;
 
-  // Default Timetable
-  const defaultTimetable = {
-    MON: [
-      { time: "09:00 - 10:00", subject: "Microcontrollers & Embedded C", room: "E-101", faculty: "Prof. R. Saxena" },
-      { time: "10:00 - 11:00", subject: "Digital Signal Processing", room: "E-108", faculty: "Dr. K. Iyer" },
-      { time: "11:00 - 12:00", subject: "Antenna & Microwave Theory", room: "E-310", faculty: "Prof. P. Deshmukh" },
-      { time: "13:00 - 14:00", subject: "Elective: IoT Embedded Systems", room: "E-115", faculty: "Prof. A. Joshi" },
-      { time: "14:00 - 16:00", subject: "MicroC Hands-on Lab", room: "E-101 Embedded Lab", faculty: "Prof. R. Saxena" }
-    ],
-    TUE: [
-      { time: "09:00 - 10:00", subject: "Digital Communication", room: "E-204", faculty: "Dr. S. Patil" },
-      { time: "10:00 - 11:00", subject: "Microcontrollers & Embedded C", room: "E-101", faculty: "Prof. R. Saxena" },
-      { time: "11:00 - 12:00", subject: "Mentor Group Discussion", room: "Room 202", faculty: "Faculty Team" },
-      { time: "13:00 - 14:00", subject: "DSP Problem Solving", room: "E-108", faculty: "Dr. K. Iyer" },
-      { time: "14:00 - 16:00", subject: "Digital Communication Lab", room: "E-204 Comm Bay", faculty: "Dr. S. Patil" }
-    ],
-    WED: [
-      { time: "09:00 - 10:00", subject: "Antenna & Microwave Theory", room: "E-310", faculty: "Prof. P. Deshmukh" },
-      { time: "10:00 - 11:00", subject: "Elective: IoT Embedded Systems", room: "E-115", faculty: "Prof. A. Joshi" },
-      { time: "11:00 - 12:00", subject: "Digital Signal Processing", room: "E-108", faculty: "Dr. K. Iyer" },
-      { time: "13:00 - 14:00", subject: "Open Hardware Bench", room: "E-101", faculty: "Open Access" },
-      { time: "14:00 - 16:00", subject: "Capstone Project Work", room: "Project Hub", faculty: "Project Guides" }
-    ],
-    THU: [
-      { time: "09:00 - 10:00", subject: "Digital Communication", room: "E-204", faculty: "Dr. S. Patil" },
-      { time: "10:00 - 11:00", subject: "Antenna & Microwave Theory", room: "E-310", faculty: "Prof. P. Deshmukh" },
-      { time: "11:00 - 12:00", subject: "Microcontrollers & Embedded C", room: "E-101", faculty: "Prof. R. Saxena" },
-      { time: "13:00 - 14:00", subject: "Training & Placement Cell", room: "Auditorium", faculty: "T&P Officers" },
-      { time: "14:00 - 16:00", subject: "FPGA & VHDL Workstation", room: "E-204 FPGA Lab", faculty: "Prof. V. Sharma" }
-    ],
-    FRI: [
-      { time: "09:00 - 10:00", subject: "DSP Lab Pre-work", room: "E-108", faculty: "Dr. K. Iyer" },
-      { time: "10:00 - 12:00", subject: "DSP Simulation Lab", room: "E-108 Simulation Bay", faculty: "Dr. K. Iyer" },
-      { time: "13:00 - 14:00", subject: "Technical Seminar & Paper Review", room: "Seminar Hall", faculty: "HOD / Faculty" },
-      { time: "14:00 - 15:00", subject: "Robotics & IoT Club", room: "Student Activity Center", faculty: "Club Leads" },
-      { time: "15:00 - 17:00", subject: "Open Hardware Lab Access", room: "E-101", faculty: "Lab Incharges" }
-    ]
-  };
+  // Supabase REST Headers Helper
+  function getSupabaseHeaders(custom = {}) {
+    return {
+      "apikey": SUPABASE_KEY,
+      "Authorization": `Bearer ${SUPABASE_KEY}`,
+      "Content-Type": "application/json",
+      ...custom
+    };
+  }
 
+  // Audio Chime Synthesizer
   function playNotificationChime() {
     try {
       if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -168,6 +140,7 @@ window.PBCOE = (function () {
     } catch (e) {}
   }
 
+  // Floating Toast Alert
   function showToast(title, subtitle, photoUrl, status = "Present") {
     let toast = document.getElementById("pbcoe-floating-toast");
     if (!toast) {
@@ -175,8 +148,8 @@ window.PBCOE = (function () {
       toast.id = "pbcoe-floating-toast";
       toast.style.cssText = `
         position: fixed; bottom: 24px; right: 24px; z-index: 100000;
-        background: #0f172a; color: #f8fafc; border: 1px solid #334155;
-        box-shadow: 0 16px 36px rgba(0,0,0,0.55); border-radius: 14px;
+        background: #0f172a; color: #f8fafc; border: 1.5px solid #38bdf8;
+        box-shadow: 0 16px 36px rgba(0,0,0,0.65); border-radius: 14px;
         padding: 14px 18px; display: flex; align-items: center; gap: 14px;
         max-width: 380px; transform: translateY(120px); opacity: 0;
         transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: auto;
@@ -190,7 +163,7 @@ window.PBCOE = (function () {
     const tagBorder = isPresent ? "#166534" : "#92400e";
 
     toast.innerHTML = `
-      <img src="${photoUrl || 'assets/images/students/default.jpg'}" style="width:48px;height:48px;border-radius:10px;object-fit:cover;border:2px solid ${tagColor};" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(title)}&background=1e293b&color=38bdf8'">
+      <img src="${photoUrl || 'assets/images/students/default.jpg'}" style="width:50px;height:50px;border-radius:12px;object-fit:cover;border:2px solid ${tagColor};" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(title)}&background=1e293b&color=38bdf8'">
       <div style="flex:1;min-width:0;">
         <div style="display:flex;align-items:center;gap:8px;">
           <span style="font-size:0.68rem;font-weight:700;background:${tagBg};color:${tagColor};border:1px solid ${tagBorder};padding:2px 8px;border-radius:99px;text-transform:uppercase;">BIOMETRIC SCAN</span>
@@ -211,65 +184,48 @@ window.PBCOE = (function () {
     }, 4500);
   }
 
-  // Firebase REST helpers
-  async function fetchFirebase(endpoint) {
-    const url = `${firebaseUrl.replace(/\/+$/, '')}/${endpoint.replace(/^\/+/, '')}`;
-    const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) throw new Error(`Firebase HTTP ${res.status}`);
-    return await res.json();
-  }
-
-  async function putFirebase(endpoint, data) {
-    const url = `${firebaseUrl.replace(/\/+$/, '')}/${endpoint.replace(/^\/+/, '')}`;
-    const res = await fetch(url, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    });
-    return await res.json();
-  }
-
-  async function pollAttendanceFromFirebase(onUpdate) {
+  // Poll Attendance Logs from Supabase PostgREST
+  async function pollAttendanceFromSupabase(onUpdate) {
     try {
-      const data = await fetchFirebase("attendance_logs.json?limitToLast=40");
-      if (data) {
-        const records = Object.keys(data).map(key => ({
-          key,
-          ...data[key]
-        }));
+      const url = `${SUPABASE_URL}/rest/v1/attendance_logs?select=*&order=id.desc&limit=50`;
+      const res = await fetch(url, { headers: getSupabaseHeaders(), cache: "no-store" });
+      if (res.ok) {
+        const records = await res.json();
         attendanceLogs = records;
 
         if (records.length > 0) {
-          const latest = records[records.length - 1];
-          const time = latest.timestamp || (latest.time ? latest.time * 1000 : 0);
-          if (time > lastKnownScanTime) {
-            lastKnownScanTime = time;
-            const matched = students.find(s => s.prn === latest.roll || s.id === latest.fingerID);
+          const latest = records[0];
+          if (latest.id > lastKnownScanId && lastKnownScanId !== 0) {
+            const matched = students.find(s => s.prn === latest.prn || s.id === latest.fingerprint_id);
             const photo = matched ? matched.image : "assets/images/students/default.jpg";
-            showToast(latest.name, `PRN: ${latest.roll} · Status: ${latest.status}`, photo, latest.status);
+            showToast(latest.student_name || "Student", `PRN: ${latest.prn || 'N/A'} · Status: ${latest.status}`, photo, latest.status);
           }
+          lastKnownScanId = latest.id;
         }
 
         if (onUpdate) onUpdate(attendanceLogs);
       }
-    } catch (err) {
-      if (attendanceLogs.length === 0 && students.length > 0) {
-        const sampleStudents = [students[0], students[1], students[2], students[15]];
-        attendanceLogs = sampleStudents.map((s, idx) => ({
-          fingerID: s.id,
-          name: s.name,
-          roll: s.prn,
-          status: "Present",
-          confidence: 95 + idx,
-          timestamp: Date.now() - (idx * 2700000)
-        }));
-        if (onUpdate) onUpdate(attendanceLogs);
-      }
+    } catch (e) {
+      console.warn("Supabase poll warning:", e);
     }
   }
 
-  // Enrollment Registration Method
-  function markStudentEnrolled(prn, slotId) {
+  // Sync Students Roster with Supabase Cloud
+  async function syncStudentsWithSupabase() {
+    try {
+      const url = `${SUPABASE_URL}/rest/v1/students?select=*&order=id.asc`;
+      const res = await fetch(url, { headers: getSupabaseHeaders(), cache: "no-store" });
+      if (res.ok) {
+        const cloudStudents = await res.json();
+        if (cloudStudents && cloudStudents.length > 0) {
+          students = cloudStudents;
+        }
+      }
+    } catch(e) {}
+  }
+
+  // Mark student as enrolled and update Supabase
+  async function markStudentEnrolled(prn, slotId) {
     const s = students.find(x => x.prn === prn);
     if (s) {
       s.enrolled = true;
@@ -278,12 +234,18 @@ window.PBCOE = (function () {
         const saved = JSON.parse(localStorage.getItem("pbcoe_enrolled_map") || "{}");
         saved[prn] = { enrolled: true, slot: parseInt(slotId, 10), timestamp: Date.now() };
         localStorage.setItem("pbcoe_enrolled_map", JSON.stringify(saved));
-        putFirebase(`students_enrolled/${prn}.json`, saved[prn]).catch(() => {});
+
+        // Update in Supabase
+        await fetch(`${SUPABASE_URL}/rest/v1/students?prn=eq.${prn}`, {
+          method: "PATCH",
+          headers: getSupabaseHeaders(),
+          body: JSON.stringify({ enrolled: true, fingerprint_id: parseInt(slotId, 10) })
+        });
       } catch(e) {}
     }
   }
 
-  // Trigger Cloud Enrollment
+  // Trigger Cloud Enrollment via Supabase
   async function triggerCloudEnrollment(id, name, roll) {
     markStudentEnrolled(roll, id);
     const commandPayload = {
@@ -291,15 +253,18 @@ window.PBCOE = (function () {
       target_id: parseInt(id, 10),
       student_name: name,
       roll_no: roll,
-      timestamp: Date.now(),
       status: "PENDING"
     };
 
     try {
-      await putFirebase("biometric_node/command.json", commandPayload);
-      return { success: true, message: "Enrollment command dispatched to cloud queue!" };
+      await fetch(`${SUPABASE_URL}/rest/v1/biometric_commands`, {
+        method: "POST",
+        headers: getSupabaseHeaders({ "Prefer": "return=representation" }),
+        body: JSON.stringify(commandPayload)
+      });
+      return { success: true, message: "Enrollment command dispatched to Supabase queue!" };
     } catch (e) {
-      return { success: true, simulated: true, message: "Enrolled in portal database." };
+      return { success: true, message: "Enrolled in portal database." };
     }
   }
 
@@ -308,17 +273,52 @@ window.PBCOE = (function () {
     if (saved) {
       try { return JSON.parse(saved); } catch (e) {}
     }
-    return defaultTimetable;
+    return {
+      MON: [
+        { time: "09:00 - 10:00", subject: "Microcontrollers & Embedded C", room: "E-101", faculty: "Prof. R. Saxena" },
+        { time: "10:00 - 11:00", subject: "Digital Signal Processing", room: "E-108", faculty: "Dr. K. Iyer" },
+        { time: "11:00 - 12:00", subject: "Antenna & Microwave Theory", room: "E-310", faculty: "Prof. P. Deshmukh" },
+        { time: "13:00 - 14:00", subject: "Elective: IoT Embedded Systems", room: "E-115", faculty: "Prof. A. Joshi" },
+        { time: "14:00 - 16:00", subject: "MicroC Hands-on Lab", room: "E-101 Embedded Lab", faculty: "Prof. R. Saxena" }
+      ],
+      TUE: [
+        { time: "09:00 - 10:00", subject: "Digital Communication", room: "E-204", faculty: "Dr. S. Patil" },
+        { time: "10:00 - 11:00", subject: "Microcontrollers & Embedded C", room: "E-101", faculty: "Prof. R. Saxena" },
+        { time: "11:00 - 12:00", subject: "Mentor Group Discussion", room: "Room 202", faculty: "Faculty Team" },
+        { time: "13:00 - 14:00", subject: "DSP Problem Solving", room: "E-108", faculty: "Dr. K. Iyer" },
+        { time: "14:00 - 16:00", subject: "Digital Communication Lab", room: "E-204 Comm Bay", faculty: "Dr. S. Patil" }
+      ],
+      WED: [
+        { time: "09:00 - 10:00", subject: "Antenna & Microwave Theory", room: "E-310", faculty: "Prof. P. Deshmukh" },
+        { time: "10:00 - 11:00", subject: "Elective: IoT Embedded Systems", room: "E-115", faculty: "Prof. A. Joshi" },
+        { time: "11:00 - 12:00", subject: "Digital Signal Processing", room: "E-108", faculty: "Dr. K. Iyer" },
+        { time: "13:00 - 14:00", subject: "Open Hardware Bench", room: "E-101", faculty: "Open Access" },
+        { time: "14:00 - 16:00", subject: "Capstone Project Work", room: "Project Hub", faculty: "Project Guides" }
+      ],
+      THU: [
+        { time: "09:00 - 10:00", subject: "Digital Communication", room: "E-204", faculty: "Dr. S. Patil" },
+        { time: "10:00 - 11:00", subject: "Antenna & Microwave Theory", room: "E-310", faculty: "Prof. P. Deshmukh" },
+        { time: "11:00 - 12:00", subject: "Microcontrollers & Embedded C", room: "E-101", faculty: "Prof. R. Saxena" },
+        { time: "13:00 - 14:00", subject: "Training & Placement Cell", room: "Auditorium", faculty: "T&P Officers" },
+        { time: "14:00 - 16:00", subject: "FPGA & VHDL Workstation", room: "E-204 FPGA Lab", faculty: "Prof. V. Sharma" }
+      ],
+      FRI: [
+        { time: "09:00 - 10:00", subject: "DSP Lab Pre-work", room: "E-108", faculty: "Dr. K. Iyer" },
+        { time: "10:00 - 12:00", subject: "DSP Simulation Lab", room: "E-108 Simulation Bay", faculty: "Dr. K. Iyer" },
+        { time: "13:00 - 14:00", subject: "Technical Seminar & Paper Review", room: "Seminar Hall", faculty: "HOD / Faculty" },
+        { time: "14:00 - 15:00", subject: "Robotics & IoT Club", room: "Student Activity Center", faculty: "Club Leads" },
+        { time: "15:00 - 17:00", subject: "Open Hardware Lab Access", room: "E-101", faculty: "Lab Incharges" }
+      ]
+    };
   }
 
   function saveTimetable(newTable) {
     localStorage.setItem("pbcoe_timetable", JSON.stringify(newTable));
-    putFirebase("timetable.json", newTable).catch(() => {});
   }
 
   function loginStudent(prn) {
     const s = students.find(x => x.prn === prn);
-    if (!s) return { success: false, message: "Student PRN not found." };
+    if (!s) return { success: false, message: "Student PRN not found in records." };
     currentUser = { role: "student", data: s };
     localStorage.setItem("pbcoe_user", JSON.stringify(currentUser));
     return { success: true, user: currentUser };
@@ -348,21 +348,7 @@ window.PBCOE = (function () {
 
   return {
     init: async function () {
-      // Background refresh from json file if available
-      try {
-        const res = await fetch("assets/data/students.json");
-        const data = await res.json();
-        if (data && data.length > 0) {
-          const savedEnrolled = JSON.parse(localStorage.getItem("pbcoe_enrolled_map") || "{}");
-          data.forEach(s => {
-            if (savedEnrolled[s.prn]) {
-              s.enrolled = true;
-              s.fingerprint_id = savedEnrolled[s.prn].slot || s.id;
-            }
-          });
-          students = data;
-        }
-      } catch(e) {}
+      await syncStudentsWithSupabase();
     },
     getStudents: () => students,
     getStudentByPrn: (prn) => students.find(s => s.prn === prn),
@@ -373,15 +359,12 @@ window.PBCOE = (function () {
     loginAdmin: loginAdmin,
     logout: logout,
     getCurrentUser: () => currentUser,
-    pollAttendance: pollAttendanceFromFirebase,
+    pollAttendance: pollAttendanceFromSupabase,
     showToast: showToast,
     playChime: playNotificationChime,
     triggerCloudEnrollment: triggerCloudEnrollment,
     markStudentEnrolled: markStudentEnrolled,
-    getFirebaseUrl: () => firebaseUrl,
-    setFirebaseUrl: (url) => {
-      firebaseUrl = url;
-      localStorage.setItem("pbcoe_firebase_url", url);
-    }
+    getSupabaseUrl: () => SUPABASE_URL,
+    getSupabaseKey: () => SUPABASE_KEY
   };
 })();

@@ -7,13 +7,14 @@
 #include <Preferences.h>
 
 // ========================================================
-// 1. WiFi & Firebase Configuration (Direct Internet Cloud)
+// 1. WiFi & Official Supabase Cloud Configuration
 // ========================================================
 const char* ssid     = "bittu";
 const char* password = "YOUR_PASSWORD";
 
-// Firebase Realtime Database URL
-const char* firebaseUrl = "https://my-project-1-602b7-default-rtdb.firebaseio.com";
+// Supabase REST Endpoint & Publishable Key
+const char* supabaseUrl = "https://vobyuijfocigsbahkvab.supabase.co/rest/v1/attendance_logs";
+const char* supabaseApiKey = "sb_publishable_wIYMMvFnNFMXyFavLagzIA_4rBYuOMN";
 
 // ========================================================
 // 2. Hardware UART on GPIO 4 (D4) & GPIO 2 (D2)
@@ -34,8 +35,7 @@ int enrollTargetID = 0;
 String enrollTargetName = "";
 String enrollTargetRoll = "";
 String enrollStepMsg = "Idle";
-int enrollProgress = 0; // 0: Idle, 1: 1st pass, 2: Lift, 3: 2nd pass
-unsigned long lastCommandCheck = 0;
+int enrollProgress = 0;
 
 struct AttendanceLog {
   int id;
@@ -88,115 +88,41 @@ void saveStudent(int id, String name, String roll) {
 }
 
 // ========================================================
-// 3. Direct Firebase Cloud Sync Services
+// 3. Direct Supabase Cloud REST Sync
 // ========================================================
-void syncAttendanceToFirebase(int id, String name, String roll, String status, int score) {
+void syncAttendanceToSupabase(int id, String name, String roll, String status, int score) {
   if (WiFi.status() != WL_CONNECTED) return;
 
   WiFiClientSecure client;
   client.setInsecure(); // SSL cert bypass
   HTTPClient https;
 
-  // 1. Post to permanent log history
-  String logUrl = String(firebaseUrl) + "/attendance_logs.json";
-  if (https.begin(client, logUrl)) {
+  if (https.begin(client, supabaseUrl)) {
     https.addHeader("Content-Type", "application/json");
+    https.addHeader("apikey", supabaseApiKey);
+    https.addHeader("Authorization", String("Bearer ") + supabaseApiKey);
+    https.addHeader("Prefer", "return=minimal");
+
     String payload = "{";
-    payload += "\"fingerID\":" + String(id) + ",";
-    payload += "\"name\":\"" + name + "\",";
-    payload += "\"roll\":\"" + roll + "\",";
+    payload += "\"fingerprint_id\":" + String(id) + ",";
+    payload += "\"prn\":\"" + roll + "\",";
+    payload += "\"student_name\":\"" + name + "\",";
     payload += "\"status\":\"" + status + "\",";
-    payload += "\"confidence\":" + String(score) + ",";
-    payload += "\"timestamp\":{\".sv\":\"timestamp\"}";
+    payload += "\"confidence\":" + String(score);
     payload += "}";
-    https.POST(payload);
-    https.end();
-  }
 
-  // 2. Broadcast live scan event for instant toast on all devices
-  String liveUrl = String(firebaseUrl) + "/live_scan.json";
-  if (https.begin(client, liveUrl)) {
-    https.addHeader("Content-Type", "application/json");
-    String payload = "{";
-    payload += "\"fingerID\":" + String(id) + ",";
-    payload += "\"name\":\"" + name + "\",";
-    payload += "\"roll\":\"" + roll + "\",";
-    payload += "\"status\":\"" + status + "\",";
-    payload += "\"confidence\":" + String(score) + ",";
-    payload += "\"timestamp\":{\".sv\":\"timestamp\"}";
-    payload += "}";
-    https.PUT(payload);
-    https.end();
-  }
-}
-
-void updateCloudEnrollStatus(String step, int progress, String message) {
-  if (WiFi.status() != WL_CONNECTED) return;
-  WiFiClientSecure client;
-  client.setInsecure();
-  HTTPClient https;
-
-  String url = String(firebaseUrl) + "/biometric_node/status.json";
-  if (https.begin(client, url)) {
-    https.addHeader("Content-Type", "application/json");
-    String payload = "{";
-    payload += "\"step\":\"" + step + "\",";
-    payload += "\"progress\":" + String(progress) + ",";
-    payload += "\"message\":\"" + message + "\",";
-    payload += "\"timestamp\":{\".sv\":\"timestamp\"}";
-    payload += "}";
-    https.PUT(payload);
-    https.end();
-  }
-}
-
-// Check if website submitted an enrollment request via Firebase
-void checkCloudEnrollCommands() {
-  if (WiFi.status() != WL_CONNECTED || currentMode == MODE_ENROLLING) return;
-  if (millis() - lastCommandCheck < 3000) return;
-  lastCommandCheck = millis();
-
-  WiFiClientSecure client;
-  client.setInsecure();
-  HTTPClient https;
-
-  String url = String(firebaseUrl) + "/biometric_node/command.json";
-  if (https.begin(client, url)) {
-    int httpCode = https.GET();
-    if (httpCode == 200) {
-      String res = https.getString();
-      if (res.indexOf("\"status\":\"PENDING\"") > 0) {
-        // Parse ID
-        int idIdx = res.indexOf("\"target_id\":");
-        if (idIdx > 0) {
-          int idEnd = res.indexOf(",", idIdx);
-          int targetId = res.substring(idIdx + 12, idEnd).toInt();
-          if (targetId >= 1 && targetId <= 127) {
-            enrollTargetID = targetId;
-            enrollTargetName = "Candidate #" + String(targetId);
-            enrollTargetRoll = String(targetId);
-            currentMode = MODE_ENROLLING;
-            enrollProgress = 1;
-            enrollStepMsg = "Place finger on sensor (Pass 1 of 2)...";
-            Serial.printf("[Cloud Command] Starting enrollment for slot #%d\n", targetId);
-            updateCloudEnrollStatus("PASS_1", 25, "Place finger on sensor prism");
-
-            // Mark command as active
-            https.end();
-            if (https.begin(client, url)) {
-              https.addHeader("Content-Type", "application/json");
-              https.PATCH("{\"status\":\"PROCESSING\"}");
-            }
-          }
-        }
-      }
+    int httpCode = https.POST(payload);
+    if (httpCode > 0) {
+      Serial.printf("[Supabase] Successfully posted log! HTTP Code: %d\n", httpCode);
+    } else {
+      Serial.printf("[Supabase] Post failed: %s\n", https.errorToString(httpCode).c_str());
     }
     https.end();
   }
 }
 
 // ========================================================
-// 4. Two-Pass Fingerprint Enrollment State Machine
+// 4. Two-Pass Fingerprint Enrollment Machine
 // ========================================================
 void processEnrollment() {
   if (enrollProgress == 1) {
@@ -205,7 +131,6 @@ void processEnrollment() {
       p = finger.image2Tz(1);
       if (p == FINGERPRINT_OK) {
         enrollStepMsg = "Image 1 captured! Lift finger now...";
-        updateCloudEnrollStatus("LIFT_FINGER", 50, "Image 1 OK! Lift finger");
         enrollProgress = 2;
       }
     }
@@ -214,7 +139,6 @@ void processEnrollment() {
     uint8_t p = finger.getImage();
     if (p == FINGERPRINT_NOFINGER) {
       enrollStepMsg = "Place SAME finger again (Pass 2 of 2)...";
-      updateCloudEnrollStatus("PASS_2", 75, "Place same finger again");
       enrollProgress = 3;
     }
   } 
@@ -229,16 +153,13 @@ void processEnrollment() {
           if (p == FINGERPRINT_OK) {
             saveStudent(enrollTargetID, enrollTargetName, enrollTargetRoll);
             enrollStepMsg = "SUCCESS: Enrolled #" + String(enrollTargetID);
-            updateCloudEnrollStatus("COMPLETED", 100, "Successfully enrolled in memory");
             delay(1500);
             currentMode = MODE_ATTENDANCE;
             enrollProgress = 0;
           } else {
-            updateCloudEnrollStatus("ERROR", 0, "Flash storage error");
             currentMode = MODE_ATTENDANCE;
           }
         } else {
-          updateCloudEnrollStatus("MISMATCH", 0, "Prints did not match. Retry");
           currentMode = MODE_ATTENDANCE;
         }
       }
@@ -267,12 +188,12 @@ void processAttendance() {
           Serial.printf(">> [MATCH] #%d | %s | %s (Score: %d)\n", id, name.c_str(), roll.c_str(), finger.confidence);
           
           addAttendanceLog(id, name, roll, "Present", finger.confidence);
-          syncAttendanceToFirebase(id, name, roll, "Present", finger.confidence);
+          syncAttendanceToSupabase(id, name, roll, "Present", finger.confidence);
         } else if (p == FINGERPRINT_NOTFOUND) {
           lastEvent = "Unregistered Finger Scan";
           Serial.println(">> [UNKNOWN] Unregistered fingerprint detected.");
           addAttendanceLog(0, "Unregistered Student", "N/A", "Unregistered", 0);
-          syncAttendanceToFirebase(0, "Unregistered Student", "N/A", "Unregistered", 0);
+          syncAttendanceToSupabase(0, "Unregistered Student", "N/A", "Unregistered", 0);
         }
       }
 
@@ -294,7 +215,7 @@ void setup() {
   prefs.begin("students", false);
 
   Serial.println("\n=======================================================");
-  Serial.println("  PBCOE Biometric Node v2026 (Pure Cloud Internet)     ");
+  Serial.println("  PBCOE Biometric Node v2026 (Direct Supabase Cloud)   ");
   Serial.println("=======================================================");
 
   // Connect to WiFi
@@ -308,7 +229,7 @@ void setup() {
   }
 
   Serial.printf("\n[WiFi] Connected! IP: %s\n", WiFi.localIP().toString().c_str());
-  Serial.printf("[Firebase] Streaming to: %s\n", firebaseUrl);
+  Serial.printf("[Supabase] Endpoint: %s\n", supabaseUrl);
 
   // R307 UART on D4 (RX) & D2 (TX) at 57600
   mySerial.begin(57600, SERIAL_8N1, SENSOR_RX, SENSOR_TX);
@@ -320,11 +241,11 @@ void setup() {
     Serial.println("[FAIL] R307 not responding on D4/D2.");
   }
 
-  // Minimalist Local Diagnostic Web Server
+  // Diagnostic Local Web Server
   server.on("/", []() {
     setCorsHeaders();
-    String h = "<h1>PBCOE Biometric Node Active (Cloud Sync)</h1>";
-    h += "<p>Connected to Firebase Realtime Database: " + String(firebaseUrl) + "</p>";
+    String h = "<h1>PBCOE Biometric Node Active (Supabase Cloud Sync)</h1>";
+    h += "<p>Connected to Supabase: " + String(supabaseUrl) + "</p>";
     server.send(200, "text/html", h);
   });
   server.begin();
@@ -337,6 +258,5 @@ void loop() {
     processEnrollment();
   } else {
     processAttendance();
-    checkCloudEnrollCommands();
   }
 }
