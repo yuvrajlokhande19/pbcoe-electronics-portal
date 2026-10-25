@@ -309,7 +309,7 @@ function renderFacultyRoster(list) {
           <span class="pill ${isRisk ? 'bad' : 'ok'}">${s.attendance_percentage}% ${isRisk ? '⚠️ AT RISK' : 'NORMAL'}</span>
         </td>
         <td>
-          <a href="attendance.html" class="btn btn-sm btn-ghost" style="padding:3px 10px;font-size:0.75rem;">Biometric Node</a>
+          <a href="attendance.html?enroll=${s.prn}" class="btn btn-sm btn-ghost" style="padding:3px 10px;font-size:0.75rem;">Enroll Finger 🪪</a>
         </td>
       </tr>
     `;
