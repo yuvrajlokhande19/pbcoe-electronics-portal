@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
+<script src="assets/js/pbcoe-core.js"></script>
 
 </head>
 <body>
@@ -36,7 +37,9 @@
     </ul>
     <div class="nav-actions">
       <button class="theme-toggle" aria-label="Toggle dark mode"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg></button>
-      <a href="student-portal.html" class="btn btn-accent btn-sm">Login</a>
+      <div id="nav-user-slot" style="display:inline-flex;align-items:center;">
+        <button id="nav-login-btn" class="btn btn-accent btn-sm" onclick="PBCOE_AUTH.openLogin()">Login</button>
+      </div>
       <button class="burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
     </div>
   </div>
@@ -49,6 +52,204 @@
   <a href="trends.html">Tech Radar →</a><a href="student-portal.html">Student Portal →</a><a href="faculty-portal.html">Faculty Portal →</a>
   <a href="events.html">Events →</a><a href="gallery.html">Gallery →</a><a href="admissions.html">Admissions →</a><a href="contact.html">Contact →</a>
 </nav>
+
+<!-- GLOBAL UNIFIED AUTH MODAL -->
+<div id="pbcoe-auth-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.78);z-index:999999;justify-content:center;align-items:center;padding:20px;backdrop-filter:blur(6px);">
+  <div class="card" style="max-width:480px;width:100%;background:var(--bg,#0b0f19);border:1px solid var(--border,#1e293b);box-shadow:0 24px 64px rgba(0,0,0,0.85);border-radius:18px;padding:28px;position:relative;">
+    <button onclick="PBCOE_AUTH.closeLogin()" style="position:absolute;top:18px;right:18px;background:none;border:none;color:var(--muted);font-size:1.4rem;cursor:pointer;">✕</button>
+    
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+      <span style="font-size:1.6rem;">🔐</span>
+      <div>
+        <h2 style="margin:0;font-size:1.3rem;color:#38bdf8;">PBCOE Unified Portal</h2>
+        <p style="font-size:0.8rem;color:var(--muted);margin:0;">Select portal access role</p>
+      </div>
+    </div>
+
+    <!-- Modal Tabs -->
+    <div style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:12px;">
+      <button id="auth-tab-student" class="btn btn-sm btn-primary" style="flex:1;" onclick="PBCOE_AUTH.switchTab('student')">👨‍🎓 Student</button>
+      <button id="auth-tab-admin" class="btn btn-sm btn-ghost" style="flex:1;" onclick="PBCOE_AUTH.switchTab('admin')">🛡️ Faculty / Admin</button>
+      <button id="auth-tab-cloud" class="btn btn-sm btn-ghost" style="padding:4px 8px;" title="Firebase Settings" onclick="PBCOE_AUTH.switchTab('cloud')">⚙️</button>
+    </div>
+
+    <!-- STUDENT LOGIN TAB -->
+    <div id="auth-pane-student">
+      <div class="field" style="margin-bottom:14px;">
+        <label>Select Student From Roster (65 Candidates)</label>
+        <select class="select" id="auth-student-select" onchange="PBCOE_AUTH.previewStudent()">
+          <option value="">-- Choose Candidate --</option>
+        </select>
+      </div>
+
+      <div class="field" style="margin-bottom:16px;">
+        <label>Or Enter PRN Number</label>
+        <input type="text" class="input" id="auth-student-prn" placeholder="e.g. 24121218" oninput="PBCOE_AUTH.syncPrnInput()">
+      </div>
+
+      <div id="auth-student-preview" style="display:flex;align-items:center;gap:14px;padding:12px;background:#090d16;border-radius:12px;margin-bottom:20px;border:1px solid var(--border);">
+        <img id="auth-preview-img" src="assets/images/students/24121218.jpg" style="width:54px;height:54px;border-radius:12px;object-fit:cover;border:2px solid #38bdf8;" onerror="this.src='https://ui-avatars.com/api/?name=PBCOE&background=1e293b&color=38bdf8'">
+        <div style="flex:1;min-width:0;">
+          <div id="auth-preview-name" style="font-weight:700;font-size:0.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Select a student</div>
+          <div id="auth-preview-sub" class="mono" style="font-size:0.75rem;color:var(--muted);">PRN: - · Attendance: -</div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" style="width:100%;font-size:1rem;" onclick="PBCOE_AUTH.submitStudentLogin()">Enter Student HUD →</button>
+    </div>
+
+    <!-- FACULTY & ADMIN LOGIN TAB -->
+    <div id="auth-pane-admin" style="display:none;">
+      <div class="field" style="margin-bottom:14px;">
+        <label>Admin ID / Faculty Username</label>
+        <input type="text" class="input" id="auth-admin-user" value="admin" placeholder="admin">
+      </div>
+      <div class="field" style="margin-bottom:18px;">
+        <label>Password</label>
+        <input type="password" class="input" id="auth-admin-pass" value="pbcoe2026" placeholder="Enter password">
+      </div>
+      <div id="auth-admin-err" style="color:#f87171;font-size:0.8rem;margin-bottom:12px;display:none;"></div>
+      <button class="btn btn-accent" style="width:100%;font-size:1rem;" onclick="PBCOE_AUTH.submitAdminLogin()">Unlock Admin Console ⚡</button>
+      <p style="font-size:0.75rem;color:var(--muted);text-align:center;margin-top:10px;">Default credentials: <code>admin</code> / <code>pbcoe2026</code></p>
+    </div>
+
+    <!-- CLOUD FIREBASE CONFIG TAB -->
+    <div id="auth-pane-cloud" style="display:none;">
+      <div class="field" style="margin-bottom:14px;">
+        <label>Firebase Realtime Database URL</label>
+        <input type="text" class="input" id="auth-cloud-url" placeholder="https://<YOUR-PROJECT>-default-rtdb.firebaseio.com">
+      </div>
+      <p style="font-size:0.8rem;color:var(--muted);line-height:1.4;margin-bottom:16px;">
+        This connects your website and ESP32 directly through cloud Internet. Zero localhost dependency!
+      </p>
+      <button class="btn btn-sm btn-primary" style="width:100%;" onclick="PBCOE_AUTH.saveCloudConfig()">Save Firebase URL</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+window.PBCOE_AUTH = {
+  openLogin: function() {
+    document.getElementById("pbcoe-auth-modal").style.display = "flex";
+    this.populateStudentDropdown();
+  },
+  closeLogin: function() {
+    document.getElementById("pbcoe-auth-modal").style.display = "none";
+  },
+  switchTab: function(tab) {
+    document.getElementById("auth-pane-student").style.display = tab === 'student' ? 'block' : 'none';
+    document.getElementById("auth-pane-admin").style.display = tab === 'admin' ? 'block' : 'none';
+    document.getElementById("auth-pane-cloud").style.display = tab === 'cloud' ? 'block' : 'none';
+    document.getElementById("auth-tab-student").className = "btn btn-sm " + (tab === 'student' ? 'btn-primary' : 'btn-ghost');
+    document.getElementById("auth-tab-admin").className = "btn btn-sm " + (tab === 'admin' ? 'btn-primary' : 'btn-ghost');
+    document.getElementById("auth-tab-cloud").className = "btn btn-sm " + (tab === 'cloud' ? 'btn-primary' : 'btn-ghost');
+    if (tab === 'cloud') {
+      document.getElementById("auth-cloud-url").value = window.PBCOE ? window.PBCOE.getFirebaseUrl() : '';
+    }
+  },
+  populateStudentDropdown: function() {
+    if (!window.PBCOE) return;
+    const sel = document.getElementById("auth-student-select");
+    if (!sel || sel.children.length > 2) return;
+    const list = window.PBCOE.getStudents();
+    sel.innerHTML = '<option value="">-- Choose Candidate --</option>' + 
+      list.map(s => `<option value="${s.prn}">${s.name} (${s.prn})</option>`).join("");
+    if (list.length > 0) {
+      sel.value = list[0].prn;
+      this.previewStudent();
+    }
+  },
+  previewStudent: function() {
+    const sel = document.getElementById("auth-student-select");
+    const prn = sel.value;
+    document.getElementById("auth-student-prn").value = prn;
+    const s = window.PBCOE.getStudentByPrn(prn);
+    if (s) {
+      document.getElementById("auth-preview-img").src = s.image;
+      document.getElementById("auth-preview-name").innerText = s.name;
+      document.getElementById("auth-preview-sub").innerText = `PRN: ${s.prn} · Attendance: ${s.attendance_percentage}%`;
+    }
+  },
+  syncPrnInput: function() {
+    const prn = document.getElementById("auth-student-prn").value.trim();
+    const sel = document.getElementById("auth-student-select");
+    sel.value = prn;
+    const s = window.PBCOE.getStudentByPrn(prn);
+    if (s) {
+      document.getElementById("auth-preview-img").src = s.image;
+      document.getElementById("auth-preview-name").innerText = s.name;
+      document.getElementById("auth-preview-sub").innerText = `PRN: ${s.prn} · Attendance: ${s.attendance_percentage}%`;
+    }
+  },
+  submitStudentLogin: function() {
+    const prn = document.getElementById("auth-student-prn").value.trim() || document.getElementById("auth-student-select").value;
+    if (!prn) { alert("Please select or enter a student PRN."); return; }
+    const res = window.PBCOE.loginStudent(prn);
+    if (res.success) {
+      this.closeLogin();
+      location.href = "student-portal.html";
+    } else {
+      alert(res.message);
+    }
+  },
+  submitAdminLogin: function() {
+    const u = document.getElementById("auth-admin-user").value;
+    const p = document.getElementById("auth-admin-pass").value;
+    const res = window.PBCOE.loginAdmin(u, p);
+    const err = document.getElementById("auth-admin-err");
+    if (res.success) {
+      err.style.display = "none";
+      this.closeLogin();
+      location.href = "faculty-portal.html";
+    } else {
+      err.style.display = "block";
+      err.innerText = res.message;
+    }
+  },
+  saveCloudConfig: function() {
+    const u = document.getElementById("auth-cloud-url").value.trim();
+    if (u) {
+      window.PBCOE.setFirebaseUrl(u);
+      alert("Firebase Realtime Database URL updated successfully!");
+      this.switchTab('student');
+    }
+  },
+  updateNavUser: function() {
+    const user = window.PBCOE ? window.PBCOE.getCurrentUser() : null;
+    const slot = document.getElementById("nav-user-slot");
+    if (!slot) return;
+    if (user) {
+      if (user.role === 'admin') {
+        slot.innerHTML = `
+          <a href="faculty-portal.html" class="btn btn-sm btn-ghost" style="display:inline-flex;align-items:center;gap:6px;">
+            <span>🛡️</span> Admin Console
+          </a>
+          <button onclick="window.PBCOE.logout()" class="btn btn-sm btn-ghost" style="padding:4px 8px;margin-left:4px;" title="Logout">✕</button>
+        `;
+      } else if (user.role === 'student') {
+        const s = user.data;
+        slot.innerHTML = `
+          <a href="student-portal.html" class="btn btn-sm btn-ghost" style="display:inline-flex;align-items:center;gap:8px;padding:3px 10px;">
+            <img src="${s.image}" style="width:24px;height:24px;border-radius:6px;object-fit:cover;">
+            <span style="max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.name.split(' ')[0]}</span>
+          </a>
+          <button onclick="window.PBCOE.logout()" class="btn btn-sm btn-ghost" style="padding:4px 8px;margin-left:4px;" title="Logout">✕</button>
+        `;
+      }
+    }
+  }
+};
+
+document.addEventListener("DOMContentLoaded", async function() {
+  if (window.PBCOE) {
+    await window.PBCOE.init();
+    window.PBCOE_AUTH.updateNavUser();
+    window.PBCOE.pollAttendance();
+    setInterval(() => window.PBCOE.pollAttendance(), 2500);
+  }
+});
+</script>
 
 <main>
 <!--TITLE:Contact — PBCOE Electronics Portal-->

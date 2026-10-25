@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
+<script src="assets/js/pbcoe-core.js"></script>
 
 </head>
 <body>
@@ -36,7 +37,9 @@
     </ul>
     <div class="nav-actions">
       <button class="theme-toggle" aria-label="Toggle dark mode"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg></button>
-      <a href="student-portal.html" class="btn btn-accent btn-sm">Login</a>
+      <div id="nav-user-slot" style="display:inline-flex;align-items:center;">
+        <button id="nav-login-btn" class="btn btn-accent btn-sm" onclick="PBCOE_AUTH.openLogin()">Login</button>
+      </div>
       <button class="burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
     </div>
   </div>
@@ -50,6 +53,204 @@
   <a href="events.html">Events →</a><a href="gallery.html">Gallery →</a><a href="admissions.html">Admissions →</a><a href="contact.html">Contact →</a>
 </nav>
 
+<!-- GLOBAL UNIFIED AUTH MODAL -->
+<div id="pbcoe-auth-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.78);z-index:999999;justify-content:center;align-items:center;padding:20px;backdrop-filter:blur(6px);">
+  <div class="card" style="max-width:480px;width:100%;background:var(--bg,#0b0f19);border:1px solid var(--border,#1e293b);box-shadow:0 24px 64px rgba(0,0,0,0.85);border-radius:18px;padding:28px;position:relative;">
+    <button onclick="PBCOE_AUTH.closeLogin()" style="position:absolute;top:18px;right:18px;background:none;border:none;color:var(--muted);font-size:1.4rem;cursor:pointer;">✕</button>
+    
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+      <span style="font-size:1.6rem;">🔐</span>
+      <div>
+        <h2 style="margin:0;font-size:1.3rem;color:#38bdf8;">PBCOE Unified Portal</h2>
+        <p style="font-size:0.8rem;color:var(--muted);margin:0;">Select portal access role</p>
+      </div>
+    </div>
+
+    <!-- Modal Tabs -->
+    <div style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:12px;">
+      <button id="auth-tab-student" class="btn btn-sm btn-primary" style="flex:1;" onclick="PBCOE_AUTH.switchTab('student')">👨‍🎓 Student</button>
+      <button id="auth-tab-admin" class="btn btn-sm btn-ghost" style="flex:1;" onclick="PBCOE_AUTH.switchTab('admin')">🛡️ Faculty / Admin</button>
+      <button id="auth-tab-cloud" class="btn btn-sm btn-ghost" style="padding:4px 8px;" title="Firebase Settings" onclick="PBCOE_AUTH.switchTab('cloud')">⚙️</button>
+    </div>
+
+    <!-- STUDENT LOGIN TAB -->
+    <div id="auth-pane-student">
+      <div class="field" style="margin-bottom:14px;">
+        <label>Select Student From Roster (65 Candidates)</label>
+        <select class="select" id="auth-student-select" onchange="PBCOE_AUTH.previewStudent()">
+          <option value="">-- Choose Candidate --</option>
+        </select>
+      </div>
+
+      <div class="field" style="margin-bottom:16px;">
+        <label>Or Enter PRN Number</label>
+        <input type="text" class="input" id="auth-student-prn" placeholder="e.g. 24121218" oninput="PBCOE_AUTH.syncPrnInput()">
+      </div>
+
+      <div id="auth-student-preview" style="display:flex;align-items:center;gap:14px;padding:12px;background:#090d16;border-radius:12px;margin-bottom:20px;border:1px solid var(--border);">
+        <img id="auth-preview-img" src="assets/images/students/24121218.jpg" style="width:54px;height:54px;border-radius:12px;object-fit:cover;border:2px solid #38bdf8;" onerror="this.src='https://ui-avatars.com/api/?name=PBCOE&background=1e293b&color=38bdf8'">
+        <div style="flex:1;min-width:0;">
+          <div id="auth-preview-name" style="font-weight:700;font-size:0.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Select a student</div>
+          <div id="auth-preview-sub" class="mono" style="font-size:0.75rem;color:var(--muted);">PRN: - · Attendance: -</div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" style="width:100%;font-size:1rem;" onclick="PBCOE_AUTH.submitStudentLogin()">Enter Student HUD →</button>
+    </div>
+
+    <!-- FACULTY & ADMIN LOGIN TAB -->
+    <div id="auth-pane-admin" style="display:none;">
+      <div class="field" style="margin-bottom:14px;">
+        <label>Admin ID / Faculty Username</label>
+        <input type="text" class="input" id="auth-admin-user" value="admin" placeholder="admin">
+      </div>
+      <div class="field" style="margin-bottom:18px;">
+        <label>Password</label>
+        <input type="password" class="input" id="auth-admin-pass" value="pbcoe2026" placeholder="Enter password">
+      </div>
+      <div id="auth-admin-err" style="color:#f87171;font-size:0.8rem;margin-bottom:12px;display:none;"></div>
+      <button class="btn btn-accent" style="width:100%;font-size:1rem;" onclick="PBCOE_AUTH.submitAdminLogin()">Unlock Admin Console ⚡</button>
+      <p style="font-size:0.75rem;color:var(--muted);text-align:center;margin-top:10px;">Default credentials: <code>admin</code> / <code>pbcoe2026</code></p>
+    </div>
+
+    <!-- CLOUD FIREBASE CONFIG TAB -->
+    <div id="auth-pane-cloud" style="display:none;">
+      <div class="field" style="margin-bottom:14px;">
+        <label>Firebase Realtime Database URL</label>
+        <input type="text" class="input" id="auth-cloud-url" placeholder="https://<YOUR-PROJECT>-default-rtdb.firebaseio.com">
+      </div>
+      <p style="font-size:0.8rem;color:var(--muted);line-height:1.4;margin-bottom:16px;">
+        This connects your website and ESP32 directly through cloud Internet. Zero localhost dependency!
+      </p>
+      <button class="btn btn-sm btn-primary" style="width:100%;" onclick="PBCOE_AUTH.saveCloudConfig()">Save Firebase URL</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+window.PBCOE_AUTH = {
+  openLogin: function() {
+    document.getElementById("pbcoe-auth-modal").style.display = "flex";
+    this.populateStudentDropdown();
+  },
+  closeLogin: function() {
+    document.getElementById("pbcoe-auth-modal").style.display = "none";
+  },
+  switchTab: function(tab) {
+    document.getElementById("auth-pane-student").style.display = tab === 'student' ? 'block' : 'none';
+    document.getElementById("auth-pane-admin").style.display = tab === 'admin' ? 'block' : 'none';
+    document.getElementById("auth-pane-cloud").style.display = tab === 'cloud' ? 'block' : 'none';
+    document.getElementById("auth-tab-student").className = "btn btn-sm " + (tab === 'student' ? 'btn-primary' : 'btn-ghost');
+    document.getElementById("auth-tab-admin").className = "btn btn-sm " + (tab === 'admin' ? 'btn-primary' : 'btn-ghost');
+    document.getElementById("auth-tab-cloud").className = "btn btn-sm " + (tab === 'cloud' ? 'btn-primary' : 'btn-ghost');
+    if (tab === 'cloud') {
+      document.getElementById("auth-cloud-url").value = window.PBCOE ? window.PBCOE.getFirebaseUrl() : '';
+    }
+  },
+  populateStudentDropdown: function() {
+    if (!window.PBCOE) return;
+    const sel = document.getElementById("auth-student-select");
+    if (!sel || sel.children.length > 2) return;
+    const list = window.PBCOE.getStudents();
+    sel.innerHTML = '<option value="">-- Choose Candidate --</option>' + 
+      list.map(s => `<option value="${s.prn}">${s.name} (${s.prn})</option>`).join("");
+    if (list.length > 0) {
+      sel.value = list[0].prn;
+      this.previewStudent();
+    }
+  },
+  previewStudent: function() {
+    const sel = document.getElementById("auth-student-select");
+    const prn = sel.value;
+    document.getElementById("auth-student-prn").value = prn;
+    const s = window.PBCOE.getStudentByPrn(prn);
+    if (s) {
+      document.getElementById("auth-preview-img").src = s.image;
+      document.getElementById("auth-preview-name").innerText = s.name;
+      document.getElementById("auth-preview-sub").innerText = `PRN: ${s.prn} · Attendance: ${s.attendance_percentage}%`;
+    }
+  },
+  syncPrnInput: function() {
+    const prn = document.getElementById("auth-student-prn").value.trim();
+    const sel = document.getElementById("auth-student-select");
+    sel.value = prn;
+    const s = window.PBCOE.getStudentByPrn(prn);
+    if (s) {
+      document.getElementById("auth-preview-img").src = s.image;
+      document.getElementById("auth-preview-name").innerText = s.name;
+      document.getElementById("auth-preview-sub").innerText = `PRN: ${s.prn} · Attendance: ${s.attendance_percentage}%`;
+    }
+  },
+  submitStudentLogin: function() {
+    const prn = document.getElementById("auth-student-prn").value.trim() || document.getElementById("auth-student-select").value;
+    if (!prn) { alert("Please select or enter a student PRN."); return; }
+    const res = window.PBCOE.loginStudent(prn);
+    if (res.success) {
+      this.closeLogin();
+      location.href = "student-portal.html";
+    } else {
+      alert(res.message);
+    }
+  },
+  submitAdminLogin: function() {
+    const u = document.getElementById("auth-admin-user").value;
+    const p = document.getElementById("auth-admin-pass").value;
+    const res = window.PBCOE.loginAdmin(u, p);
+    const err = document.getElementById("auth-admin-err");
+    if (res.success) {
+      err.style.display = "none";
+      this.closeLogin();
+      location.href = "faculty-portal.html";
+    } else {
+      err.style.display = "block";
+      err.innerText = res.message;
+    }
+  },
+  saveCloudConfig: function() {
+    const u = document.getElementById("auth-cloud-url").value.trim();
+    if (u) {
+      window.PBCOE.setFirebaseUrl(u);
+      alert("Firebase Realtime Database URL updated successfully!");
+      this.switchTab('student');
+    }
+  },
+  updateNavUser: function() {
+    const user = window.PBCOE ? window.PBCOE.getCurrentUser() : null;
+    const slot = document.getElementById("nav-user-slot");
+    if (!slot) return;
+    if (user) {
+      if (user.role === 'admin') {
+        slot.innerHTML = `
+          <a href="faculty-portal.html" class="btn btn-sm btn-ghost" style="display:inline-flex;align-items:center;gap:6px;">
+            <span>🛡️</span> Admin Console
+          </a>
+          <button onclick="window.PBCOE.logout()" class="btn btn-sm btn-ghost" style="padding:4px 8px;margin-left:4px;" title="Logout">✕</button>
+        `;
+      } else if (user.role === 'student') {
+        const s = user.data;
+        slot.innerHTML = `
+          <a href="student-portal.html" class="btn btn-sm btn-ghost" style="display:inline-flex;align-items:center;gap:8px;padding:3px 10px;">
+            <img src="${s.image}" style="width:24px;height:24px;border-radius:6px;object-fit:cover;">
+            <span style="max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.name.split(' ')[0]}</span>
+          </a>
+          <button onclick="window.PBCOE.logout()" class="btn btn-sm btn-ghost" style="padding:4px 8px;margin-left:4px;" title="Logout">✕</button>
+        `;
+      }
+    }
+  }
+};
+
+document.addEventListener("DOMContentLoaded", async function() {
+  if (window.PBCOE) {
+    await window.PBCOE.init();
+    window.PBCOE_AUTH.updateNavUser();
+    window.PBCOE.pollAttendance();
+    setInterval(() => window.PBCOE.pollAttendance(), 2500);
+  }
+});
+</script>
+
 <main>
 <!--TITLE:Faculty & Admin Console — PBCOE Electronics Portal-->
 <section class="page-hero" style="padding-bottom:1.5rem">
@@ -58,144 +259,452 @@
     <p class="crumb reveal"><a href="index.html">HOME</a> / PORTALS / FACULTY &amp; ADMIN</p>
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;">
       <div>
-        <h1 class="reveal" style="--d:.08s;margin:0;">Console: <span class="grad-text">Prof. R. Saxena</span></h1>
-        <p class="section-sub reveal" style="--d:.16s mono;margin-top:4px;">ELECTRONICS &amp; TELECOMMUNICATION · 65 STUDENTS ROSTER · BIOMETRIC LAB</p>
+        <h1 class="reveal" style="--d:.08s;margin:0;">Faculty Console: <span class="grad-text">Prof. R. Saxena</span></h1>
+        <p class="section-sub reveal" style="--d:.16s mono;margin-top:6px;">HEAD OF LABS · ELECTRONICS &amp; TELECOMMUNICATION · 65 CANDIDATES ENROLLED</p>
       </div>
-      <div>
-        <a href="attendance.html" class="btn btn-primary btn-sm">Open Biometric Station ⚡</a>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-sm btn-ghost" onclick="exportAttendanceCsv()">Export CSV 📊</button>
+        <a href="attendance.html" class="btn btn-sm btn-primary">Open Biometric Station ⚡</a>
       </div>
     </div>
   </div>
 </section>
 
-<div class="ticker marquee-light" aria-hidden="true">
-  <div class="ticker-track" data-ticker>
-    <span><b>HARDWARE BRIDGE:</b> NODE @ 10.19.83.155 ONLINE</span><span class="dot">//</span>
-    <span><b>CLOUD DATABASE:</b> FIREBASE REALTIME SYNC ENABLED</span><span class="dot">//</span>
-    <span><b>CLASS ROSTER:</b> 65 CANDIDATES ENROLLED</span><span class="dot">//</span>
+<!-- ADMIN LOGIN GATE (Shown if not logged in as Admin) -->
+<div id="admin-gate" style="display:none;padding:40px 20px;">
+  <div class="container" style="max-width:520px;">
+    <div class="card" style="text-align:center;padding:36px 28px;border:1px solid #f59e0b;box-shadow:0 16px 48px rgba(0,0,0,0.4);">
+      <div style="font-size:3rem;margin-bottom:12px;">🛡️</div>
+      <h2 style="margin:0 0 8px 0;color:#fbbf24;">Admin Authentication Required</h2>
+      <p style="color:var(--muted);font-size:0.9rem;margin-bottom:24px;">Please enter faculty administrative credentials to customize timetables and manage biometric records.</p>
+      
+      <div class="field" style="margin-bottom:14px;text-align:left;">
+        <label>Admin Username</label>
+        <input type="text" class="input" id="gate-user" value="admin">
+      </div>
+      <div class="field" style="margin-bottom:20px;text-align:left;">
+        <label>Password</label>
+        <input type="password" class="input" id="gate-pass" value="pbcoe2026">
+      </div>
+      <div id="gate-err" style="color:#f87171;font-size:0.8rem;margin-bottom:14px;display:none;"></div>
+      <button class="btn btn-accent" style="width:100%;font-size:1rem;" onclick="submitGateLogin()">Unlock Administrative Console</button>
+    </div>
   </div>
 </div>
 
-<section class="section" style="padding-top:2rem">
-  <div class="container">
-    <div class="stats-grid" data-stagger style="margin-bottom:1.6rem">
-      <div class="glass stat"><div class="num"><span data-count="65">65</span></div><div class="lbl">Registered Students</div></div>
-      <div class="glass stat"><div class="num"><span data-count="91">0</span>%</div><div class="lbl">Avg Biometric Attendance</div></div>
-      <div class="glass stat"><div class="num" id="fac-node-status" style="font-size:1.4rem;color:#22c55e;">ONLINE</div><div class="lbl">ESP32 Node (10.19.83.155)</div></div>
-      <div class="glass stat"><div class="num" style="font-size:1.4rem;color:#38bdf8;">ACTIVE</div><div class="lbl">Firebase Cloud Sync</div></div>
-    </div>
-
-    <!-- Student Roster Management -->
-    <div class="card reveal" style="margin-bottom:2rem;">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;margin-bottom:1.2rem;">
-        <div>
-          <h3 style="margin:0;">Class Candidate Roster &amp; Biometric Records</h3>
-          <p style="font-size:.85rem;color:var(--muted);margin-top:2px;">Showing verified candidates loaded from official department database</p>
-        </div>
-        <input type="text" id="fac-search" class="input" placeholder="Search student by name or PRN..." style="max-width:300px;padding:.5rem 1rem;" oninput="facFilter()">
-      </div>
-
-      <div style="overflow-x:auto;">
-        <table class="tbl" style="width:100%;min-width:650px;">
-          <thead>
-            <tr>
-              <th>Candidate</th>
-              <th>Full Name</th>
-              <th>PRN Number</th>
-              <th>Class &amp; Branch</th>
-              <th>Attendance %</th>
-              <th>Biometric Action</th>
-            </tr>
-          </thead>
-          <tbody id="fac-roster-tbody">
-            <tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted);">Loading student roster...</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="grid-2" style="align-items:start">
-      <div class="card reveal left">
-        <h3 style="margin-bottom:1rem">Broadcast Class Alert 📢</h3>
-        <form id="ann-form">
-          <div class="field"><label for="an-msg">Announcement Text</label>
-            <textarea class="input" id="an-msg" rows="3" placeholder="e.g. Biometric verification mandatory for DSP Lab exam tomorrow." required></textarea>
-          </div>
-          <button class="btn btn-accent btn-sm" type="submit">Broadcast to 65 Student Devices</button>
-          <p id="ann-status" class="mono" style="font-size:.8rem;color:var(--green);margin-top:.8rem" hidden>✔ PUSHED TO 65 DEVICES ACROSS NETWORK</p>
-        </form>
-      </div>
-
-      <div class="card reveal right">
-        <h3 style="margin-bottom:1rem">Lab &amp; Station Actions ⚡</h3>
-        <div style="display:flex;flex-direction:column;gap:.8rem;">
-          <a href="attendance.html" class="btn btn-sm btn-primary">Open Live Attendance Telemetry Hub</a>
-          <a href="attendance.html#roster" class="btn btn-sm btn-ghost">Fingerprint Registration Station</a>
-          <button class="btn btn-sm btn-ghost" onclick="testNodePing()">Ping Local ESP32 Hardware (10.19.83.155)</button>
-        </div>
-        <p id="ping-result" class="mono" style="font-size:.8rem;margin-top:12px;color:#38bdf8;display:none;"></p>
-      </div>
+<!-- MAIN ADMIN CONSOLE CONTENT -->
+<div id="admin-content">
+  <div class="ticker marquee-light" aria-hidden="true">
+    <div class="ticker-track" data-ticker>
+      <span><b>ADMIN MODE:</b> FULL PERMISSION LEVEL 4</span><span class="dot">//</span>
+      <span><b>COHORT:</b> 65 REGISTERED B.TECH STUDENTS</span><span class="dot">//</span>
+      <span><b>TIMETABLE ENGINE:</b> DYNAMIC SYNC ACTIVE</span><span class="dot">//</span>
+      <span><b>CLOUD TELEMETRY:</b> FIREBASE RTDB SYNCHRONIZED</span><span class="dot">//</span>
     </div>
   </div>
-</section>
+
+  <section class="section" style="padding-top:2rem">
+    <div class="container">
+      
+      <!-- Top Metrics -->
+      <div class="stats-grid" data-stagger style="margin-bottom:1.8rem">
+        <div class="glass stat"><div class="num"><span data-count="65">65</span></div><div class="lbl">Supervised Candidates</div></div>
+        <div class="glass stat"><div class="num"><span data-count="91">91</span>%</div><div class="lbl">Class Average Attendance</div></div>
+        <div class="glass stat"><div class="num" id="stat-at-risk" style="color:#f87171;">4</div><div class="lbl">At-Risk (&lt; 75% Threshold)</div></div>
+        <div class="glass stat"><div class="num" style="color:#38bdf8;font-size:1.4rem;">ONLINE</div><div class="lbl">Cloud Sync Status</div></div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div style="display:flex;gap:10px;margin-bottom:1.8rem;flex-wrap:wrap;">
+        <button class="btn btn-sm btn-primary" id="btn-fac-roster" onclick="switchFacTab('roster')">Student Candidate Roster (65)</button>
+        <button class="btn btn-sm btn-ghost" id="btn-fac-timetable" onclick="switchFacTab('timetable')">🗓️ Timetable &amp; Schedule Editor</button>
+        <button class="btn btn-sm btn-ghost" id="btn-fac-override" onclick="switchFacTab('override')">✏️ Manual Attendance Override</button>
+        <button class="btn btn-sm btn-ghost" id="btn-fac-settings" onclick="switchFacTab('settings')">⚙️ Thresholds &amp; Settings</button>
+      </div>
+
+      <!-- TAB 1: ROSTER & BIOMETRIC STATUS -->
+      <div id="fac-tab-roster">
+        <div class="card reveal" style="margin-bottom:2rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;margin-bottom:1.2rem;">
+            <div>
+              <h3 style="margin:0;">Class Candidate Directory &amp; Biometric Records</h3>
+              <p style="font-size:0.8rem;color:var(--muted);margin-top:2px;">Showing all 65 students with candidate photo, PRN, and attendance status</p>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;">
+              <select class="select" id="roster-filter-badge" style="padding:.4rem .8rem;font-size:.85rem;" onchange="facFilter()">
+                <option value="all">All Students (65)</option>
+                <option value="risk">At-Risk Only (&lt;75%)</option>
+                <option value="regular">Regular (&ge;75%)</option>
+              </select>
+              <input type="text" id="fac-search" class="input" placeholder="Search by name or PRN..." style="max-width:260px;padding:.5rem 1rem;" oninput="facFilter()">
+            </div>
+          </div>
+
+          <div style="overflow-x:auto;">
+            <table class="tbl" style="width:100%;min-width:680px;">
+              <thead>
+                <tr>
+                  <th>Photo</th>
+                  <th>Student Full Name</th>
+                  <th>PRN Number</th>
+                  <th>Year &amp; Branch</th>
+                  <th>Attendance %</th>
+                  <th>Biometric Action</th>
+                </tr>
+              </thead>
+              <tbody id="fac-roster-tbody">
+                <tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted);">Loading student cohort...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: INTERACTIVE TIMETABLE & SCHEDULE MANAGER -->
+      <div id="fac-tab-timetable" style="display:none;">
+        <div class="grid-2" style="align-items:start;">
+          <!-- Current Timetable Matrix -->
+          <div class="card reveal left" style="overflow-x:auto;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+              <h3 style="margin:0;">Active Semester 5 Schedule</h3>
+              <select class="select" id="tt-view-day" style="padding:.3rem .8rem;" onchange="renderTimetableDay()">
+                <option value="MON">Monday</option>
+                <option value="TUE">Tuesday</option>
+                <option value="WED">Wednesday</option>
+                <option value="THU">Thursday</option>
+                <option value="FRI">Friday</option>
+              </select>
+            </div>
+            <table class="tbl" style="width:100%;">
+              <thead>
+                <tr><th>Time Slot</th><th>Course / Lab</th><th>Room / Venue</th><th>Action</th></tr>
+              </thead>
+              <tbody id="tt-day-tbody">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Add / Update Slot Form -->
+          <div class="card reveal right">
+            <h3 style="margin-bottom:1rem;color:#38bdf8;">Add or Update Lecture / Lab Slot</h3>
+            <div class="form-grid" style="margin-bottom:12px;">
+              <div class="field">
+                <label>Day of Week</label>
+                <select class="select" id="slot-day">
+                  <option value="MON">Monday</option>
+                  <option value="TUE">Tuesday</option>
+                  <option value="WED">Wednesday</option>
+                  <option value="THU">Thursday</option>
+                  <option value="FRI">Friday</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Time Slot (Start - End)</label>
+                <select class="select" id="slot-time">
+                  <option value="09:00 - 10:00">09:00 - 10:00</option>
+                  <option value="10:00 - 11:00">10:00 - 11:00</option>
+                  <option value="11:00 - 12:00">11:00 - 12:00</option>
+                  <option value="13:00 - 14:00">13:00 - 14:00</option>
+                  <option value="14:00 - 16:00">14:00 - 16:00 (Lab Batch)</option>
+                  <option value="16:00 - 17:00">16:00 - 17:00 (Remedial)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field" style="margin-bottom:12px;">
+              <label>Course Name / Practical Lab</label>
+              <input type="text" class="input" id="slot-subject" placeholder="e.g. Microcontrollers & Embedded C">
+            </div>
+
+            <div class="form-grid" style="margin-bottom:16px;">
+              <div class="field">
+                <label>Room / Laboratory</label>
+                <input type="text" class="input" id="slot-room" placeholder="e.g. E-101 Embedded Lab">
+              </div>
+              <div class="field">
+                <label>Faculty Incharge</label>
+                <input type="text" class="input" id="slot-faculty" placeholder="e.g. Prof. R. Saxena">
+              </div>
+            </div>
+
+            <button class="btn btn-primary" style="width:100%;" onclick="saveTimetableSlot()">Save to Timetable &amp; Sync Portal 🚀</button>
+            <p id="slot-save-feedback" class="mono" style="font-size:0.8rem;color:#22c55e;margin-top:10px;display:none;">✔ Timetable updated and broadcasted to all student portals!</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: MANUAL ATTENDANCE OVERRIDE -->
+      <div id="fac-tab-override" style="display:none;">
+        <div class="card reveal" style="max-width:640px;margin:0 auto;">
+          <h3 style="margin-bottom:1rem;color:#38bdf8;">Manual Attendance Entry / Override</h3>
+          <p style="font-size:0.85rem;color:var(--muted);margin-bottom:18px;">Used for official leave permits, competition duties, or medical exemptions.</p>
+
+          <div class="field" style="margin-bottom:14px;">
+            <label>Select Student</label>
+            <select class="select" id="override-student-select" onchange="previewOverrideStudent()"></select>
+          </div>
+
+          <div id="override-preview-card" style="display:flex;align-items:center;gap:14px;padding:12px;background:#090d16;border-radius:12px;margin-bottom:16px;border:1px solid var(--border);">
+            <img id="override-img" src="" style="width:52px;height:52px;border-radius:10px;object-fit:cover;border:2px solid #38bdf8;">
+            <div>
+              <div id="override-name" style="font-weight:700;">-</div>
+              <div id="override-prn" class="mono" style="font-size:0.8rem;color:var(--muted);">-</div>
+            </div>
+          </div>
+
+          <div class="form-grid" style="margin-bottom:18px;">
+            <div class="field">
+              <label>Override Status</label>
+              <select class="select" id="override-status">
+                <option value="Present">Present (Biometric Verified)</option>
+                <option value="Excused (Official Leave)">Excused (Official Leave)</option>
+                <option value="Medical Exemption">Medical Exemption</option>
+                <option value="Absent">Absent</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Academic Date</label>
+              <input type="date" class="input" id="override-date" value="2026-10-26">
+            </div>
+          </div>
+
+          <button class="btn btn-accent" style="width:100%;" onclick="submitManualAttendance()">Submit Attendance Override</button>
+          <p id="override-feedback" class="mono" style="font-size:0.8rem;color:#22c55e;margin-top:10px;display:none;">✔ Attendance override recorded and synced to cloud!</p>
+        </div>
+      </div>
+
+      <!-- TAB 4: SETTINGS & THRESHOLDS -->
+      <div id="fac-tab-settings" style="display:none;">
+        <div class="card reveal" style="max-width:580px;margin:0 auto;">
+          <h3 style="margin-bottom:1.2rem;color:#38bdf8;">Faculty Console Configuration</h3>
+          
+          <div class="field" style="margin-bottom:16px;">
+            <label>Attendance Warning Threshold (%)</label>
+            <input type="number" class="input" id="cfg-threshold" value="75" min="50" max="95">
+            <span style="font-size:0.75rem;color:var(--muted);">Students below this percentage will be flagged as At-Risk on reports.</span>
+          </div>
+
+          <div class="field" style="margin-bottom:20px;">
+            <label>Firebase Realtime Database Endpoint</label>
+            <input type="text" class="input" id="cfg-firebase" placeholder="https://<YOUR-PROJECT>-default-rtdb.firebaseio.com">
+          </div>
+
+          <button class="btn btn-primary" style="width:100%;" onclick="saveAdminSettings()">Save Preferences</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
 
 <script>
-let facStudents = [];
+let facultyStudents = [];
+let activeTimetable = {};
 
-async function initFacultyPortal() {
-  try {
-    const res = await fetch("assets/data/students.json");
-    facStudents = await res.json();
-    renderFacTable(facStudents);
-  } catch(e) {}
+async function initFacultyConsole() {
+  const user = window.PBCOE.getCurrentUser();
+  if (!user || user.role !== 'admin') {
+    // Show gate
+    document.getElementById("admin-gate").style.display = "block";
+    document.getElementById("admin-content").style.display = "none";
+    return;
+  }
+
+  document.getElementById("admin-gate").style.display = "none";
+  document.getElementById("admin-content").style.display = "block";
+
+  facultyStudents = window.PBCOE.getStudents();
+  activeTimetable = window.PBCOE.getTimetable();
+
+  renderFacultyRoster(facultyStudents);
+  populateOverrideDropdown(facultyStudents);
+  renderTimetableDay();
+  updateRiskCount();
+
+  document.getElementById("cfg-firebase").value = window.PBCOE.getFirebaseUrl();
 }
 
-function renderFacTable(list) {
+function submitGateLogin() {
+  const u = document.getElementById("gate-user").value;
+  const p = document.getElementById("gate-pass").value;
+  const res = window.PBCOE.loginAdmin(u, p);
+  const err = document.getElementById("gate-err");
+  if (res.success) {
+    err.style.display = "none";
+    initFacultyConsole();
+    window.PBCOE_AUTH.updateNavUser();
+  } else {
+    err.style.display = "block";
+    err.innerText = res.message;
+  }
+}
+
+function switchFacTab(tab) {
+  ['roster', 'timetable', 'override', 'settings'].forEach(t => {
+    document.getElementById(`fac-tab-${t}`).style.display = (t === tab) ? 'block' : 'none';
+    document.getElementById(`btn-fac-${t}`).className = "btn btn-sm " + (t === tab ? 'btn-primary' : 'btn-ghost');
+  });
+}
+
+function renderFacultyRoster(list) {
   const tbody = document.getElementById("fac-roster-tbody");
-  tbody.innerHTML = list.map(s => `
+  tbody.innerHTML = list.map(s => {
+    const isRisk = s.attendance_percentage < 75;
+    return `
+      <tr>
+        <td>
+          <img src="${s.image}" style="width:42px;height:42px;border-radius:10px;object-fit:cover;border:1px solid var(--border);" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=1e293b&color=38bdf8'">
+        </td>
+        <td><strong>${s.name}</strong></td>
+        <td class="mono">${s.prn}</td>
+        <td>${s.branch} · ${s.year}</td>
+        <td>
+          <span class="pill ${isRisk ? 'bad' : 'ok'}">${s.attendance_percentage}% ${isRisk ? '⚠️ AT RISK' : 'NORMAL'}</span>
+        </td>
+        <td>
+          <a href="attendance.html" class="btn btn-sm btn-ghost" style="padding:3px 10px;font-size:0.75rem;">Biometric Node</a>
+        </td>
+      </tr>
+    `;
+  }).join("");
+}
+
+function facFilter() {
+  const q = document.getElementById("fac-search").value.toLowerCase();
+  const filterType = document.getElementById("roster-filter-badge").value;
+  let filtered = facultyStudents.filter(s => s.name.toLowerCase().includes(q) || s.prn.includes(q));
+  if (filterType === 'risk') filtered = filtered.filter(s => s.attendance_percentage < 75);
+  else if (filterType === 'regular') filtered = filtered.filter(s => s.attendance_percentage >= 75);
+  renderFacultyRoster(filtered);
+}
+
+function updateRiskCount() {
+  const count = facultyStudents.filter(s => s.attendance_percentage < 75).length;
+  document.getElementById("stat-at-risk").innerText = count;
+}
+
+// Timetable Operations
+function renderTimetableDay() {
+  const day = document.getElementById("tt-view-day").value;
+  const slots = activeTimetable[day] || [];
+  const tbody = document.getElementById("tt-day-tbody");
+
+  if (slots.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:18px;color:var(--muted);">No lectures scheduled for this day.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = slots.map((s, idx) => `
     <tr>
+      <td class="mono"><strong>${s.time}</strong></td>
+      <td><strong>${s.subject}</strong><br><span style="font-size:0.75rem;color:var(--muted);">${s.faculty}</span></td>
+      <td><span class="pill mid">${s.room}</span></td>
       <td>
-        <img src="${s.image}" style="width:42px;height:42px;border-radius:10px;object-fit:cover;border:1px solid var(--border);" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=1e293b&color=38bdf8'">
-      </td>
-      <td><strong>${s.name}</strong></td>
-      <td class="mono">${s.prn}</td>
-      <td>${s.branch}</td>
-      <td><span class="pill ok">${s.attendance_percentage}%</span></td>
-      <td>
-        <a href="attendance.html" class="btn btn-sm btn-ghost" style="padding:4px 10px;font-size:.75rem;">Manage Biometrics</a>
+        <button class="btn btn-sm btn-ghost" style="color:#ef4444;padding:2px 8px;" onclick="deleteSlot('${day}', ${idx})">✕</button>
       </td>
     </tr>
   `).join("");
 }
 
-function facFilter() {
-  const q = document.getElementById("fac-search").value.toLowerCase();
-  const filtered = facStudents.filter(s => s.name.toLowerCase().includes(q) || s.prn.includes(q));
-  renderFacTable(filtered);
+function saveTimetableSlot() {
+  const day = document.getElementById("slot-day").value;
+  const time = document.getElementById("slot-time").value;
+  const subject = document.getElementById("slot-subject").value.trim();
+  const room = document.getElementById("slot-room").value.trim();
+  const faculty = document.getElementById("slot-faculty").value.trim();
+
+  if (!subject || !room) {
+    alert("Please fill Course Name and Room/Lab!");
+    return;
+  }
+
+  if (!activeTimetable[day]) activeTimetable[day] = [];
+  
+  // Replace if same time slot exists, otherwise add
+  const existingIdx = activeTimetable[day].findIndex(x => x.time === time);
+  const newEntry = { time, subject, room, faculty: faculty || "Prof. R. Saxena" };
+
+  if (existingIdx >= 0) {
+    activeTimetable[day][existingIdx] = newEntry;
+  } else {
+    activeTimetable[day].push(newEntry);
+  }
+
+  // Sort by time
+  activeTimetable[day].sort((a,b) => a.time.localeCompare(b.time));
+
+  window.PBCOE.saveTimetable(activeTimetable);
+  document.getElementById("tt-view-day").value = day;
+  renderTimetableDay();
+
+  const fb = document.getElementById("slot-save-feedback");
+  fb.style.display = "block";
+  setTimeout(() => fb.style.display = "none", 3000);
 }
 
-async function testNodePing() {
-  const p = document.getElementById("ping-result");
-  p.style.display = "block";
-  p.innerText = "Pinging ESP32 @ http://10.19.83.155/api/telemetry ...";
-  try {
-    const res = await fetch("http://10.19.83.155/api/telemetry", { signal: AbortSignal.timeout(2000) });
-    const data = await res.json();
-    p.innerText = `✔ Node Reachable! Mode: ${data.mode} | Enrolled Templates: ${data.templates} | Scans: ${data.records.length}`;
-    p.style.color = "#22c55e";
-  } catch(e) {
-    p.innerText = "Node at 10.19.83.155 not answering directly (Cross-network or device asleep). Cloud Firebase fallback active.";
-    p.style.color = "#f59e0b";
+function deleteSlot(day, idx) {
+  if (confirm("Remove this lecture slot from the timetable?")) {
+    activeTimetable[day].splice(idx, 1);
+    window.PBCOE.saveTimetable(activeTimetable);
+    renderTimetableDay();
   }
 }
 
-document.getElementById("ann-form").addEventListener("submit", function(e) {
-  e.preventDefault();
-  document.getElementById("ann-status").hidden = false;
-  this.reset();
-});
+// Override Operations
+function populateOverrideDropdown(list) {
+  const sel = document.getElementById("override-student-select");
+  sel.innerHTML = list.map(s => `<option value="${s.prn}">${s.name} (${s.prn})</option>`).join("");
+  previewOverrideStudent();
+}
 
-initFacultyPortal();
+function previewOverrideStudent() {
+  const prn = document.getElementById("override-student-select").value;
+  const s = window.PBCOE.getStudentByPrn(prn);
+  if (s) {
+    document.getElementById("override-img").src = s.image;
+    document.getElementById("override-name").innerText = s.name;
+    document.getElementById("override-prn").innerText = `PRN: ${s.prn} · Current ATT: ${s.attendance_percentage}%`;
+  }
+}
+
+function submitManualAttendance() {
+  const prn = document.getElementById("override-student-select").value;
+  const status = document.getElementById("override-status").value;
+  const date = document.getElementById("override-date").value;
+  const s = window.PBCOE.getStudentByPrn(prn);
+  if (!s) return;
+
+  window.PBCOE.showToast(s.name, `Manual Override: ${status} (${date})`, s.image, status);
+
+  const fb = document.getElementById("override-feedback");
+  fb.style.display = "block";
+  setTimeout(() => fb.style.display = "none", 3500);
+}
+
+function exportAttendanceCsv() {
+  let csv = "PRN,Student Name,Branch,Year,Attendance Percentage,Status\n";
+  facultyStudents.forEach(s => {
+    csv += `"${s.prn}","${s.name}","${s.branch}","${s.year}","${s.attendance_percentage}%","${s.attendance_percentage >= 75 ? 'ELIGIBLE' : 'DEBARRED'}"\n`;
+  });
+
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.setAttribute("href", url);
+  a.setAttribute("download", `PBCOE_Attendance_Report_${new Date().toISOString().slice(0,10)}.csv`);
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function saveAdminSettings() {
+  const url = document.getElementById("cfg-firebase").value.trim();
+  if (url) window.PBCOE.setFirebaseUrl(url);
+  alert("Settings saved successfully!");
+}
+
+document.addEventListener("DOMContentLoaded", initFacultyConsole);
 </script>
 </main>
 
