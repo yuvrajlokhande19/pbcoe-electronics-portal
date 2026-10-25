@@ -257,15 +257,36 @@ window.PBCOE = (function () {
     };
 
     try {
-      await fetch(`${SUPABASE_URL}/rest/v1/biometric_commands`, {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/biometric_commands`, {
         method: "POST",
         headers: getSupabaseHeaders({ "Prefer": "return=representation" }),
         body: JSON.stringify(commandPayload)
       });
-      return { success: true, message: "Enrollment command dispatched to Supabase queue!" };
+      if (res.ok) {
+        const records = await res.json();
+        const cmdId = Array.isArray(records) && records[0] ? records[0].id : null;
+        return { success: true, commandId: cmdId, message: "Enrollment command dispatched to Supabase queue!" };
+      }
+      return { success: true, commandId: null, message: "Enrollment command dispatched to Supabase queue!" };
     } catch (e) {
-      return { success: true, message: "Enrolled in portal database." };
+      return { success: true, commandId: null, message: "Enrolled in portal database." };
     }
+  }
+
+  // Poll status of an active biometric command
+  async function getBiometricCommandStatus(cmdId) {
+    if (!cmdId) return null;
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/biometric_commands?id=eq.${cmdId}&select=*`, {
+        headers: getSupabaseHeaders(),
+        cache: "no-store"
+      });
+      if (res.ok) {
+        const records = await res.json();
+        return Array.isArray(records) && records[0] ? records[0] : null;
+      }
+    } catch (e) {}
+    return null;
   }
 
   function getTimetable() {
@@ -363,6 +384,7 @@ window.PBCOE = (function () {
     showToast: showToast,
     playChime: playNotificationChime,
     triggerCloudEnrollment: triggerCloudEnrollment,
+    getBiometricCommandStatus: getBiometricCommandStatus,
     markStudentEnrolled: markStudentEnrolled,
     getSupabaseUrl: () => SUPABASE_URL,
     getSupabaseKey: () => SUPABASE_KEY

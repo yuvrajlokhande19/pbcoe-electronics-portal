@@ -5,16 +5,17 @@
 #include <WiFiClientSecure.h>
 #include <Adafruit_Fingerprint.h>
 #include <Preferences.h>
+#include <ArduinoJson.h>
 
 // ========================================================
 // 1. WiFi & Official Supabase Cloud Configuration
 // ========================================================
 const char* ssid     = "bittu";
-const char* password = "YOUR_PASSWORD";
+const char* password = "YOUR_WIFI_PASSWORD";
 
 // Supabase REST Endpoint & Publishable Key
-const char* supabaseUrl = "https://vobyuijfocigsbahkvab.supabase.co/rest/v1/attendance_logs";
-const char* supabaseApiKey = "sb_publishable_wIYMMvFnNFMXyFavLagzIA_4rBYuOMN";
+const char* supabaseBaseUrl = "https://vobyuijfocigsbahkvab.supabase.co";
+const char* supabaseApiKey  = "sb_publishable_wIYMMvFnNFMXyFavLagzIA_4rBYuOMN";
 
 // ========================================================
 // 2. Hardware UART on GPIO 4 (D4) & GPIO 2 (D2)
@@ -27,57 +28,100 @@ Adafruit_Fingerprint finger = Adafruit_Fingerprint(&mySerial);
 WebServer server(80);
 Preferences prefs;
 
-// State Tracking
-enum SystemMode { MODE_ATTENDANCE, MODE_ENROLLING };
-SystemMode currentMode = MODE_ATTENDANCE;
-
-int enrollTargetID = 0;
-String enrollTargetName = "";
-String enrollTargetRoll = "";
-String enrollStepMsg = "Idle";
-int enrollProgress = 0;
-
-struct AttendanceLog {
-  int id;
-  String name;
-  String roll;
-  String status;
-  int score;
-  unsigned long timeSec;
+// ========================================================
+// 3. Built-in Roster of 65 PBCOE Candidates
+// ========================================================
+struct StudentCandidate {
+  uint8_t id;
+  const char* prn;
+  const char* name;
 };
 
-#define MAX_LOGS 40
-AttendanceLog logs[MAX_LOGS];
-int logCount = 0;
-String lastEvent = "Ready. Place finger on sensor...";
+const StudentCandidate ROSTER[65] = {
+  { 1, "24121218", "YASH RANJEET INDURKAR" },
+  { 2, "24121222", "SAHILKUMAR RUSTAM KHOBRAGADE" },
+  { 3, "24121199", "UJWALA TRYAMBAK BHELKAR" },
+  { 4, "24121250", "SHRAVANI DEEPAK ATKARI" },
+  { 5, "24121236", "POOJA RAJESH UPADHYE" },
+  { 6, "24121252", "VEDANT DILIP NANDANWAR" },
+  { 7, "24121243", "RITESH PURUSHOTTAM ALONE" },
+  { 8, "24121207", "OM PRASHANT CHAUDHARI" },
+  { 9, "24121244", "ROHAN JITENDRA SABLE" },
+  { 10, "24121219", "ATHARV SANDIP KALE" },
+  { 11, "24121198", "SHANTANU DEVANAND BHAGWATKAR" },
+  { 12, "24121216", "ROHIT RAJESH GULKARI" },
+  { 13, "24121237", "YASHRAJ HIWRAJ RANGARI" },
+  { 14, "24121230", "RAJANI NAMDEO MOON" },
+  { 15, "24121246", "VRISHABH NARENDRA SAWWALAKHE" },
+  { 16, "24121227", "YUVRAJ VILAS LOKHANDE" },
+  { 17, "24121215", "SHRUTI NARENDRA GOVINDWAR" },
+  { 18, "24121234", "ACHAL ANIL PATLE" },
+  { 19, "24121242", "SIDDHI SHYAMUJI RINAIT" },
+  { 20, "24121217", "SANCHITA SANJAY GURAV" },
+  { 21, "24121204", "SAKSHAM RAJESH BUCHE" },
+  { 22, "24121257", "AASTHA PRASHANT WAROTKAR" },
+  { 23, "24121231", "JANHAVI RAJESH NAGPURE" },
+  { 24, "24121239", "ISHA PRAKASH RAUT" },
+  { 25, "24121221", "ARYAN RAVINDRA KHOBRAGADE" },
+  { 26, "24121223", "SAMIKSHA KASHINATH KHONDE" },
+  { 27, "24121224", "DISHA TRYAMBAK LANDE" },
+  { 28, "24121205", "ANUSHKA FAKIRA CHAHANDE" },
+  { 29, "24121245", "SARWADNYA AVINASH CHANDEKAR" },
+  { 30, "24121258", "YADHNESH VINAYAK DURBUDE" },
+  { 31, "24121200", "ATHARVA ABHIJIT BISWAR" },
+  { 32, "24121253", "YUGESH CHANDRAPRAKASH VITTHALE" },
+  { 33, "24121201", "NANDINI SATISH BODAS" },
+  { 34, "24121202", "MAITHELI MAHENDRA BOKDE" },
+  { 35, "24121214", "DYANENDRA SUNIL GAURKAR" },
+  { 36, "24121226", "LOKESH JAGDISH GAURKAR" },
+  { 37, "24121229", "RUCHIKA CHANDRASHEKHAR MESHRAM" },
+  { 38, "24121251", "SNEHA PRAMOD KOMBE" },
+  { 39, "24121235", "VIPUL VISHAL PATRIWAR" },
+  { 40, "24121240", "SALONI BANDU RAUT" },
+  { 41, "24121256", "ASHIWINI DHANESHWAR WAGH" },
+  { 42, "24121206", "MANTHAN SUNIL CHAKOLE" },
+  { 43, "24121228", "MANSI KHUSHAL MESHRAM" },
+  { 44, "24121211", "CHHAGAN HIVRAJ DESHMUKH" },
+  { 45, "24121209", "SIDDHARTH GAJANAN CHOUDHARY" },
+  { 46, "24121210", "VAISHNAVI GAJANAN DAMBHARE" },
+  { 47, "24121249", "PRATIK SHUDHODHAN SHENDE" },
+  { 48, "24121225", "DAMINI JITENDRA LAROKAR" },
+  { 49, "24121197", "SEJAL SUKHDEO BARSAGADE" },
+  { 50, "24121233", "ARYAN YOGESH PARMAR" },
+  { 51, "24121203", "TUSHAR ISHWAR BOKDE" },
+  { 52, "24121254", "ANKIT GAJANAN WADIBHASME" },
+  { 53, "24121583", "NAYAN MAROTI BHALSHANKAR" },
+  { 54, "24121584", "DIPAK BURDE" },
+  { 55, "25122001", "VIKAS SANTOSH PATESHWARI" },
+  { 56, "24121247", "JYOTI MUKESH SHARMA" },
+  { 57, "25122002", "SRUSHTI RAJU MANKAR" },
+  { 58, "25122003", "SUMIT SUPDA LAHASE" },
+  { 59, "25122004", "KOMAL BHAGWAT WAGH" },
+  { 60, "25122005", "SHRADDHA DHARMRAJ RAJURKAR" },
+  { 61, "25122006", "SHRAVANI AMOL RAUT" },
+  { 62, "25122007", "AARYAN SATISHSING KACHHAVAH" },
+  { 63, "24121212", "SHIVNATH ARUN DESHMUKH" },
+  { 64, "24121213", "AAKANKSHA NARESH DHAWANE" },
+  { 65, "24121220", "PIYUSH PRADIP KAMDE" }
+};
 
-void setCorsHeaders() {
-  server.sendHeader("Access-Control-Allow-Origin", "*");
-  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  server.sendHeader("Access-Control-Allow-Headers", "*");
-}
-
-void addAttendanceLog(int id, String name, String roll, String status, int score) {
-  if (logCount < MAX_LOGS) {
-    logs[logCount] = {id, name, roll, status, score, millis() / 1000};
-    logCount++;
-  } else {
-    for (int i = 0; i < MAX_LOGS - 1; i++) {
-      logs[i] = logs[i + 1];
-    }
-    logs[MAX_LOGS - 1] = {id, name, roll, status, score, millis() / 1000};
+void getStudentInfo(int id, String &name, String &prn) {
+  String kn = "n_" + String(id);
+  String kr = "r_" + String(id);
+  if (prefs.isKey(kn.c_str())) {
+    name = prefs.getString(kn.c_str());
+    prn = prefs.getString(kr.c_str(), "PRN-" + String(id));
+    return;
   }
-}
-
-// Student Flash Storage Helpers
-String getStudentName(int id) {
-  String key = "n_" + String(id);
-  return prefs.getString(key.c_str(), "Student #" + String(id));
-}
-
-String getStudentRoll(int id) {
-  String key = "r_" + String(id);
-  return prefs.getString(key.c_str(), "PRN-" + String(id));
+  for (int i = 0; i < 65; i++) {
+    if (ROSTER[i].id == id) {
+      name = ROSTER[i].name;
+      prn = ROSTER[i].prn;
+      return;
+    }
+  }
+  name = "Candidate #" + String(id);
+  prn = "PRN-" + String(id);
 }
 
 void saveStudent(int id, String name, String roll) {
@@ -88,16 +132,40 @@ void saveStudent(int id, String name, String roll) {
 }
 
 // ========================================================
-// 3. Direct Supabase Cloud REST Sync
+// 4. State Management
+// ========================================================
+enum SystemMode { MODE_ATTENDANCE, MODE_ENROLLING };
+SystemMode currentMode = MODE_ATTENDANCE;
+
+int activeCommandId = 0;
+int enrollTargetID = 0;
+String enrollTargetName = "";
+String enrollTargetRoll = "";
+String enrollStepMsg = "Idle";
+int enrollProgress = 0; // 0: Idle, 1: Pass 1, 2: Lift, 3: Pass 2
+unsigned long enrollStartTime = 0;
+
+void setCorsHeaders() {
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  server.sendHeader("Access-Control-Allow-Headers", "*");
+}
+
+// ========================================================
+// 5. Cloud Supabase REST Operations
 // ========================================================
 void syncAttendanceToSupabase(int id, String name, String roll, String status, int score) {
-  if (WiFi.status() != WL_CONNECTED) return;
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("[Supabase] WiFi disconnected, skipping attendance log.");
+    return;
+  }
 
   WiFiClientSecure client;
-  client.setInsecure(); // SSL cert bypass
+  client.setInsecure();
   HTTPClient https;
 
-  if (https.begin(client, supabaseUrl)) {
+  String url = String(supabaseBaseUrl) + "/rest/v1/attendance_logs";
+  if (https.begin(client, url)) {
     https.addHeader("Content-Type", "application/json");
     https.addHeader("apikey", supabaseApiKey);
     https.addHeader("Authorization", String("Bearer ") + supabaseApiKey);
@@ -112,55 +180,191 @@ void syncAttendanceToSupabase(int id, String name, String roll, String status, i
     payload += "}";
 
     int httpCode = https.POST(payload);
-    if (httpCode > 0) {
-      Serial.printf("[Supabase] Successfully posted log! HTTP Code: %d\n", httpCode);
+    if (httpCode >= 200 && httpCode < 300) {
+      Serial.printf("[Supabase] >> Attendance synced successfully! (HTTP %d)\n", httpCode);
     } else {
-      Serial.printf("[Supabase] Post failed: %s\n", https.errorToString(httpCode).c_str());
+      Serial.printf("[Supabase] >> Attendance sync failed: HTTP %d - %s\n", httpCode, https.errorToString(httpCode).c_str());
+    }
+    https.end();
+  }
+}
+
+void updateCommandStatus(int cmdId, const char* status) {
+  if (cmdId <= 0 || WiFi.status() != WL_CONNECTED) return;
+
+  WiFiClientSecure client;
+  client.setInsecure();
+  HTTPClient https;
+
+  String url = String(supabaseBaseUrl) + "/rest/v1/biometric_commands?id=eq." + String(cmdId);
+  if (https.begin(client, url)) {
+    https.addHeader("Content-Type", "application/json");
+    https.addHeader("apikey", supabaseApiKey);
+    https.addHeader("Authorization", String("Bearer ") + supabaseApiKey);
+    https.addHeader("Prefer", "return=minimal");
+
+    String payload = "{\"status\":\"" + String(status) + "\"}";
+    int httpCode = https.PATCH(payload);
+    Serial.printf("[Command] Updated command #%d status to %s (HTTP %d)\n", cmdId, status, httpCode);
+    https.end();
+  }
+}
+
+void markStudentEnrolledInSupabase(String roll, int slotId) {
+  if (WiFi.status() != WL_CONNECTED) return;
+
+  WiFiClientSecure client;
+  client.setInsecure();
+  HTTPClient https;
+
+  String url = String(supabaseBaseUrl) + "/rest/v1/students?prn=eq." + roll;
+  if (https.begin(client, url)) {
+    https.addHeader("Content-Type", "application/json");
+    https.addHeader("apikey", supabaseApiKey);
+    https.addHeader("Authorization", String("Bearer ") + supabaseApiKey);
+    https.addHeader("Prefer", "return=minimal");
+
+    String payload = "{\"enrolled\":true,\"fingerprint_id\":" + String(slotId) + "}";
+    int httpCode = https.PATCH(payload);
+    Serial.printf("[Supabase] Marked student %s as enrolled in slot #%d (HTTP %d)\n", roll.c_str(), slotId, httpCode);
+    https.end();
+  }
+}
+
+// Poll Supabase for pending enrollment commands
+void checkBiometricCommands() {
+  static unsigned long lastCheck = 0;
+  if (millis() - lastCheck < 2000) return;
+  lastCheck = millis();
+
+  if (WiFi.status() != WL_CONNECTED) return;
+
+  WiFiClientSecure client;
+  client.setInsecure();
+  HTTPClient https;
+
+  String url = String(supabaseBaseUrl) + "/rest/v1/biometric_commands?status=eq.PENDING&order=id.asc&limit=1";
+  if (https.begin(client, url)) {
+    https.addHeader("apikey", supabaseApiKey);
+    https.addHeader("Authorization", String("Bearer ") + supabaseApiKey);
+
+    int httpCode = https.GET();
+    if (httpCode == 200) {
+      String json = https.getString();
+      if (json.length() > 5 && json != "[]") {
+        JsonDocument doc;
+        DeserializationError err = deserializeJson(doc, json);
+        if (!err && doc.is<JsonArray>() && doc.as<JsonArray>().size() > 0) {
+          JsonObject cmd = doc[0];
+          int cmdId = cmd["id"];
+          String command = cmd["command"].as<String>();
+          int targetId = cmd["target_id"];
+          String studentName = cmd["student_name"].as<String>();
+          String rollNo = cmd["roll_no"].as<String>();
+
+          if (command == "ENROLL") {
+            Serial.println("\n---------------------------------------------------");
+            Serial.printf("[COMMAND] Cloud ENROLL request received: Slot #%d\n", targetId);
+            Serial.printf("[COMMAND] Student: %s (PRN: %s)\n", studentName.c_str(), rollNo.c_str());
+            Serial.println("---------------------------------------------------");
+
+            activeCommandId = cmdId;
+            enrollTargetID = targetId;
+            enrollTargetName = studentName;
+            enrollTargetRoll = rollNo;
+            currentMode = MODE_ENROLLING;
+            enrollProgress = 1;
+            enrollStepMsg = "Step 1: Place finger flat on optical sensor";
+            enrollStartTime = millis();
+
+            updateCommandStatus(cmdId, "STEP_1");
+            Serial.println(">> [STEP 1] Optical LED Active! Place finger on sensor glass now...");
+          }
+        }
+      }
     }
     https.end();
   }
 }
 
 // ========================================================
-// 4. Two-Pass Fingerprint Enrollment Machine
+// 6. Two-Pass Fingerprint Enrollment Machine
 // ========================================================
 void processEnrollment() {
+  // Check for 45-second timeout
+  if (millis() - enrollStartTime > 45000) {
+    Serial.println(">> [ENROLL] Registration timed out (45s). Returning to attendance mode.");
+    updateCommandStatus(activeCommandId, "FAILED");
+    currentMode = MODE_ATTENDANCE;
+    enrollProgress = 0;
+    activeCommandId = 0;
+    return;
+  }
+
+  // PASS 1: Capture First Image
   if (enrollProgress == 1) {
     uint8_t p = finger.getImage();
     if (p == FINGERPRINT_OK) {
+      Serial.println(">> [ENROLL] Image 1 captured! Converting to template...");
       p = finger.image2Tz(1);
       if (p == FINGERPRINT_OK) {
-        enrollStepMsg = "Image 1 captured! Lift finger now...";
+        Serial.println(">> [STEP 2] Template 1 generated successfully! Lift finger now...");
+        enrollStepMsg = "Image 1 OK! Lift finger...";
         enrollProgress = 2;
+        updateCommandStatus(activeCommandId, "LIFT_FINGER");
+      } else {
+        Serial.printf(">> [ENROLL] Error converting image 1: %d\n", p);
       }
     }
   } 
+  // STEP 2: Wait until user lifts finger
   else if (enrollProgress == 2) {
     uint8_t p = finger.getImage();
     if (p == FINGERPRINT_NOFINGER) {
-      enrollStepMsg = "Place SAME finger again (Pass 2 of 2)...";
+      Serial.println(">> [STEP 3] Finger lifted. Place SAME finger again (Pass 2 of 2)...");
+      enrollStepMsg = "Place SAME finger again (Pass 2)...";
       enrollProgress = 3;
+      updateCommandStatus(activeCommandId, "PASS_2");
     }
   } 
+  // PASS 2: Capture Second Image & Store Template
   else if (enrollProgress == 3) {
     uint8_t p = finger.getImage();
     if (p == FINGERPRINT_OK) {
+      Serial.println(">> [ENROLL] Image 2 captured! Converting to template...");
       p = finger.image2Tz(2);
       if (p == FINGERPRINT_OK) {
+        Serial.println(">> [ENROLL] Creating unified biometric model...");
         p = finger.createModel();
         if (p == FINGERPRINT_OK) {
+          Serial.printf(">> [ENROLL] Storing model into sensor flash slot #%d...\n", enrollTargetID);
           p = finger.storeModel(enrollTargetID);
           if (p == FINGERPRINT_OK) {
             saveStudent(enrollTargetID, enrollTargetName, enrollTargetRoll);
-            enrollStepMsg = "SUCCESS: Enrolled #" + String(enrollTargetID);
+            markStudentEnrolledInSupabase(enrollTargetRoll, enrollTargetID);
+            updateCommandStatus(activeCommandId, "SUCCESS");
+
+            Serial.println("===================================================");
+            Serial.printf(">> [SUCCESS] Successfully enrolled slot #%d for %s!\n", enrollTargetID, enrollTargetName.c_str());
+            Serial.println("===================================================\n");
+
             delay(1500);
             currentMode = MODE_ATTENDANCE;
             enrollProgress = 0;
+            activeCommandId = 0;
           } else {
+            Serial.printf(">> [FAIL] Flash store error: %d\n", p);
+            updateCommandStatus(activeCommandId, "FAILED");
             currentMode = MODE_ATTENDANCE;
+            enrollProgress = 0;
+            activeCommandId = 0;
           }
         } else {
+          Serial.println(">> [FAIL] Fingerprints did not match! Biometric model rejected.");
+          updateCommandStatus(activeCommandId, "FAILED");
           currentMode = MODE_ATTENDANCE;
+          enrollProgress = 0;
+          activeCommandId = 0;
         }
       }
     }
@@ -168,11 +372,11 @@ void processEnrollment() {
 }
 
 // ========================================================
-// 5. Attendance Scanning Loop
+// 7. Attendance Scanning Loop
 // ========================================================
 void processAttendance() {
   static unsigned long lastCheck = 0;
-  if (millis() - lastCheck > 250) {
+  if (millis() - lastCheck > 200) {
     lastCheck = millis();
 
     uint8_t p = finger.getImage();
@@ -182,21 +386,21 @@ void processAttendance() {
         p = finger.fingerSearch();
         if (p == FINGERPRINT_OK) {
           int id = finger.fingerID;
-          String name = getStudentName(id);
-          String roll = getStudentRoll(id);
-          lastEvent = "Match: " + name + " (#" + String(id) + ")";
-          Serial.printf(">> [MATCH] #%d | %s | %s (Score: %d)\n", id, name.c_str(), roll.c_str(), finger.confidence);
-          
-          addAttendanceLog(id, name, roll, "Present", finger.confidence);
+          String name, roll;
+          getStudentInfo(id, name, roll);
+
+          Serial.println("\n---------------------------------------------------");
+          Serial.printf(">> [MATCH] Slot #%d | %s | PRN: %s (Score: %d)\n", id, name.c_str(), roll.c_str(), finger.confidence);
+          Serial.println("---------------------------------------------------");
+
           syncAttendanceToSupabase(id, name, roll, "Present", finger.confidence);
         } else if (p == FINGERPRINT_NOTFOUND) {
-          lastEvent = "Unregistered Finger Scan";
-          Serial.println(">> [UNKNOWN] Unregistered fingerprint detected.");
-          addAttendanceLog(0, "Unregistered Student", "N/A", "Unregistered", 0);
+          Serial.println("\n>> [UNKNOWN] Unregistered fingerprint detected on optical prism.");
           syncAttendanceToSupabase(0, "Unregistered Student", "N/A", "Unregistered", 0);
         }
       }
 
+      // Wait until finger is removed so single touch doesn't double-trigger
       while (finger.getImage() != FINGERPRINT_NOFINGER) {
         server.handleClient();
         delay(40);
@@ -205,8 +409,40 @@ void processAttendance() {
   }
 }
 
+// Handle manual Serial commands from Arduino Serial Monitor
+void handleSerialCommands() {
+  if (Serial.available()) {
+    String cmd = Serial.readStringUntil('\n');
+    cmd.trim();
+    if (cmd.startsWith("ENROLL")) {
+      int spaceIdx = cmd.indexOf(' ');
+      if (spaceIdx > 0) {
+        int targetSlot = cmd.substring(spaceIdx + 1).toInt();
+        if (targetSlot >= 1 && targetSlot <= 127) {
+          String sName, sRoll;
+          getStudentInfo(targetSlot, sName, sRoll);
+          activeCommandId = 0;
+          enrollTargetID = targetSlot;
+          enrollTargetName = sName;
+          enrollTargetRoll = sRoll;
+          currentMode = MODE_ENROLLING;
+          enrollProgress = 1;
+          enrollStartTime = millis();
+          Serial.printf("\n[SERIAL] Manual enrollment triggered for Slot #%d (%s)\n", targetSlot, sName.c_str());
+          Serial.println(">> Place finger on sensor glass now (Pass 1 of 2)...");
+        }
+      }
+    } else if (cmd == "LIST") {
+      finger.getTemplateCount();
+      Serial.printf("R307 Template Count: %d\n", finger.templateCount);
+    } else if (cmd == "HELP") {
+      Serial.println("Commands: ENROLL <id> | LIST | HELP");
+    }
+  }
+}
+
 // ========================================================
-// 6. Setup & Main Routine
+// 8. Setup & Main Routine
 // ========================================================
 void setup() {
   Serial.begin(115200);
@@ -215,7 +451,8 @@ void setup() {
   prefs.begin("students", false);
 
   Serial.println("\n=======================================================");
-  Serial.println("  PBCOE Biometric Node v2026 (Direct Supabase Cloud)   ");
+  Serial.println("  PBCOE Biometric Node v2026 (Pure Cloud Supabase)     ");
+  Serial.println("  Full Dual-Pass Enrollment & Live Attendance Stream   ");
   Serial.println("=======================================================");
 
   // Connect to WiFi
@@ -223,40 +460,77 @@ void setup() {
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
 
-  while (WiFi.status() != WL_CONNECTED) {
+  int wifiAttempts = 0;
+  while (WiFi.status() != WL_CONNECTED && wifiAttempts < 40) {
     delay(400);
     Serial.print(".");
+    wifiAttempts++;
   }
 
-  Serial.printf("\n[WiFi] Connected! IP: %s\n", WiFi.localIP().toString().c_str());
-  Serial.printf("[Supabase] Endpoint: %s\n", supabaseUrl);
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.printf("\n[WiFi] Connected! Node IP: http://%s\n", WiFi.localIP().toString().c_str());
+    Serial.printf("[Supabase] Connected to: %s\n", supabaseBaseUrl);
+  } else {
+    Serial.println("\n[WiFi] Failed to connect! Node will continue offline polling.");
+  }
 
   // R307 UART on D4 (RX) & D2 (TX) at 57600
   mySerial.begin(57600, SERIAL_8N1, SENSOR_RX, SENSOR_TX);
   delay(300);
 
   if (finger.verifyPassword()) {
-    Serial.println("[OK] R307 Handshake Successful!");
+    Serial.println("[OK] R307 Optical Fingerprint Sensor Handshake Successful!");
+    finger.getTemplateCount();
+    Serial.printf("[Sensor] Stored Biometric Templates in Flash: %d\n", finger.templateCount);
   } else {
-    Serial.println("[FAIL] R307 not responding on D4/D2.");
+    Serial.println("[FAIL] R307 Sensor not responding on GPIO 4 / GPIO 2!");
+    Serial.println("[FAIL] Check wiring: Yellow->D4, Green->D2, Red->VIN(5V), Black->GND");
   }
 
   // Diagnostic Local Web Server
   server.on("/", []() {
     setCorsHeaders();
-    String h = "<h1>PBCOE Biometric Node Active (Supabase Cloud Sync)</h1>";
-    h += "<p>Connected to Supabase: " + String(supabaseUrl) + "</p>";
+    String h = "<h1>PBCOE Biometric Node v2026 Active</h1>";
+    h += "<p>Connected to Supabase Cloud: " + String(supabaseBaseUrl) + "</p>";
+    h += "<p>Enrolled Templates: " + String(finger.templateCount) + "</p>";
     server.send(200, "text/html", h);
   });
+
+  server.on("/enroll", []() {
+    setCorsHeaders();
+    if (server.hasArg("id")) {
+      int tid = server.arg("id").toInt();
+      String sName, sRoll;
+      getStudentInfo(tid, sName, sRoll);
+      if (server.hasArg("name")) sName = server.arg("name");
+      if (server.hasArg("roll")) sRoll = server.arg("roll");
+
+      activeCommandId = 0;
+      enrollTargetID = tid;
+      enrollTargetName = sName;
+      enrollTargetRoll = sRoll;
+      currentMode = MODE_ENROLLING;
+      enrollProgress = 1;
+      enrollStartTime = millis();
+
+      server.send(200, "application/json", "{\"status\":\"ENROLL_STARTED\",\"slot\":" + String(tid) + "}");
+    } else {
+      server.send(400, "application/json", "{\"error\":\"Missing id parameter\"}");
+    }
+  });
+
   server.begin();
+  Serial.println("[System] Biometric Attendance System Ready. Place finger to test...\n");
 }
 
 void loop() {
   server.handleClient();
+  handleSerialCommands();
 
   if (currentMode == MODE_ENROLLING) {
     processEnrollment();
   } else {
     processAttendance();
+    checkBiometricCommands();
   }
 }

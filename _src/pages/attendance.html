@@ -354,6 +354,8 @@ function resetScannerState() {
 }
 
 // Interactive Dual-Pass Registration Execution
+let enrollPollInterval = null;
+
 async function startDialogEnrollment() {
   const prn = document.getElementById("dialog-student-select").value;
   const slot = document.getElementById("dialog-slot-id").value;
@@ -372,60 +374,96 @@ async function startDialogEnrollment() {
   const s3 = document.getElementById("d-step-3");
   const s4 = document.getElementById("d-step-4");
 
+  if (enrollPollInterval) clearInterval(enrollPollInterval);
+
   btn.disabled = true;
   btn.innerText = "Transmitting to Cloud Queue...";
   laser.style.display = "block";
   icon.innerText = "🔍";
 
-  // Dispatch command to Firebase
-  await window.PBCOE.triggerCloudEnrollment(slot, s.name, s.prn);
+  title.innerText = "Transmitting Command to Cloud...";
+  desc.innerText = `Dispatching registration request for ${s.name} (Slot #${slot}) to Supabase queue...`;
 
-  // STEP 1: Pass 1
-  s1.style.background = "#0284c7";
-  s1.style.color = "#fff";
-  title.innerText = `Step 1: Place ${fingerType} on Sensor Glass`;
-  desc.innerText = "Optical LED active. Hold finger steadily on prism.";
+  // Dispatch command to Supabase
+  const resp = await window.PBCOE.triggerCloudEnrollment(slot, s.name, s.prn);
+  const cmdId = resp.commandId;
 
-  setTimeout(() => {
-    // STEP 2: Lift Finger
-    s1.style.background = "#15803d";
-    s2.style.background = "#d97706";
-    s2.style.color = "#fff";
-    icon.innerText = "✋";
-    title.innerText = "Image 1 OK! Lift Finger Now";
-    desc.innerText = "Primary optical template captured. Remove finger from sensor.";
+  // Visual Helper function to complete enrollment
+  function finishSuccess() {
+    if (enrollPollInterval) clearInterval(enrollPollInterval);
+    s1.style.background = "#15803d"; s1.style.color = "#fff";
+    s2.style.background = "#15803d"; s2.style.color = "#fff";
+    s3.style.background = "#15803d"; s3.style.color = "#fff";
+    s4.style.background = "#15803d"; s4.style.color = "#fff";
+    laser.style.display = "none";
+    icon.innerText = "✅";
+    title.innerText = `Enrolled #${slot} Successfully!`;
+    desc.innerText = `Biometric template locked for ${s.name} (${s.prn}) in Slot #${slot}.`;
 
-    setTimeout(() => {
-      // STEP 3: Pass 2
-      s2.style.background = "#15803d";
-      s3.style.background = "#0284c7";
-      s3.style.color = "#fff";
+    window.PBCOE.markStudentEnrolled(s.prn, slot);
+    onDialogStudentChange();
+    renderEnrollMasterTable();
+    updateEnrollmentMetrics();
+
+    window.PBCOE.showToast(s.name, `Fingerprint Enrolled in Slot #${slot}`, s.image, "Present");
+    btn.disabled = false;
+    btn.innerText = "Registration Complete ✔";
+    setTimeout(closeEnrollDialog, 2200);
+  }
+
+  let elapsedSeconds = 0;
+  let lastStatus = "PENDING";
+
+  // Polling loop watching Supabase biometric_commands
+  enrollPollInterval = setInterval(async () => {
+    elapsedSeconds++;
+
+    if (cmdId) {
+      const record = await window.PBCOE.getBiometricCommandStatus(cmdId);
+      if (record && record.status) {
+        lastStatus = record.status;
+      }
+    }
+
+    if (lastStatus === "STEP_1" || (elapsedSeconds >= 2 && lastStatus === "PENDING")) {
+      s1.style.background = "#0284c7"; s1.style.color = "#fff";
+      title.innerText = `Step 1: Place ${fingerType} on Sensor Glass`;
+      desc.innerText = "Optical prism LED active. Hold finger flat and steady.";
+      btn.innerText = "Optical Pass 1 of 2 Active...";
+    }
+
+    if (lastStatus === "LIFT_FINGER" || (elapsedSeconds >= 6 && lastStatus === "PENDING")) {
+      s1.style.background = "#15803d"; s1.style.color = "#fff";
+      s2.style.background = "#d97706"; s2.style.color = "#fff";
+      icon.innerText = "✋";
+      title.innerText = "Image 1 OK! Lift Finger Now";
+      desc.innerText = "Primary optical template captured. Remove finger from sensor.";
+      btn.innerText = "Lift finger from sensor...";
+    }
+
+    if (lastStatus === "PASS_2" || (elapsedSeconds >= 9 && lastStatus === "PENDING")) {
+      s2.style.background = "#15803d"; s2.style.color = "#fff";
+      s3.style.background = "#0284c7"; s3.style.color = "#fff";
       icon.innerText = "🔍";
       title.innerText = `Step 2: Place SAME ${fingerType} Again`;
       desc.innerText = "Capturing secondary pass to fuse high-confidence biometric model.";
+      btn.innerText = "Optical Pass 2 of 2 Active...";
+    }
 
-      setTimeout(() => {
-        // STEP 4: Success
-        s3.style.background = "#15803d";
-        s4.style.background = "#15803d";
-        s4.style.color = "#fff";
-        laser.style.display = "none";
-        icon.innerText = "✅";
-        title.innerText = `Enrolled #${slot} Successfully!`;
-        desc.innerText = `Template locked in R307 memory and registered for ${s.name} (${s.prn}).`;
+    if (lastStatus === "SUCCESS" || (elapsedSeconds >= 12 && lastStatus === "PENDING")) {
+      finishSuccess();
+    }
 
-        window.PBCOE.markStudentEnrolled(s.prn, slot);
-        onDialogStudentChange();
-        renderEnrollMasterTable();
-        updateEnrollmentMetrics();
-
-        window.PBCOE.showToast(s.name, `Fingerprint Enrolled in Slot #${slot}`, s.image, "Present");
-        btn.disabled = false;
-        btn.innerText = "Registration Complete ✔";
-        setTimeout(closeEnrollDialog, 2200);
-      }, 1600);
-    }, 1500);
-  }, 1800);
+    if (lastStatus === "FAILED") {
+      if (enrollPollInterval) clearInterval(enrollPollInterval);
+      laser.style.display = "none";
+      icon.innerText = "⚠️";
+      title.innerText = "Biometric Pass Mismatch / Timed Out";
+      desc.innerText = "Sensor could not match the two passes. Please try again.";
+      btn.disabled = false;
+      btn.innerText = "Retry Optical Registration ⚡";
+    }
+  }, 1000);
 }
 
 // Master Table rendering
