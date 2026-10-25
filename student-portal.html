@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Student Portal — PBCOE Electronics Portal</title>
+<title>Student Portal — PBCOE Electronics & Telecommunication Department</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -16,9 +16,9 @@
 
 <header class="nav" id="nav">
   <div class="nav-inner">
-    <a class="brand" href="index.html">
-      <span class="brand-badge"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M13 2 4.5 13.5H11L9.5 22 19.5 9.5H13L14.5 2z" fill="#0f172a"/></svg></span>
-      <span>PBCOE·ECE<small>ELECTRONICS PORTAL</small></span>
+    <a class="brand" href="index.html" style="display:flex;align-items:center;gap:10px;">
+      <img src="assets/images/pbcoe-logo.jpg" alt="PBCOE Logo" style="height:36px;width:auto;border-radius:6px;object-fit:contain;background:#fff;padding:2px;border:1px solid rgba(255,255,255,0.2);">
+      <span>PBCOE · ETC<small>ELECTRONICS &amp; TELECOMMUNICATION</small></span>
     </a>
     <ul class="nav-links">
       <li><a class="nlink" href="index.html">Home</a></li>
@@ -74,27 +74,34 @@
 
     <!-- STUDENT LOGIN TAB -->
     <div id="auth-pane-student">
+      <div class="field" style="margin-bottom:12px;">
+        <label style="font-weight:700;font-size:0.8rem;text-transform:uppercase;color:var(--muted);">ERP ID / PRN Number</label>
+        <input type="text" class="input" id="auth-student-prn" placeholder="e.g. 24121227" oninput="PBCOE_AUTH.syncPrnInput()">
+      </div>
+
       <div class="field" style="margin-bottom:14px;">
-        <label>Select Student From Roster (65 Candidates)</label>
-        <select class="select" id="auth-student-select" onchange="PBCOE_AUTH.previewStudent()">
+        <label style="font-weight:700;font-size:0.8rem;text-transform:uppercase;color:var(--muted);">Password (DOB in DDMMYYYY)</label>
+        <input type="password" class="input" id="auth-student-dob" placeholder="e.g. 19122006 (8 Digits)" maxlength="8">
+        <p style="font-size:0.72rem;color:var(--muted);margin-top:4px;">Enter your 8-digit birthdate (e.g. 19122006 for 19 Dec 2006).</p>
+      </div>
+
+      <div class="field" style="margin-bottom:14px;">
+        <label style="font-size:0.75rem;color:var(--muted);">Or Select Candidate Name (65 Cohort)</label>
+        <select class="select" id="auth-student-select" onchange="PBCOE_AUTH.previewStudent()" style="font-size:0.85rem;padding:0.4rem 0.6rem;">
           <option value="">-- Choose Candidate --</option>
         </select>
       </div>
 
-      <div class="field" style="margin-bottom:16px;">
-        <label>Or Enter PRN Number</label>
-        <input type="text" class="input" id="auth-student-prn" placeholder="e.g. 24121218" oninput="PBCOE_AUTH.syncPrnInput()">
-      </div>
-
-      <div id="auth-student-preview" style="display:flex;align-items:center;gap:14px;padding:12px;background:#090d16;border-radius:12px;margin-bottom:20px;border:1px solid var(--border);">
-        <img id="auth-preview-img" src="assets/images/students/24121218.jpg" style="width:54px;height:54px;border-radius:12px;object-fit:cover;border:2px solid #38bdf8;" onerror="this.src='https://ui-avatars.com/api/?name=PBCOE&background=1e293b&color=38bdf8'">
+      <div id="auth-student-preview" style="display:flex;align-items:center;gap:12px;padding:10px;background:#090d16;border-radius:12px;margin-bottom:16px;border:1px solid var(--border);">
+        <img id="auth-preview-img" src="assets/images/students/24121227.jpg" style="width:50px;height:50px;border-radius:10px;object-fit:cover;border:2px solid #38bdf8;" onerror="this.src='https://ui-avatars.com/api/?name=PBCOE&background=1e293b&color=38bdf8'">
         <div style="flex:1;min-width:0;">
-          <div id="auth-preview-name" style="font-weight:700;font-size:0.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Select a student</div>
+          <div id="auth-preview-name" style="font-weight:700;font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Select or Enter ERP ID</div>
           <div id="auth-preview-sub" class="mono" style="font-size:0.75rem;color:var(--muted);">PRN: - · Attendance: -</div>
         </div>
       </div>
 
-      <button class="btn btn-primary" style="width:100%;font-size:1rem;" onclick="PBCOE_AUTH.submitStudentLogin()">Enter Student HUD →</button>
+      <div id="auth-student-err" style="color:#f87171;font-size:0.8rem;margin-bottom:12px;display:none;"></div>
+      <button class="btn btn-primary" style="width:100%;font-size:1rem;" onclick="PBCOE_AUTH.submitStudentLogin()">Enter Student Portal ⚡</button>
     </div>
 
     <!-- FACULTY & ADMIN LOGIN TAB -->
@@ -171,13 +178,22 @@ window.PBCOE_AUTH = {
   },
   submitStudentLogin: function() {
     const prn = document.getElementById("auth-student-prn").value.trim() || document.getElementById("auth-student-select").value;
-    if (!prn) { alert("Please select or enter a student PRN."); return; }
-    const res = window.PBCOE.loginStudent(prn);
+    const dob = document.getElementById("auth-student-dob").value.trim();
+    const err = document.getElementById("auth-student-err");
+
+    if (!prn) {
+      if (err) { err.style.display = "block"; err.innerText = "Please select or enter your ERP ID / PRN Number."; }
+      return;
+    }
+    const res = window.PBCOE.loginStudent(prn, dob);
     if (res.success) {
+      if (err) err.style.display = "none";
       this.closeLogin();
-      location.href = "student-portal.html";
+      this.updateNavUser();
+      location.href = "student-portal.html?prn=" + encodeURIComponent(prn);
     } else {
-      alert(res.message);
+      if (err) { err.style.display = "block"; err.innerText = res.message; }
+      else alert(res.message);
     }
   },
   submitAdminLogin: function() {
@@ -231,31 +247,59 @@ document.addEventListener("DOMContentLoaded", async function() {
 </script>
 
 <main>
-<!--TITLE:Student Portal — PBCOE Electronics Portal-->
+<!--TITLE:Student Portal — PBCOE Electronics & Telecommunication Department-->
 <section class="page-hero" style="padding-bottom:1.5rem">
   <div class="blob blue" style="width:300px;height:300px;top:-90px;right:-40px"></div>
   <div class="container">
-    <p class="crumb reveal"><a href="index.html">HOME</a> / PORTALS / STUDENT</p>
+    <p class="crumb reveal"><a href="index.html">HOME</a> / ETC DEPARTMENT / STUDENT PORTAL</p>
+    
+    <!-- Student Header & Profile Badge -->
     <div style="display:flex;gap:20px;align-items:center;flex-wrap:wrap;margin-top:10px;">
-      <img id="sp-avatar" src="assets/images/students/24121218.jpg" style="width:84px;height:84px;border-radius:18px;object-fit:cover;border:3px solid #38bdf8;box-shadow:0 8px 24px rgba(0,0,0,.35);" onerror="this.src='https://ui-avatars.com/api/?name=Student&background=1e293b&color=38bdf8'">
+      <img id="sp-avatar" src="assets/images/students/24121227.jpg" style="width:84px;height:84px;border-radius:18px;object-fit:cover;border:3px solid #38bdf8;box-shadow:0 8px 24px rgba(0,0,0,.35);" onerror="this.src='https://ui-avatars.com/api/?name=Candidate&background=1e293b&color=38bdf8'">
       <div>
-        <h1 class="reveal" style="--d:.08s;margin:0;">Welcome back, <span class="grad-text" id="sp-name">Yash Ranjeet Indurkar</span></h1>
-        <p class="section-sub reveal" style="--d:.16s mono;margin-top:6px;" id="sp-sub">B.TECH ETC · SY · PRN 24121218 · SLOT #1</p>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <h1 class="reveal" style="--d:.08s;margin:0;" id="sp-name">Candidate Profile</h1>
+          <span id="sp-auth-badge" class="pill mid" style="font-size:0.72rem;padding:2px 8px;">PUBLIC PREVIEW</span>
+        </div>
+        <p class="section-sub reveal" style="--d:.16s mono;margin-top:6px;" id="sp-sub">B.TECH ETC · SECOND YEAR (SY) · PBCOE NAGPUR</p>
       </div>
-      <div style="margin-left:auto;display:flex;gap:10px;">
-        <button class="btn btn-sm btn-ghost" onclick="window.PBCOE_AUTH.openLogin()">Switch Profile 👤</button>
-        <a href="attendance.html" class="btn btn-sm btn-primary">Live Scan Station ⚡</a>
+      <div style="margin-left:auto;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <button id="sp-enroll-btn" class="btn btn-sm btn-primary" style="display:none;" onclick="openSelfEnrollment()">
+          🪪 Register My Fingerprint
+        </button>
+        <button class="btn btn-sm btn-ghost" onclick="window.PBCOE_AUTH.openLogin()">
+          🔐 Login with ERP ID &amp; DOB
+        </button>
+        <a href="attendance.html" class="btn btn-sm btn-ghost">Live Stream ⚡</a>
       </div>
     </div>
+
+    <!-- Quick Public Attendance Selector (No Login Required) -->
+    <div class="card reveal" style="margin-top:1.5rem;padding:14px 18px;background:#090d16;border:1px solid #1e293b;border-radius:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:1.1rem;">🔍</span>
+          <span style="font-weight:700;font-size:0.85rem;color:#38bdf8;text-transform:uppercase;">View Any Student Attendance (No Login Required)</span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;flex:1;max-width:540px;justify-content:flex-end;">
+          <select class="select" id="sp-public-select" onchange="onPublicSelectChange()" style="padding:0.4rem 0.8rem;font-size:0.85rem;flex:1;min-width:240px;">
+            <!-- Populated with all 65 students -->
+          </select>
+          <input type="text" id="sp-public-prn" class="input" placeholder="Or enter PRN (e.g. 24121227)" style="max-width:200px;padding:0.4rem 0.8rem;font-size:0.85rem;" oninput="onPublicPrnInput()">
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
 
 <div class="ticker marquee-light" aria-hidden="true">
   <div class="ticker-track" data-ticker>
-    <span><b>BIOMETRIC NODE:</b> R307 SENSOR ACTIVE</span><span class="dot">//</span>
-    <span><b>CLOUD STATUS:</b> FIREBASE RTDB STREAMING</span><span class="dot">//</span>
-    <span><b>DEADLINE:</b> DSP LAB REPORT FRI 17:00</span><span class="dot">//</span>
-    <span><b>BENCH CONFIRMED:</b> E-101 EMBEDDED LAB #12 THU 14:00</span><span class="dot">//</span>
+    <span><b>COLLEGE:</b> PRIYADARSHINI BHAGWATI COLLEGE OF ENGINEERING</span><span class="dot">//</span>
+    <span><b>DEPARTMENT:</b> ELECTRONICS &amp; TELECOMMUNICATION (ETC)</span><span class="dot">//</span>
+    <span><b>BIOMETRIC NODE:</b> R307 DUAL-PASS OPTICAL PRISM ACTIVE</span><span class="dot">//</span>
+    <span><b>CLOUD BACKEND:</b> SUPABASE POSTGRESQL CLOUD SYNC</span><span class="dot">//</span>
+    <span><b>NAAC ACCREDITATION:</b> GRADE 'A+'</span><span class="dot">//</span>
   </div>
 </div>
 
@@ -265,7 +309,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     <!-- Top Row: Academic Telemetry + Biometrics -->
     <div class="grid-2" style="align-items:stretch">
       <div class="card reveal left">
-        <h3 style="margin-bottom:1.4rem">Academic Telemetry</h3>
+        <h3 style="margin-bottom:1.4rem">Academic Telemetry &amp; Attendance</h3>
         <div class="rings" style="justify-content:space-around">
           <div class="ring" style="--val:88;--rc:#3b82f6;color:var(--fg)">
             <svg viewBox="0 0 110 110"><circle class="track" cx="55" cy="55" r="48"/><circle class="bar" cx="55" cy="55" r="48"/><text class="rv" x="55" y="62" text-anchor="middle">8.8</text></svg>
@@ -283,20 +327,20 @@ document.addEventListener("DOMContentLoaded", async function() {
       </div>
 
       <div class="card reveal right">
-        <h3 style="margin-bottom:1rem">Biometric Telemetry &amp; Verification</h3>
+        <h3 style="margin-bottom:1rem">Biometric Telemetry &amp; Check-in Log</h3>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:#090d16;border-radius:10px;margin-bottom:12px;border:1px solid var(--border);">
           <div>
             <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;">Cloud Attendance Node</div>
-            <div style="font-weight:700;color:#22c55e;font-size:.95rem;margin-top:2px;">R307 Optical Sensor (Direct Firebase)</div>
+            <div style="font-weight:700;color:#22c55e;font-size:.95rem;margin-top:2px;">R307 Optical Sensor (Direct Supabase)</div>
           </div>
-          <a href="attendance.html" class="btn btn-sm btn-ghost">Scan Station →</a>
+          <span id="sp-notif-pill" class="pill ok" style="font-size:0.7rem;cursor:pointer;" onclick="requestPushNotifications()">🔔 Enable Phone Alerts</span>
         </div>
         <table class="tbl">
           <tbody>
-            <tr><td>Today's Biometric Check-in</td><td style="text-align:right"><span class="pill ok" id="sp-checkin-status">VERIFIED PRESENT</span></td></tr>
-            <tr><td>Biometric Confidence Score</td><td style="text-align:right" class="mono" style="color:#38bdf8;">98.4%</td></tr>
-            <tr><td>Registered Finger Slot</td><td style="text-align:right" class="mono" id="sp-slot-cell">#1</td></tr>
-            <tr><td>Eligibility for Semester Exam</td><td style="text-align:right"><span class="pill ok" id="sp-eligibility-badge">ELIGIBLE (&gt;75%)</span></td></tr>
+            <tr><td>Biometric Registration</td><td style="text-align:right"><span class="pill ok" id="sp-reg-badge">ENROLLED</span></td></tr>
+            <tr><td>Registered Optical Slot</td><td style="text-align:right" class="mono" id="sp-slot-cell">#16</td></tr>
+            <tr><td>Today's Biometric Check-in</td><td style="text-align:right"><span class="pill ok" id="sp-checkin-status">PRESENT</span></td></tr>
+            <tr><td>RTMNU Exam Eligibility</td><td style="text-align:right"><span class="pill ok" id="sp-eligibility-badge">ELIGIBLE (&gt;75%)</span></td></tr>
           </tbody>
         </table>
       </div>
@@ -308,8 +352,8 @@ document.addEventListener("DOMContentLoaded", async function() {
     <div class="card reveal flip" style="overflow-x:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
         <div>
-          <h3 style="margin:0;">Class Schedule &amp; Lecture Timetable (Sem 5)</h3>
-          <p style="font-size:0.8rem;color:var(--muted);margin-top:2px;">Live synchronized with Department Faculty Administration</p>
+          <h3 style="margin:0;">Weekly Lecture &amp; Laboratory Timetable (ETC - SY)</h3>
+          <p style="font-size:0.8rem;color:var(--muted);margin-top:2px;">Department of Electronics &amp; Telecommunication Engineering · PBCOE</p>
         </div>
         <select class="select" id="sp-tt-day" style="padding:.35rem .8rem;font-size:0.85rem;" onchange="renderStudentTimetable()">
           <option value="MON">Monday Schedule</option>
@@ -337,30 +381,29 @@ document.addEventListener("DOMContentLoaded", async function() {
 
     <br>
 
-    <!-- Grades + Document Vault -->
+    <!-- Internal Assessment + Verified Documents -->
     <div class="grid-2" style="align-items:start">
       <div class="card reveal left">
-        <h3 style="margin-bottom:.8rem">Semester 5 — Internal Assessment</h3>
+        <h3 style="margin-bottom:.8rem">Semester Internal Assessment &amp; Sessional</h3>
         <table class="tbl">
-          <thead><tr><th>Course</th><th>IA-1</th><th>IA-2</th><th>Trend</th></tr></thead>
+          <thead><tr><th>Course Name</th><th>IA-1</th><th>IA-2</th><th>Attendance Status</th></tr></thead>
           <tbody>
-            <tr><td>Microcontrollers &amp; Embedded C</td><td>26/30</td><td>28/30</td><td><span class="pill ok">▲ UP</span></td></tr>
-            <tr><td>Digital Communication</td><td>24/30</td><td>25/30</td><td><span class="pill ok">▲ UP</span></td></tr>
-            <tr><td>Antenna &amp; Microwave Theory</td><td>25/30</td><td>23/30</td><td><span class="pill mid">STABLE</span></td></tr>
-            <tr><td>DSP Fundamentals</td><td>27/30</td><td>28/30</td><td><span class="pill ok">▲ UP</span></td></tr>
-            <tr><td>Elective: IoT Embedded Systems</td><td>29/30</td><td>30/30</td><td><span class="pill ok">🔥 TOP 1%</span></td></tr>
+            <tr><td>Microcontrollers &amp; Embedded C</td><td>28/30</td><td>29/30</td><td><span class="pill ok">96% Regular</span></td></tr>
+            <tr><td>Digital Communication</td><td>25/30</td><td>27/30</td><td><span class="pill ok">92% Regular</span></td></tr>
+            <tr><td>Antenna &amp; Microwave Theory</td><td>26/30</td><td>25/30</td><td><span class="pill ok">94% Regular</span></td></tr>
+            <tr><td>Digital Signal Processing</td><td>28/30</td><td>28/30</td><td><span class="pill ok">98% Regular</span></td></tr>
+            <tr><td>IoT &amp; Embedded Systems Lab</td><td>30/30</td><td>30/30</td><td><span class="pill ok">100% Regular</span></td></tr>
           </tbody>
         </table>
       </div>
 
       <div class="card reveal right">
-        <h3 style="margin-bottom:.8rem">Verified Documents &amp; Certificates 🔐</h3>
+        <h3 style="margin-bottom:.8rem">Official Academic Documents 🔐</h3>
         <table class="tbl">
           <tbody>
-            <tr><td>Biometric_Attendance_Slip.pdf</td><td style="text-align:right;font-size:.75rem;color:#4ade80;" class="mono">VERIFIED ✓</td><td><a href="javascript:void(0)" onclick="downloadAttendanceSlip()" class="btn btn-sm btn-ghost" style="padding:.25rem .7rem">↓</a></td></tr>
-            <tr><td>Bonafide_Certificate.pdf</td><td style="text-align:right;font-size:.75rem;color:var(--muted)" class="mono">SIGNED ✓</td><td><a href="javascript:void(0)" onclick="alert('Downloading official Bonafide Certificate...')" class="btn btn-sm btn-ghost" style="padding:.25rem .7rem">↓</a></td></tr>
-            <tr><td>Sem4_Grade_Report.pdf</td><td style="text-align:right;font-size:.75rem;color:var(--muted)" class="mono">OFFICIAL ✓</td><td><a href="javascript:void(0)" onclick="alert('Downloading Semester 4 Grade Card...')" class="btn btn-sm btn-ghost" style="padding:.25rem .7rem">↓</a></td></tr>
-            <tr><td>Lab_Manual_Embedded_C.pdf</td><td style="text-align:right;font-size:.75rem;color:var(--muted)" class="mono">NEW 2026</td><td><a href="javascript:void(0)" onclick="alert('Downloading Lab Manual...')" class="btn btn-sm btn-ghost" style="padding:.25rem .7rem">↓</a></td></tr>
+            <tr><td>Official_Attendance_Slip.pdf</td><td style="text-align:right;font-size:.75rem;color:#4ade80;" class="mono">VERIFIED ✓</td><td><a href="javascript:void(0)" onclick="downloadAttendanceSlip()" class="btn btn-sm btn-ghost" style="padding:.25rem .7rem">↓ Download</a></td></tr>
+            <tr><td>College_Bonafide_Certificate.pdf</td><td style="text-align:right;font-size:.75rem;color:var(--muted)" class="mono">SIGNED ✓</td><td><a href="javascript:void(0)" onclick="alert('Downloading official PBCOE Bonafide Certificate...')" class="btn btn-sm btn-ghost" style="padding:.25rem .7rem">↓ Download</a></td></tr>
+            <tr><td>Sessional_Marks_Card.pdf</td><td style="text-align:right;font-size:.75rem;color:var(--muted)" class="mono">OFFICIAL ✓</td><td><a href="javascript:void(0)" onclick="alert('Downloading Sessional Marks Card...')" class="btn btn-sm btn-ghost" style="padding:.25rem .7rem">↓ Download</a></td></tr>
           </tbody>
         </table>
       </div>
@@ -371,29 +414,100 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 <script>
 let currentStudent = null;
+let fullCohort = [];
 
 async function initStudentView() {
+  await window.PBCOE.init();
+  fullCohort = window.PBCOE.getStudents();
+  populatePublicDropdown();
+
+  // 1. Check URL query param e.g. student-portal.html?prn=24121227
+  const urlParams = new URLSearchParams(window.location.search);
+  const prnParam = urlParams.get('prn');
+
+  // 2. Check cached logged in student session
   const user = window.PBCOE.getCurrentUser();
-  if (user && user.role === 'student') {
+
+  if (prnParam) {
+    const matched = window.PBCOE.getStudentByPrn(prnParam);
+    if (matched) currentStudent = matched;
+  } else if (user && user.role === 'student' && user.data) {
     currentStudent = user.data;
   } else {
-    // Default to first student in directory
-    const list = window.PBCOE.getStudents();
-    currentStudent = list.length > 0 ? list[0] : null;
+    // Default preview: Yuvraj Lokhande (Slot 16) or first student
+    const defaultCandidate = window.PBCOE.getStudentByPrn("24121227") || fullCohort[0];
+    currentStudent = defaultCandidate;
   }
 
   if (currentStudent) {
     applyStudentData(currentStudent);
   }
 
+  // Update Auth Badge & Self-Enroll button
+  if (user && user.role === 'student' && currentStudent && user.data.prn === currentStudent.prn) {
+    document.getElementById("sp-auth-badge").className = "pill ok";
+    document.getElementById("sp-auth-badge").innerText = "LOGGED IN (VERIFIED)";
+    document.getElementById("sp-enroll-btn").style.display = "inline-flex";
+  }
+
   renderStudentTimetable();
+  checkPushNotificationStatus();
+
+  // Listen for live attendance scan events
+  window.PBCOE.pollAttendance((logs) => {
+    if (currentStudent && logs && logs.length > 0) {
+      const todayLogs = logs.filter(l => (l.prn === currentStudent.prn || l.fingerprint_id === currentStudent.id));
+      if (todayLogs.length > 0) {
+        const latest = todayLogs[0];
+        document.getElementById("sp-checkin-status").innerText = `CHECK-IN: ${new Date(latest.created_at).toLocaleTimeString()}`;
+        document.getElementById("sp-checkin-status").className = "pill ok";
+      }
+    }
+  });
+}
+
+function populatePublicDropdown() {
+  const sel = document.getElementById("sp-public-select");
+  if (!sel) return;
+  sel.innerHTML = '<option value="">-- Select Candidate (65 Students) --</option>' + 
+    fullCohort.map(s => `<option value="${s.prn}">${s.name} (PRN: ${s.prn}) - Slot #${s.id}</option>`).join("");
+}
+
+function onPublicSelectChange() {
+  const prn = document.getElementById("sp-public-select").value;
+  if (!prn) return;
+  document.getElementById("sp-public-prn").value = prn;
+  const s = window.PBCOE.getStudentByPrn(prn);
+  if (s) {
+    currentStudent = s;
+    applyStudentData(s);
+  }
+}
+
+function onPublicPrnInput() {
+  const prn = document.getElementById("sp-public-prn").value.trim();
+  const s = window.PBCOE.getStudentByPrn(prn);
+  if (s) {
+    document.getElementById("sp-public-select").value = prn;
+    currentStudent = s;
+    applyStudentData(s);
+  }
 }
 
 function applyStudentData(s) {
   document.getElementById("sp-name").innerText = s.name;
-  document.getElementById("sp-sub").innerText = `B.TECH ${s.branch} · ${s.year} · PRN ${s.prn} · SLOT #${s.id}`;
+  document.getElementById("sp-sub").innerText = `B.TECH ${s.branch} · ${s.year} · ERP/PRN: ${s.prn} · SLOT #${s.fingerprint_id || s.id}`;
   document.getElementById("sp-avatar").src = s.image;
-  document.getElementById("sp-slot-cell").innerText = `#${s.id}`;
+  document.getElementById("sp-slot-cell").innerText = `#${s.fingerprint_id || s.id}`;
+
+  const regBadge = document.getElementById("sp-reg-badge");
+  if (s.enrolled) {
+    regBadge.className = "pill ok";
+    regBadge.innerText = "REGISTERED (SLOT #" + (s.fingerprint_id || s.id) + ")";
+  } else {
+    regBadge.className = "pill mid";
+    regBadge.innerText = "PENDING REGISTRATION";
+  }
 
   const att = s.attendance_percentage || 92;
   document.getElementById("sp-att-text").textContent = att + "%";
@@ -406,6 +520,40 @@ function applyStudentData(s) {
   } else {
     badge.className = "pill bad";
     badge.innerText = `AT RISK (${att}%)`;
+  }
+}
+
+function openSelfEnrollment() {
+  if (!currentStudent) return;
+  // Redirect to attendance page with self-enroll locked
+  location.href = `attendance.html?enroll=${encodeURIComponent(currentStudent.prn)}&lock=true`;
+}
+
+function requestPushNotifications() {
+  if ("Notification" in window) {
+    Notification.requestPermission().then(permission => {
+      checkPushNotificationStatus();
+      if (permission === "granted") {
+        new Notification("PBCOE Biometric Alerts Active", {
+          body: "You will receive real-time check-in notifications whenever your finger touches the sensor.",
+          icon: "assets/images/pbcoe-logo.jpg"
+        });
+      }
+    });
+  } else {
+    alert("Web Notifications are not supported by your current browser.");
+  }
+}
+
+function checkPushNotificationStatus() {
+  const pill = document.getElementById("sp-notif-pill");
+  if (!pill) return;
+  if ("Notification" in window && Notification.permission === "granted") {
+    pill.className = "pill ok";
+    pill.innerText = "🔔 Phone Alerts: Active";
+  } else {
+    pill.className = "pill mid";
+    pill.innerText = "🔔 Enable Phone Alerts";
   }
 }
 
@@ -426,32 +574,35 @@ function renderStudentTimetable() {
       <td><strong>${s.subject}</strong></td>
       <td><span class="pill mid">${s.room}</span></td>
       <td>${s.faculty}</td>
-      <td><span class="pill ok">Mandatory Fingerprint</span></td>
+      <td><span class="pill ok">Mandatory Biometric Scan</span></td>
     </tr>
   `).join("");
 }
 
 function downloadAttendanceSlip() {
   if (!currentStudent) return;
-  const content = `PBCOE ELECTRONICS & TELECOMMUNICATION DEPARTMENT
-BIOMETRIC ATTENDANCE VERIFICATION SLIP - 2026
-------------------------------------------------------
+  const content = `PRIYADARSHINI BHAGWATI COLLEGE OF ENGINEERING, NAGPUR
+DEPARTMENT OF ELECTRONICS & TELECOMMUNICATION ENGINEERING (ETC)
+OFFICIAL BIOMETRIC ATTENDANCE VERIFICATION SLIP - SESSION 2026
+------------------------------------------------------------------
 Student Name: ${currentStudent.name}
-PRN Number: ${currentStudent.prn}
+ERP ID / PRN: ${currentStudent.prn}
 Branch: ${currentStudent.branch}
 Academic Year: ${currentStudent.year}
+Assigned Slot: #${currentStudent.fingerprint_id || currentStudent.id}
+Biometric Registration: ${currentStudent.enrolled ? 'CONFIRMED' : 'PENDING'}
 Cumulative Attendance: ${currentStudent.attendance_percentage}%
-Examination Status: ${currentStudent.attendance_percentage >= 75 ? 'ELIGIBLE TO APPEAR' : 'DEBARRED (LOW ATTENDANCE)'}
-Biometric Station ID: ESP32-R307-NODE-01
-Timestamp: ${new Date().toLocaleString()}
-------------------------------------------------------
-Verified by Department Biometrics & IoT Center`;
+RTMNU Exam Status: ${currentStudent.attendance_percentage >= 75 ? 'ELIGIBLE TO APPEAR' : 'DEBARRED (ATTENDANCE DEFICIT)'}
+Verification Node: ESP32-R307-NODE-01 (Supabase PostgreSQL Cloud)
+Date & Time: ${new Date().toLocaleString()}
+------------------------------------------------------------------
+Authenticated by: Dr. Dipalee M. Kate, Head of Department (ETC)`;
 
   const blob = new Blob([content], { type: "text/plain" });
   const url = window.URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `Attendance_Slip_${currentStudent.prn}.txt`;
+  a.download = `PBCOE_Attendance_${currentStudent.prn}.txt`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -464,15 +615,20 @@ document.addEventListener("DOMContentLoaded", initStudentView);
 <footer>
   <div class="container footer-grid">
     <div>
-      <a class="brand" href="index.html" style="color:#e2e8f0;margin-bottom:1rem">
-        <span class="brand-badge"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M13 2 4.5 13.5H11L9.5 22 19.5 9.5H13L14.5 2z" fill="#0f172a"/></svg></span>
-        <span>PBCOE·ECE<small>ELECTRONICS PORTAL</small></span>
+      <a class="brand" href="index.html" style="color:#e2e8f0;margin-bottom:1rem;display:flex;align-items:center;gap:10px;">
+        <img src="assets/images/pbcoe-logo.jpg" alt="PBCOE Logo" style="height:38px;width:auto;border-radius:6px;background:#fff;padding:2px;">
+        <span>PBCOE · ETC<small>ELECTRONICS &amp; TELECOMMUNICATION</small></span>
       </a>
-      <p style="font-size:.88rem;max-width:34ch">Dept. of Electronics &amp; Communication Engineering, Prabhu Bhole College of Engineering &amp; Technology.</p>
+      <p style="font-size:.88rem;max-width:38ch;line-height:1.5;">
+        <strong>Department of Electronics &amp; Telecommunication Engineering</strong><br>
+        Priyadarshini Bhagwati College of Engineering (PBCOE)<br>
+        Lokmanya Tilak Jankalyan Shikshan Sanstha (LTJSS)<br>
+        Harpur Nagar, Umrer Road, Nagpur - 440024, Maharashtra
+      </p>
       <div class="term" aria-hidden="true">
-        <span class="t-line cmt">$ tail -f /var/log/dept.log</span>
-        <span class="t-line">[OK] all systems nominal</span>
-        <span class="t-line">[..] awaiting your signal_</span>
+        <span class="t-line cmt">$ tail -f /var/log/etc_dept.log</span>
+        <span class="t-line">[OK] NAAC A+ Accredited · AICTE Approved</span>
+        <span class="t-line">[OK] Supabase Cloud Biometric Node Active_</span>
       </div>
     </div>
     <div><h4>// LEARN</h4><a href="academics.html">Programs</a><a href="facilities.html">Laboratories</a><a href="faculty.html">Faculty</a><a href="academics.html#syllabus">Syllabus Bank</a></div>

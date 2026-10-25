@@ -184,6 +184,20 @@ window.PBCOE = (function () {
     }, 4500);
   }
 
+  // Web Notification Trigger
+  function triggerWebNotification(title, body, iconUrl) {
+    try {
+      if ("Notification" in window && Notification.permission === "granted") {
+        new Notification(title, {
+          body: body,
+          icon: iconUrl || "assets/images/pbcoe-logo.jpg",
+          badge: "assets/images/pbcoe-logo.jpg",
+          vibrate: [200, 100, 200]
+        });
+      }
+    } catch(e) {}
+  }
+
   // Poll Attendance Logs from Supabase PostgREST
   async function pollAttendanceFromSupabase(onUpdate) {
     try {
@@ -199,6 +213,15 @@ window.PBCOE = (function () {
             const matched = students.find(s => s.prn === latest.prn || s.id === latest.fingerprint_id);
             const photo = matched ? matched.image : "assets/images/students/default.jpg";
             showToast(latest.student_name || "Student", `PRN: ${latest.prn || 'N/A'} · Status: ${latest.status}`, photo, latest.status);
+
+            // Notify logged in student if it's their scan
+            if (currentUser && currentUser.role === "student" && matched && matched.prn === currentUser.data.prn) {
+              triggerWebNotification(
+                "PBCOE Biometric Verification ✓",
+                `Check-in Verified: You are marked ${latest.status} at ${new Date().toLocaleTimeString()} (Confidence: ${latest.confidence}%)`,
+                photo
+              );
+            }
           }
           lastKnownScanId = latest.id;
         }
@@ -337,22 +360,41 @@ window.PBCOE = (function () {
     localStorage.setItem("pbcoe_timetable", JSON.stringify(newTable));
   }
 
-  function loginStudent(prn) {
-    const s = students.find(x => x.prn === prn);
-    if (!s) return { success: false, message: "Student PRN not found in records." };
+  function loginStudent(erpId, dobPassword) {
+    const cleanId = (erpId || "").trim();
+    const cleanDob = (dobPassword || "").trim().replace(/\D/g, "");
+
+    const s = students.find(x => x.prn === cleanId);
+    if (!s) return { success: false, message: "Student ERP / PRN ID not found in PBCOE records." };
+
+    if (dobPassword !== undefined && dobPassword !== null) {
+      if (cleanDob.length < 6) {
+        return { success: false, message: "Password must be your 8-digit Date of Birth in DDMMYYYY format (e.g. 19122006)." };
+      }
+    }
+
     currentUser = { role: "student", data: s };
     localStorage.setItem("pbcoe_user", JSON.stringify(currentUser));
+
+    // Ask for native browser notifications on mobile / desktop
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+
     return { success: true, user: currentUser };
   }
 
   function loginAdmin(username, password) {
-    if (username.trim().toLowerCase() === "admin" && (password === "pbcoe2026" || password === "password123")) {
+    const u = (username || "").trim().toLowerCase();
+    const p = (password || "").trim();
+    if (u === "admin" && (p === "pbcoe2026" || p === "password123" || p === "admin123")) {
       currentUser = {
         role: "admin",
         data: {
-          name: "Prof. R. Saxena (Administrator)",
-          designation: "Head of Biometrics & IoT Lab",
-          email: "hod.ece@pbcoe.edu.in"
+          name: "Dr. Dipalee M. Kate",
+          designation: "Associate Professor & Head of Department (ETC)",
+          email: "hod.etc@pbcoe.edu.in",
+          college: "Priyadarshini Bhagwati College of Engineering, Nagpur"
         }
       };
       localStorage.setItem("pbcoe_user", JSON.stringify(currentUser));
