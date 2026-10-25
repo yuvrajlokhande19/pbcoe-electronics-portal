@@ -314,6 +314,8 @@ document.addEventListener("DOMContentLoaded", async function() {
         <button class="btn btn-sm btn-primary" id="btn-fac-roster" onclick="switchFacTab('roster')">Student Candidate Roster (65)</button>
         <button class="btn btn-sm btn-ghost" id="btn-fac-timetable" onclick="switchFacTab('timetable')">🗓️ Timetable &amp; Schedule Editor</button>
         <button class="btn btn-sm btn-ghost" id="btn-fac-override" onclick="switchFacTab('override')">✏️ Manual Attendance Override</button>
+        <button class="btn btn-sm btn-ghost" id="btn-fac-docs" onclick="switchFacTab('docs')">📁 Submitted Documents</button>
+        <button class="btn btn-sm btn-ghost" id="btn-fac-games" onclick="switchFacTab('games')">🎮 Play-Together Arcade</button>
         <button class="btn btn-sm btn-ghost" id="btn-fac-notices" onclick="switchFacTab('notices')">📌 Notice Publisher</button>
         <button class="btn btn-sm btn-ghost" id="btn-fac-settings" onclick="switchFacTab('settings')">⚙️ Thresholds &amp; Settings</button>
       </div>
@@ -540,6 +542,73 @@ document.addEventListener("DOMContentLoaded", async function() {
         </div>
       </div>
 
+      <!-- TAB 6: SUBMITTED STUDENT DOCUMENTS -->
+      <div id="fac-tab-docs" style="display:none;">
+        <div class="card reveal" style="margin-bottom:2rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:1.2rem;">
+            <div>
+              <h3 style="margin:0;">Candidate Document Submissions &amp; Verification</h3>
+              <p style="font-size:0.8rem;color:var(--muted);margin-top:2px;">Review student assignments, bonafide requests, and medical documents.</p>
+            </div>
+            <button class="btn btn-sm btn-ghost" onclick="renderFacultyDocs()">↻ Refresh Queue</button>
+          </div>
+
+          <table class="tbl" style="width:100%;">
+            <thead>
+              <tr>
+                <th>Document Title</th>
+                <th>Candidate PRN</th>
+                <th>Category</th>
+                <th>Submission Date</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="fac-docs-tbody">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 7: PLAY-TOGETHER GAMES LAUNCHER -->
+      <div id="fac-tab-games" style="display:none;">
+        <div class="featured-card reveal" style="margin-bottom:2rem;">
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:1.4rem;">
+            <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#eab308,#f59e0b);display:flex;align-items:center;justify-content:center;font-size:1.8rem;">
+              🎮
+            </div>
+            <div>
+              <h3 style="margin:0;font-size:1.25rem;color:var(--fg);">In-Class Interactive Games &amp; Dual-Player Challenges</h3>
+              <p style="margin:4px 0 0;font-size:0.85rem;color:var(--muted);">Host rapid Boolean logic speed duels or co-op frequency alignment during lectures or laboratory sessions!</p>
+            </div>
+          </div>
+
+          <div class="grid-3" style="gap:1.2rem;">
+            <div class="card" style="text-align:center;">
+              <div class="icon-chip" style="margin:0 auto 10px;background:linear-gradient(135deg,#3b82f6,#06b6d4);">⚡</div>
+              <h4 style="margin:0 0 6px;">2-Player Logic Duel</h4>
+              <p style="font-size:0.8rem;color:var(--muted);margin-bottom:12px;">Head-to-head split keyboard speed battle on truth tables. First to 10 points wins!</p>
+              <a href="games.html?tab=duel" class="btn btn-primary btn-sm" style="width:100%;">Launch Duel ⚡</a>
+            </div>
+
+            <div class="card" style="text-align:center;">
+              <div class="icon-chip y" style="margin:0 auto 10px;">🤝</div>
+              <h4 style="margin:0 0 6px;">Co-Op Frequency Sync</h4>
+              <p style="font-size:0.8rem;color:var(--muted);margin-bottom:12px;">Two students team up: one tunes carrier frequency, one shifts phase angle to lock waveform.</p>
+              <a href="games.html?tab=coop" class="btn btn-accent btn-sm" style="width:100%;">Launch Co-Op 🤝</a>
+            </div>
+
+            <div class="card" style="text-align:center;">
+              <div class="icon-chip b" style="margin:0 auto 10px;">⚙</div>
+              <h4 style="margin:0 0 6px;">5th Sem Embedded Challenge</h4>
+              <p style="font-size:0.8rem;color:var(--muted);margin-bottom:12px;">Timer 1 baud rate math, ESP32 GPIO bitmasking, and R307 packet frame decoders.</p>
+              <a href="games.html?tab=embedded" class="btn btn-ghost btn-sm" style="width:100%;">Launch Embedded ⚙</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </section>
 </div>
@@ -593,12 +662,46 @@ function submitGateLogin() {
 }
 
 function switchFacTab(tab) {
-  ['roster', 'timetable', 'override', 'notices', 'settings'].forEach(t => {
+  ['roster', 'timetable', 'override', 'docs', 'games', 'notices', 'settings'].forEach(t => {
     const el = document.getElementById(`fac-tab-${t}`);
     const btn = document.getElementById(`btn-fac-${t}`);
     if (el) el.style.display = (t === tab) ? 'block' : 'none';
     if (btn) btn.className = "btn btn-sm " + (t === tab ? 'btn-primary' : 'btn-ghost');
   });
+  if (tab === 'docs') renderFacultyDocs();
+}
+
+function renderFacultyDocs() {
+  const tbody = document.getElementById("fac-docs-tbody");
+  if (!tbody) return;
+  const docs = JSON.parse(localStorage.getItem("pbcoe_student_docs") || "[]");
+  if (docs.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted);">No student document submissions pending in queue.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = docs.map((d, i) => `
+    <tr>
+      <td><strong>${d.title}</strong><br><small style="color:var(--muted);">${d.fileName}</small></td>
+      <td class="mono">${d.prn || '24121227'}</td>
+      <td><span class="pill mid">${d.type}</span></td>
+      <td>${d.date}</td>
+      <td><span class="pill ok">${d.status}</span></td>
+      <td>
+        <button class="btn btn-sm btn-ghost" onclick="alert('Viewing document: ${d.title}')" style="padding:2px 8px;font-size:0.75rem;">View</button>
+        <button class="btn btn-sm btn-primary" onclick="verifyFacultyDoc(${i})" style="padding:2px 8px;font-size:0.75rem;">Verify ✓</button>
+      </td>
+    </tr>
+  `).join("");
+}
+
+function verifyFacultyDoc(index) {
+  const docs = JSON.parse(localStorage.getItem("pbcoe_student_docs") || "[]");
+  if (docs[index]) {
+    docs[index].status = "VERIFIED (FACULTY SIGNED) ✓";
+    localStorage.setItem("pbcoe_student_docs", JSON.stringify(docs));
+    renderFacultyDocs();
+    alert(`Document marked as Verified!`);
+  }
 }
 
 async function submitFacultyNotice() {

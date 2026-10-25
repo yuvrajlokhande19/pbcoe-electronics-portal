@@ -1,12 +1,12 @@
 <!--TITLE:PBCOE — Dept. of Electronics & Telecommunication Engineering (ETC)-->
 
 <!-- COLLEGE BANNER STRIP -->
-<div style="background:#050914;border-bottom:1px solid rgba(56,189,248,0.2);padding:10px 0;text-align:center;">
+<div style="background:var(--bg-2);border-bottom:1px solid var(--glass-border);padding:10px 0;text-align:center;">
   <div class="container" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
     <div style="display:flex;align-items:center;gap:14px;">
       <img src="assets/images/pbcoe-round-seal.png" alt="PBCOE Seal" style="height:52px;width:52px;border-radius:50%;background:#fff;padding:2px;box-shadow:0 0 12px rgba(56,189,248,0.35);">
       <div style="text-align:left;">
-        <h4 style="margin:0;font-size:1.05rem;color:#f8fafc;font-weight:700;">PRIYADARSHINI BHAGWATI COLLEGE OF ENGINEERING</h4>
+        <h4 style="margin:0;font-size:1.05rem;color:var(--fg);font-weight:700;">PRIYADARSHINI BHAGWATI COLLEGE OF ENGINEERING</h4>
         <p style="margin:2px 0 0;font-size:0.75rem;color:var(--muted);letter-spacing:0.04em;">LOKMANYA TILAK JANKALYAN SHIKSHAN SANSTHA (LTJSS) · NAGPUR · DTE CODE: EN 4177</p>
       </div>
     </div>
@@ -20,102 +20,55 @@
 
 <!-- ================= HERO ================= -->
 <section class="hero circuit-bg">
-  <div class="blob cyan" style="width:420px;height:420px;top:-120px;left:-60px"></div>
-  <div class="blob violet" style="width:360px;height:360px;bottom:-80px;right:-40px"></div>
-  <div class="container">
-    <div class="grid-2 hero-grid" style="align-items:center;gap:2.5rem;">
-      <div>
-        <div class="crumb reveal" style="--d:.02s;margin-bottom:0.75rem;">
-          <span style="color:#38bdf8;font-weight:700;">DTE: EN 4177</span> // ESTABLISHED 2007 // DEPT ESTD 2008 // INTAKE: 60
-        </div>
-        <h1 class="reveal" style="--d:.08s;font-size:clamp(1.9rem,4vw,2.9rem);line-height:1.15;margin-bottom:1rem;">
-          Department of <br><span class="grad-text">Electronics &amp; Telecommunication</span> Engineering
-        </h1>
-        <p class="hero-desc reveal" style="--d:.16s;font-size:1.02rem;color:var(--muted);line-height:1.6;margin-bottom:1.5rem;">
-          Priyadarshini Bhagwati College of Engineering, Harpur Nagar, Umred Road, Nagpur. Pioneering hands-on technical education in Embedded Systems, VLSI, Wireless Communications, and Cloud IoT Telemetry under NEP 2020.
-        </p>
-        <div class="hero-cta reveal" style="--d:.24s;display:flex;gap:12px;flex-wrap:wrap;">
-          <a class="btn btn-primary" href="attendance.html">
-            <span>🪪 Live Biometric Node</span>
-          </a>
-          <a class="btn btn-ghost" href="student-portal.html">
-            <span>🎓 Student Portal</span>
-          </a>
-          <a class="btn btn-ghost" href="academics.html">
-            <span>📚 5th Sem Curriculum</span>
-          </a>
-        </div>
-        
-        <div class="reveal" style="--d:.32s;margin-top:1.8rem;display:flex;gap:20px;align-items:center;flex-wrap:wrap;">
-          <div>
-            <div style="font-size:1.4rem;font-weight:800;color:#38bdf8;" class="mono">65</div>
-            <div style="font-size:0.75rem;color:var(--muted);text-transform:uppercase;">5th Sem Cohort</div>
-          </div>
-          <div style="width:1px;height:28px;background:var(--border);"></div>
-          <div>
-            <div style="font-size:1.4rem;font-weight:800;color:#22c55e;" class="mono">100%</div>
-            <div style="font-size:0.75rem;color:var(--muted);text-transform:uppercase;">R307 Optical Biometrics</div>
-          </div>
-          <div style="width:1px;height:28px;background:var(--border);"></div>
-          <div>
-            <div style="font-size:1.4rem;font-weight:800;color:#facc15;" class="mono">Grade 'A+'</div>
-            <div style="font-size:0.75rem;color:var(--muted);text-transform:uppercase;">NAAC Accredited</div>
-          </div>
-        </div>
+  <div class="blob blue" style="width:420px;height:420px;top:-120px;right:-80px"></div>
+  <div class="blob yellow" style="width:320px;height:320px;bottom:-100px;left:-60px"></div>
+  <div class="container hero-grid" style="align-items:center;">
+    <div class="hero-copy">
+      <div class="crumb reveal" style="--d:.02s;margin-bottom:0.75rem;">
+        <span style="color:var(--blue);font-weight:700;">DTE: EN 4177</span> // ESTABLISHED 2007 // DEPT ESTD 2008 // INTAKE: 60
       </div>
+      <h1 class="reveal" style="--d:.08s;font-size:clamp(1.9rem,3.8vw,2.9rem);line-height:1.15;margin-bottom:1rem;">
+        Where Circuits Become <br><span class="grad">Careers.</span>
+      </h1>
+      <p class="lead reveal" style="--d:.16s;font-size:1.02rem;color:var(--muted);line-height:1.6;margin-bottom:1.5rem;">
+        Official Electronics &amp; Telecommunication (ETC) Portal of Priyadarshini Bhagwati College of Engineering, Nagpur. Simulate real circuits, master embedded systems and VHDL hardware, play logic challenges, and access student services under NEP 2020.
+      </p>
+      <div class="hero-cta reveal" style="--d:.24s;display:flex;gap:12px;flex-wrap:wrap;">
+        <a href="simulator.html" class="btn btn-primary">⚡ Launch Circuit Lab</a>
+        <a href="attendance.html" class="btn btn-ghost">🪪 Biometric Station</a>
+        <a href="games.html" class="btn btn-accent">🎮 Play Logic Arcade</a>
+        <a href="student-portal.html" class="btn btn-ghost">🎓 Student Portal →</a>
+      </div>
+      <div class="hero-badges reveal" style="--d:.32s;margin-top:1.6rem;">
+        <span class="chip"><i></i>R307 IOT NODE ONLINE</span>
+        <span class="chip warn"><i></i>NEP 2020 5TH SEM</span>
+        <span class="chip crit"><i></i>NAAC GRADE 'A+'</span>
+      </div>
+    </div>
 
-      <!-- Quick Public Attendance Card -->
-      <div class="reveal right" style="--d:.2s;">
-        <div class="card" style="background:#090d16;border:1.5px solid rgba(56,189,248,0.35);border-radius:18px;padding:24px;box-shadow:0 16px 48px rgba(0,0,0,0.6);">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-            <div style="display:flex;align-items:center;gap:10px;">
-              <span style="font-size:1.4rem;">⚡</span>
-              <div>
-                <h3 style="margin:0;font-size:1.1rem;color:#f8fafc;">Instant Attendance Check</h3>
-                <p style="margin:2px 0 0;font-size:0.75rem;color:var(--muted);">No login required · Live Supabase Database</p>
-              </div>
-            </div>
-            <span class="pill ok" style="font-size:0.7rem;">LIVE NODE</span>
-          </div>
-
-          <div style="margin-bottom:14px;">
-            <label style="font-size:0.8rem;color:var(--muted);display:block;margin-bottom:6px;">Select Candidate from 65-Student Cohort:</label>
-            <select id="home-student-select" class="select" style="width:100%;font-size:0.88rem;" onchange="onHomeSelectStudent(this.value)">
-              <option value="">-- Choose Candidate --</option>
-            </select>
-          </div>
-
-          <div id="home-student-card" style="display:none;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px;">
-            <div style="display:flex;gap:14px;align-items:center;">
-              <img id="home-cand-img" src="" style="width:56px;height:56px;border-radius:12px;object-fit:cover;border:2px solid #38bdf8;" onerror="this.src='https://ui-avatars.com/api/?name=PBCOE&background=1e293b&color=38bdf8'">
-              <div style="flex:1;">
-                <h4 id="home-cand-name" style="margin:0;font-size:0.95rem;color:#f8fafc;">Candidate Name</h4>
-                <div style="font-size:0.78rem;color:var(--muted);margin-top:2px;">
-                  ERP/PRN: <strong id="home-cand-prn" class="mono" style="color:#38bdf8;">-</strong> · Slot: <strong id="home-cand-slot" class="mono">-</strong>
-                </div>
-                <div style="display:flex;gap:8px;margin-top:6px;align-items:center;">
-                  <span id="home-cand-att" class="pill ok" style="font-size:0.7rem;">95% Attendance</span>
-                  <span id="home-cand-status" class="pill mid" style="font-size:0.7rem;">Active</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div style="display:flex;gap:8px;">
-            <a id="home-view-profile-btn" href="student-portal.html" class="btn btn-primary btn-sm" style="flex:1;text-align:center;">
-              Full Academic Profile →
-            </a>
-            <a href="attendance.html" class="btn btn-ghost btn-sm" style="text-align:center;">
-              Sensor Feed 🪪
-            </a>
-          </div>
+    <!-- Animated CPU Stage & Lightning Canvas -->
+    <div class="cpu-stage reveal zoom" style="--d:.2s;">
+      <canvas id="lightning-canvas" aria-hidden="true"></canvas>
+      <div class="cpu-core">
+        <div class="cpu-ring"></div>
+        <div class="cpu-ring r2"></div>
+        <div class="cpu-chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="1.4" aria-hidden="true">
+            <rect x="6" y="6" width="12" height="12" rx="2"/>
+            <rect x="9.5" y="9.5" width="5" height="5" rx="1"/>
+            <path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4" stroke-linecap="round"/>
+          </svg>
         </div>
+        <span class="orbit-tag b">ESP32 · NODE</span>
+        <span class="orbit-tag y">CLK 240MHz</span>
+        <span class="orbit-tag r">R307 · OPTICAL</span>
       </div>
     </div>
   </div>
+  <div class="scroll-hint"><span class="mouse"></span>SCROLL</div>
 </section>
 
-<!-- TICKER -->
+<!-- ================= TICKER ================= -->
 <div class="ticker" aria-hidden="true">
   <div class="ticker-track" data-ticker>
     <span><b>COLLEGE:</b> PRIYADARSHINI BHAGWATI COLLEGE OF ENGINEERING</span><span class="dot">//</span>
@@ -128,34 +81,44 @@
   </div>
 </div>
 
+<!-- ================= STATS ================= -->
+<section class="section" style="padding-block:3.5rem">
+  <div class="container stats-grid" data-stagger>
+    <div class="glass stat"><div class="num"><span data-count="65">65</span></div><div class="lbl">5th Sem Cohort</div></div>
+    <div class="glass stat"><div class="num"><span data-count="14">14</span></div><div class="lbl">Advanced Laboratories</div></div>
+    <div class="glass stat"><div class="num"><span data-count="100">100</span>%</div><div class="lbl">Biometric Cloud Tracking</div></div>
+    <div class="glass stat"><div class="num" style="font-size:1.8rem;color:var(--yellow);">Grade A+</div><div class="lbl">NAAC Accreditation</div></div>
+  </div>
+</section>
+
 <!-- ================= HOD DESK & LEADERSHIP ================= -->
-<section class="section">
+<section class="section" style="padding-top:0;">
   <div class="container">
-    <div class="card reveal zoom" style="background:#090d16;border:1.5px solid rgba(56,189,248,0.4);border-radius:20px;padding:32px;box-shadow:0 16px 48px rgba(0,0,0,0.5);">
+    <div class="featured-card reveal zoom">
       <div style="display:flex;gap:30px;align-items:center;flex-wrap:wrap;">
         <div style="text-align:center;">
-          <img src="assets/images/faculty-dr-pravin-pokle.jpg" alt="Dr. Pravin B. Pokle" style="width:140px;height:155px;border-radius:18px;object-fit:cover;border:3px solid #38bdf8;box-shadow:0 10px 28px rgba(56,189,248,0.35);" onerror="this.src='https://ui-avatars.com/api/?name=Pravin+Pokle&background=0284c7&color=fff'">
-          <div style="margin-top:8px;">
+          <img src="assets/images/faculty-dr-pravin-pokle.jpg" alt="Dr. Pravin B. Pokle" style="width:140px;height:155px;border-radius:18px;object-fit:cover;border:3px solid var(--blue);box-shadow:0 10px 28px rgba(56,189,248,0.35);" onerror="this.src='https://ui-avatars.com/api/?name=Pravin+Pokle&background=0284c7&color=fff&size=200'">
+          <div style="margin-top:10px;">
             <span class="pill ok" style="font-size:0.72rem;padding:3px 10px;">HEAD OF DEPARTMENT</span>
           </div>
         </div>
         <div style="flex:1;min-width:300px;">
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-            <h2 style="margin:0;font-size:1.6rem;color:#f8fafc;">Dr. Pravin B. Pokle</h2>
+            <h2 style="margin:0;font-size:1.6rem;color:var(--fg);">Dr. Pravin B. Pokle</h2>
             <span class="pill mid" style="font-size:0.75rem;">Associate Professor &amp; HOD</span>
           </div>
           <p style="font-family:var(--font-display);font-size:0.86rem;letter-spacing:0.08em;color:var(--blue);margin-top:4px;">
             PhD (Electronics Engg.) · M.Tech (VLSI) · B.E. (Electronics Engg.) · 26+ Years Experience
           </p>
-          <blockquote style="margin:12px 0;font-size:0.95rem;color:var(--fg);line-height:1.65;font-style:italic;border-left:3px solid #38bdf8;padding-left:14px;">
-            "The Department of Electronics &amp; Telecommunication Engineering at PBCOE was established in 2008 with an intake of 60 students. Under the institutional vision of Principal Dr. A. M. Shende, we focus on bridging rigorous academic principles with practical industry engineering — encompassing Embedded Systems, VLSI physical design, digital signal processing, and IoT automation. We prepare our graduates to meet global technological challenges with competence, confidence, and ethics."
-          </blockquote>
+          <div class="featured-quote">
+            "The Department of Electronics &amp; Telecommunication Engineering at PBCOE was established in 2008 with an intake of 60 students. Under the institutional guidance of Principal <strong>Dr. A. M. Shende</strong>, we focus on bridging rigorous academic principles with practical industry engineering — encompassing Embedded Systems, VLSI physical design, digital signal processing, and IoT automation. We prepare our graduates to meet global technological challenges with competence, confidence, and ethics."
+          </div>
           <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
             <span class="pill ok">PhD Supervisor RTMNU</span>
             <span class="pill ok">Member BOS RTMNU</span>
             <span class="pill ok">02 Patents</span>
             <span class="pill ok">32+ Peer-Reviewed Papers</span>
-            <a href="faculty.html" class="btn btn-sm btn-ghost" style="padding:4px 12px;font-size:0.8rem;">View Full Faculty Profile →</a>
+            <a href="faculty.html" class="btn btn-sm btn-ghost" style="padding:4px 12px;font-size:0.8rem;">View Full Faculty Directory →</a>
           </div>
         </div>
       </div>
@@ -163,8 +126,58 @@
   </div>
 </section>
 
+<!-- ================= CALIBRATION SCROLLYTELLING PROTOCOL ================= -->
+<section class="section circuit-bg" id="calibration" style="padding-top:2rem">
+  <div class="blob violet" style="width:380px;height:380px;top:20%;right:-140px"></div>
+  <div class="container">
+    <div class="center reveal">
+      <span class="kicker">// INTERACTIVE PROTOCOL</span>
+      <h2 class="section-title">Circuit Calibration <span class="grad-text">Protocol</span></h2>
+      <p class="section-sub">Scroll to run the department's signature gamified sequence — watch the oscilloscope respond as you calibrate each stage of the signal chain.</p>
+    </div>
+    <br><br>
+    <div class="calibration">
+      <aside class="cal-sticky reveal left">
+        <div class="cal-screen">
+          <header><span>OSC-01 · LIVE</span><span id="cal-mode">SINE SWEEP</span></header>
+          <canvas id="cal-wave" height="170"></canvas>
+          <div class="cal-meter"><i id="cal-meter-fill"></i></div>
+          <div class="cal-readout"><span>CALIBRATION</span><b id="cal-pct">0%</b></div>
+        </div>
+      </aside>
+      <div class="cal-steps">
+        <article class="card cal-step reveal right">
+          <span class="step-no">STAGE_01 // SIGNAL SOURCE</span>
+          <h3>Generate the Carrier</h3>
+          <p>Every system begins with a clean source. In Semester 1 you'll build Wien bridge oscillators and function generators by hand — the same waveform now sweeping on the scope.</p>
+        </article>
+        <article class="card cal-step reveal right">
+          <span class="step-no">STAGE_02 // DIGITAL SWITCHING</span>
+          <h3>Square Up the Logic</h3>
+          <p>Analog meets digital. Flip-flops, counters, and 555 timers convert smooth carriers into crisp clock edges that drive every processor on Earth.</p>
+        </article>
+        <article class="card cal-step reveal right">
+          <span class="step-no">STAGE_03 // POWER MODULATION</span>
+          <h3>Gate the Energy</h3>
+          <p>PWM is how modern electronics breathe — motor drivers, SMPS units, Class-D amplifiers. You'll tune duty cycles on real MOSFET breadboards in our Power Lab.</p>
+        </article>
+        <article class="card cal-step reveal right">
+          <span class="step-no">STAGE_04 // SIGNAL CONDITIONING</span>
+          <h3>Filter Out the Noise</h3>
+          <p>Real signals are messy. Active filters, op-amp stages and ADC pipelines scrub interference before a single bit reaches your microcontroller.</p>
+        </article>
+        <article class="card cal-step reveal right">
+          <span class="step-no">STAGE_05 // SYSTEM LOCK</span>
+          <h3>Achieve Lock. Ship Product.</h3>
+          <p>I&amp;Q aligned, jitter minimized, protocol stable. This is the moment an engineering student becomes an engineer — and where your journey at PBCOE begins.</p>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ================= 5TH SEMESTER NEP 2020 CURRICULUM ================= -->
-<section class="section" style="padding-top:0;">
+<section class="section" style="padding-top:1rem;">
   <div class="container">
     <div class="center reveal" style="margin-bottom:2rem;">
       <span class="kicker">// 5TH SEMESTER NEP 2020 CURRICULUM</span>
@@ -224,17 +237,17 @@
         <p style="margin-top:8px;font-size:0.88rem;line-height:1.5;">Real-time R307 optical fingerprint scanner connected to ESP32 node and Supabase Cloud PostgreSQL backend.</p>
         <div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap;">
           <span class="pill ok">Active Hardware</span>
-          <a href="attendance.html" class="pill ok">Inspect Stream ⚡</a>
+          <a href="attendance.html" class="pill ok">Open Biometric Station ⚡</a>
         </div>
       </div>
 
       <div class="card reveal zoom">
         <div class="icon-chip v" style="font-weight:700;">ARCADE</div>
-        <h3>Embedded Systems Game</h3>
-        <p style="font-size:0.85rem;color:var(--muted);margin-top:4px;">5th Sem Interactive Challenge</p>
-        <p style="margin-top:8px;font-size:0.88rem;line-height:1.5;">Interactive bitwise register configuration, baud-rate timer calculations, and interrupt vector puzzle.</p>
+        <h3>Play-Together Logic Arcade</h3>
+        <p style="font-size:0.85rem;color:var(--muted);margin-top:4px;">Single &amp; 2-Player Logic Duel</p>
+        <p style="margin-top:8px;font-size:0.88rem;line-height:1.5;">Head-to-head 2-player truth table speed battles, GPIO simulator, and 5th sem embedded math puzzles.</p>
         <div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap;">
-          <a href="games.html" class="pill ok">Play Challenge 🎮</a>
+          <a href="games.html" class="pill ok">Play Together 🎮</a>
         </div>
       </div>
     </div>
@@ -242,7 +255,7 @@
 </section>
 
 <!-- ================= OFFICIAL NOTICE BOARD ================= -->
-<section class="section" style="padding-top:0;">
+<section class="section" style="padding-top:1rem;">
   <div class="container">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:12px;">
       <div>
@@ -260,62 +273,58 @@
   </div>
 </section>
 
+<!-- ================= FACILITIES SHOWCASE ================= -->
+<section class="section">
+  <div class="container">
+    <div class="center reveal">
+      <span class="kicker">// INFRASTRUCTURE</span>
+      <h2 class="section-title">Facilities That Feel Like <span class="glow-b">Industry</span></h2>
+      <p class="section-sub">Working laboratories equipped with modern testbenches, instruments, and software suites.</p>
+    </div>
+    <br>
+    <div class="grid-3" data-stagger>
+      <a class="card" href="facilities.html" data-tilt>
+        <div class="icon-chip y">μC</div>
+        <h3>Embedded Systems Lab</h3>
+        <p>ARM Cortex-M dev stations, ESP32 biometric nodes, logic analyzers, and digital storage oscilloscopes at every bench.</p>
+      </a>
+      <a class="card" href="facilities.html" data-tilt>
+        <div class="icon-chip">VLSI</div>
+        <h3>VLSI &amp; VHDL Suite</h3>
+        <p>Xilinx Vivado workstations, FPGA boards, and CMOS layout tools for digital system prototyping.</p>
+      </a>
+      <a class="card" href="facilities.html" data-tilt>
+        <div class="icon-chip r">RF</div>
+        <h3>Communication Electronics Bay</h3>
+        <p>RF transmitters, spectrum analyzers, modulation kits, and microwave waveguide benches.</p>
+      </a>
+    </div>
+  </div>
+</section>
+
 <script>
 document.addEventListener("DOMContentLoaded", async function() {
   await window.PBCOE.init();
-  const students = window.PBCOE.getStudents();
   
-  // 1. Populate Home Student Dropdown
-  const sel = document.getElementById("home-student-select");
-  if (sel && students) {
-    sel.innerHTML = '<option value="">-- Choose Candidate from 65 Students --</option>' + 
-      students.map(s => `<option value="${s.prn}">${s.name} (PRN: ${s.prn}) - Slot #${s.id}</option>`).join("");
-    
-    // Default to Yuvraj Lokhande or first student
-    const defaultStudent = window.PBCOE.getStudentByPrn("24121227") || students[0];
-    if (defaultStudent) {
-      sel.value = defaultStudent.prn;
-      onHomeSelectStudent(defaultStudent.prn);
-    }
-  }
-
-  // 2. Fetch and render Live Notices
+  // Fetch and render Live Notices
   try {
     const notices = await window.PBCOE.getNotices();
     const cont = document.getElementById("home-notices-container");
     if (cont && notices && notices.length > 0) {
       cont.innerHTML = notices.slice(0, 3).map(n => `
-        <div class="card reveal zoom" style="border-top:3px solid ${n.pinned ? '#38bdf8' : 'var(--border)'};">
+        <div class="card reveal zoom" style="border-top:3px solid ${n.pinned ? 'var(--blue)' : 'var(--glass-border)'};">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
             <span class="pill ${n.pinned ? 'ok' : 'mid'}" style="font-size:0.7rem;">${n.category || 'NOTICE'}</span>
             <small style="color:var(--muted);font-size:0.72rem;">${new Date(n.created_at).toLocaleDateString()}</small>
           </div>
-          <h4 style="margin:0 0 8px;font-size:1.02rem;color:#f8fafc;">${n.title}</h4>
-          <p style="font-size:0.86rem;color:var(--fg);line-height:1.5;">${n.content}</p>
-          <div style="margin-top:12px;font-size:0.76rem;color:var(--muted);border-top:1px solid rgba(255,255,255,0.06);padding-top:8px;">
-            Issued by: <strong style="color:#e2e8f0;">${n.author || 'PBCOE ETC Office'}</strong>
+          <h4 style="margin:0 0 8px;font-size:1.02rem;color:var(--fg);">${n.title}</h4>
+          <p style="font-size:0.86rem;color:var(--fg);opacity:0.88;line-height:1.5;">${n.content}</p>
+          <div style="margin-top:12px;font-size:0.76rem;color:var(--muted);border-top:1px solid var(--glass-border);padding-top:8px;">
+            Issued by: <strong style="color:var(--fg);">${n.author || 'PBCOE ETC Office'}</strong>
           </div>
         </div>
       `).join("");
     }
   } catch(e) {}
 });
-
-function onHomeSelectStudent(prn) {
-  if (!prn) {
-    document.getElementById("home-student-card").style.display = "none";
-    return;
-  }
-  const s = window.PBCOE.getStudentByPrn(prn);
-  if (!s) return;
-  document.getElementById("home-cand-img").src = s.image;
-  document.getElementById("home-cand-name").innerText = s.name;
-  document.getElementById("home-cand-prn").innerText = s.prn;
-  document.getElementById("home-cand-slot").innerText = "#" + (s.fingerprint_id || s.id);
-  document.getElementById("home-cand-att").innerText = (s.attendance_percentage || 92) + "% Attendance";
-  document.getElementById("home-cand-status").innerText = s.enrolled ? "ENROLLED" : "NOT ENROLLED";
-  document.getElementById("home-cand-status").className = s.enrolled ? "pill ok" : "pill mid";
-  document.getElementById("home-view-profile-btn").href = `student-portal.html?prn=${encodeURIComponent(s.prn)}`;
-  document.getElementById("home-student-card").style.display = "block";
-}
 </script>

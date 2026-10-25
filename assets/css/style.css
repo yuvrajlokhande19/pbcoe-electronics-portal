@@ -117,8 +117,27 @@ h1,h2,h3,h4,.mono{font-family:var(--font-display);letter-spacing:.5px;line-heigh
   background:linear-gradient(90deg,transparent,rgba(148,163,184,.5),transparent);
 }
 .card:hover{transform:translateY(-6px) scale(1.01);box-shadow:var(--shadow);border-color:color-mix(in srgb,var(--blue) 35%,var(--glass-border))}
-.card h3{font-size:1.15rem;margin-bottom:.5rem}
+.card h3{font-size:1.15rem;margin-bottom:.5rem;color:var(--fg)}
 .card p{color:var(--muted);font-size:.94rem}
+.featured-card{
+  padding:2rem;border-radius:20px;
+  background:var(--glass-strong);
+  border:1.5px solid color-mix(in srgb,var(--blue) 38%,var(--glass-border));
+  box-shadow:var(--shadow);
+  -webkit-backdrop-filter:blur(20px) saturate(160%);
+  backdrop-filter:blur(20px) saturate(160%);
+  position:relative;overflow:hidden;
+  color:var(--fg);
+}
+.featured-card h2,.featured-card h3,.featured-card h4{color:var(--fg)}
+.featured-card p{color:var(--fg);opacity:0.92}
+.featured-quote{
+  margin:14px 0;font-size:0.96rem;color:var(--fg);
+  line-height:1.7;font-style:italic;
+  border-left:3.5px solid var(--blue);
+  background:color-mix(in srgb,var(--blue) 8%,transparent);
+  padding:14px 18px;border-radius:0 12px 12px 0;
+}
 .icon-chip{
   width:52px;height:52px;border-radius:14px;display:grid;place-items:center;margin-bottom:1rem;
   font-family:var(--font-display);font-size:1.3rem;color:#fff;

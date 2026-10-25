@@ -20,7 +20,9 @@
       <button class="tab active" data-tab="gpio">▣ GPIO SIMULATOR</button>
       <button class="tab" data-tab="wave">∿ WAVEFORM MATCH</button>
       <button class="tab" data-tab="vhdl">⌘ VHDL BUILDER</button>
-      <button class="tab" data-tab="embedded">⚙ 5TH SEM EMBEDDED (ET501T)</button>
+      <button class="tab" data-tab="embedded">⚙ 5TH SEM EMBEDDED</button>
+      <button class="tab" data-tab="duel">⚡ 2-PLAYER LOGIC DUEL</button>
+      <button class="tab" data-tab="coop">🤝 CO-OP FREQUENCY SYNC</button>
     </div>
 
     <!-- ================= GAME 1: GPIO ================= -->
@@ -135,6 +137,99 @@
 
       </div>
     </div>
+
+    <!-- ================= GAME 5: 2-PLAYER LOGIC DUEL ================= -->
+    <div class="tab-panel" id="tab-duel">
+      <div class="glass game-shell reveal zoom">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.8rem;margin-bottom:1.2rem;">
+          <div>
+            <h3 style="margin:0;color:var(--fg);">⚡ 2-PLAYER LOGIC DUEL (HEAD-TO-HEAD SPEED BATTLE)</h3>
+            <p style="margin:2px 0 0;font-size:0.8rem;color:var(--muted);">Challenge a classmate or faculty member on the same device! First to 10 points wins.</p>
+          </div>
+          <button class="btn btn-sm btn-ghost" onclick="resetDuelMatch()">Restart Duel ↺</button>
+        </div>
+
+        <!-- Duel Arena Grid -->
+        <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:1.2rem;align-items:center;margin-bottom:1.5rem;">
+          <!-- Player 1 Side -->
+          <div style="background:color-mix(in srgb,var(--blue) 12%,transparent);border:2px solid var(--blue);border-radius:16px;padding:20px;text-align:center;">
+            <span class="pill ok" style="font-size:0.75rem;padding:3px 12px;">PLAYER 1 (LEFT)</span>
+            <div style="font-size:3rem;font-weight:900;color:var(--blue);margin:8px 0;" class="mono" id="duel-p1-score">0</div>
+            <p style="font-size:0.78rem;color:var(--muted);margin-bottom:12px;">Keys: <strong>1</strong> (True) · <strong>0</strong> (False)</p>
+            <div style="display:flex;gap:8px;justify-content:center;">
+              <button class="btn btn-primary btn-sm" onclick="handleDuelInput(1, 1)" style="flex:1;">OUTPUT: 1</button>
+              <button class="btn btn-ghost btn-sm" onclick="handleDuelInput(1, 0)" style="flex:1;">OUTPUT: 0</button>
+            </div>
+          </div>
+
+          <!-- Central Duel Gate Display -->
+          <div style="text-align:center;padding:10px 18px;min-width:240px;">
+            <div style="font-size:0.75rem;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;">EVALUATE RAPIDLY:</div>
+            <div id="duel-gate-prompt" class="mono" style="font-size:1.6rem;font-weight:800;color:var(--fg);margin:10px 0;padding:12px;background:var(--glass-strong);border:1.5px solid var(--glass-border);border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,0.1);">
+              1 AND 1
+            </div>
+            <div id="duel-feedback" style="font-size:0.85rem;font-weight:700;color:var(--muted);min-height:24px;">First to buzz wins point!</div>
+          </div>
+
+          <!-- Player 2 Side -->
+          <div style="background:color-mix(in srgb,var(--yellow) 15%,transparent);border:2px solid var(--yellow);border-radius:16px;padding:20px;text-align:center;">
+            <span class="pill mid" style="font-size:0.75rem;padding:3px 12px;">PLAYER 2 (RIGHT)</span>
+            <div style="font-size:3rem;font-weight:900;color:var(--yellow);margin:8px 0;" class="mono" id="duel-p2-score">0</div>
+            <p style="font-size:0.78rem;color:var(--muted);margin-bottom:12px;">Keys: <strong>Z</strong> (True) · <strong>X</strong> (False)</p>
+            <div style="display:flex;gap:8px;justify-content:center;">
+              <button class="btn btn-accent btn-sm" onclick="handleDuelInput(2, 1)" style="flex:1;">OUTPUT: 1</button>
+              <button class="btn btn-ghost btn-sm" onclick="handleDuelInput(2, 0)" style="flex:1;">OUTPUT: 0</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="duel-winner-banner" style="display:none;text-align:center;padding:18px;background:linear-gradient(135deg,rgba(34,197,94,0.2),rgba(56,189,248,0.2));border:2px solid #22c55e;border-radius:14px;">
+          <h2 style="margin:0;color:#22c55e;" id="duel-winner-text">🏆 PLAYER 1 IS THE CIRCUIT CHAMPION!</h2>
+          <p style="margin:4px 0 0;font-size:0.9rem;color:var(--fg);">Mastery of Boolean logic verified.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= GAME 6: CO-OP FREQUENCY SYNC ================= -->
+    <div class="tab-panel" id="tab-coop">
+      <div class="glass game-shell reveal zoom">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.8rem;margin-bottom:1.2rem;">
+          <div>
+            <h3 style="margin:0;color:var(--fg);">🤝 2-PLAYER CO-OP: OSCILLOSCOPE FREQUENCY LOCK</h3>
+            <p style="margin:2px 0 0;font-size:0.8rem;color:var(--muted);">Player 1 tunes Frequency · Player 2 shifts Phase Angle · Align with Target Signal!</p>
+          </div>
+          <span class="score-pill">TEAM SYNC STREAK <b id="coop-score">0</b></span>
+        </div>
+
+        <canvas id="coop-canvas" height="200" style="width:100%;display:block;border-radius:14px;background:#050a15;box-shadow:inset 0 0 40px rgba(56,189,248,0.1);margin-bottom:1.2rem;"></canvas>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--glass-strong);border-radius:12px;margin-bottom:1.2rem;border:1px solid var(--glass-border);">
+          <div style="font-size:0.85rem;color:var(--muted);">ALIGNMENT TOLERANCE:</div>
+          <div style="font-size:1.1rem;font-weight:800;color:var(--blue);" class="mono" id="coop-pct">0%</div>
+          <div id="coop-lock-pill" class="pill mid" style="font-size:0.75rem;">SEARCHING SIGNAL...</div>
+        </div>
+
+        <div class="grid-2" style="gap:1.4rem;">
+          <!-- Player 1: Frequency -->
+          <div style="background:var(--glass-strong);border:1px solid var(--glass-border);border-radius:14px;padding:16px;">
+            <label style="font-size:0.85rem;font-weight:700;color:var(--blue);display:block;margin-bottom:6px;">PLAYER 1: CARRIER FREQUENCY</label>
+            <input type="range" id="coop-freq-slider" min="1" max="10" step="0.05" value="2" style="width:100%;">
+            <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--muted);margin-top:4px;">
+              <span>1.0 kHz</span><span id="coop-freq-val" class="mono">2.0 kHz</span><span>10.0 kHz</span>
+            </div>
+          </div>
+
+          <!-- Player 2: Phase Shift -->
+          <div style="background:var(--glass-strong);border:1px solid var(--glass-border);border-radius:14px;padding:16px;">
+            <label style="font-size:0.85rem;font-weight:700;color:var(--yellow);display:block;margin-bottom:6px;">PLAYER 2: PHASE ANGLE (θ)</label>
+            <input type="range" id="coop-phase-slider" min="0" max="360" step="1" value="45" style="width:100%;">
+            <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--muted);margin-top:4px;">
+              <span>0°</span><span id="coop-phase-val" class="mono">45°</span><span>360°</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -154,12 +249,25 @@ const $$ = s => [...document.querySelectorAll(s)];
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /* tabs */
+const switchTab = (tabName) => {
+  const btn = $(`.tab[data-tab="${tabName}"]`);
+  const panel = $("#tab-" + tabName);
+  if (btn && panel) {
+    $$(".tab").forEach(x => x.classList.remove("active"));
+    $$(".tab-panel").forEach(x => x.classList.remove("active"));
+    btn.classList.add("active");
+    panel.classList.add("active");
+  }
+};
+
 $$(".tab").forEach(t => t.addEventListener("click", () => {
-  $$(".tab").forEach(x => x.classList.remove("active"));
-  $$(".tab-panel").forEach(x => x.classList.remove("active"));
-  t.classList.add("active");
-  $("#tab-" + t.dataset.tab).classList.add("active");
+  switchTab(t.dataset.tab);
 }));
+
+const initialTab = new URLSearchParams(window.location.search).get("tab");
+if (initialTab) {
+  switchTab(initialTab);
+}
 
 /* ============ GAME 1: GPIO ============ */
 const N = 8;
@@ -374,5 +482,188 @@ window.checkR307Header = function(ans) {
     res.style.color = "#ef4444";
   }
 };
+
+/* ============ GAME 5: 2-PLAYER LOGIC DUEL ============ */
+let p1Score = 0, p2Score = 0;
+let duelActive = true;
+let currentDuelExpected = 1;
+
+const DUEL_GATES = [
+  { text: "0 AND 0", ans: 0 }, { text: "0 AND 1", ans: 0 }, { text: "1 AND 1", ans: 1 },
+  { text: "0 OR 0", ans: 0 }, { text: "0 OR 1", ans: 1 }, { text: "1 OR 1", ans: 1 },
+  { text: "0 XOR 0", ans: 0 }, { text: "0 XOR 1", ans: 1 }, { text: "1 XOR 1", ans: 0 },
+  { text: "0 NAND 1", ans: 1 }, { text: "1 NAND 1", ans: 0 }, { text: "0 NOR 0", ans: 1 },
+  { text: "0 NOR 1", ans: 0 }, { text: "1 XNOR 1", ans: 1 }, { text: "0 XNOR 1", ans: 0 },
+  { text: "NOT(1 AND 0)", ans: 1 }, { text: "(1 OR 0) AND 1", ans: 1 }, { text: "(1 AND 1) XOR 1", ans: 0 }
+];
+
+function nextDuelRound() {
+  if (!duelActive) return;
+  const item = DUEL_GATES[Math.floor(Math.random() * DUEL_GATES.length)];
+  currentDuelExpected = item.ans;
+  const promptEl = document.getElementById("duel-gate-prompt");
+  if (promptEl) promptEl.textContent = item.text;
+  const fb = document.getElementById("duel-feedback");
+  if (fb) fb.textContent = "Evaluate quickly!";
+}
+
+window.handleDuelInput = function(player, val) {
+  if (!duelActive) return;
+  const fb = document.getElementById("duel-feedback");
+  if (val === currentDuelExpected) {
+    if (player === 1) {
+      p1Score++;
+      document.getElementById("duel-p1-score").textContent = p1Score;
+      if (fb) fb.innerHTML = `<span style="color:var(--blue);">✔ Player 1 buzzed correctly!</span>`;
+    } else {
+      p2Score++;
+      document.getElementById("duel-p2-score").textContent = p2Score;
+      if (fb) fb.innerHTML = `<span style="color:var(--yellow);">✔ Player 2 buzzed correctly!</span>`;
+    }
+    if (p1Score >= 10 || p2Score >= 10) {
+      duelActive = false;
+      const banner = document.getElementById("duel-winner-banner");
+      const winText = document.getElementById("duel-winner-text");
+      if (banner && winText) {
+        banner.style.display = "block";
+        winText.textContent = `🏆 PLAYER ${p1Score >= 10 ? '1' : '2'} IS THE CIRCUIT CHAMPION!`;
+      }
+      return;
+    }
+    setTimeout(nextDuelRound, 450);
+  } else {
+    if (player === 1) {
+      if (fb) fb.innerHTML = `<span style="color:#ef4444;">✖ Player 1 false buzz! (-1 pt)</span>`;
+      p1Score = Math.max(0, p1Score - 1);
+      document.getElementById("duel-p1-score").textContent = p1Score;
+    } else {
+      if (fb) fb.innerHTML = `<span style="color:#ef4444;">✖ Player 2 false buzz! (-1 pt)</span>`;
+      p2Score = Math.max(0, p2Score - 1);
+      document.getElementById("duel-p2-score").textContent = p2Score;
+    }
+  }
+};
+
+window.resetDuelMatch = function() {
+  p1Score = 0; p2Score = 0; duelActive = true;
+  document.getElementById("duel-p1-score").textContent = 0;
+  document.getElementById("duel-p2-score").textContent = 0;
+  const banner = document.getElementById("duel-winner-banner");
+  if (banner) banner.style.display = "none";
+  nextDuelRound();
+};
+
+// Keyboard listener for 2-Player Duel
+window.addEventListener("keydown", (e) => {
+  const panel = document.getElementById("tab-duel");
+  if (!panel || !panel.classList.contains("active")) return;
+  const k = e.key.toUpperCase();
+  if (k === "1") handleDuelInput(1, 1);
+  else if (k === "0") handleDuelInput(1, 0);
+  else if (k === "Z") handleDuelInput(2, 1);
+  else if (k === "X") handleDuelInput(2, 0);
+});
+
+nextDuelRound();
+
+/* ============ GAME 6: CO-OP FREQUENCY SYNC ============ */
+let coopScore = 0;
+let targetFreq = 4.5, targetPhase = 120;
+let coopCanvas = null, coopCtx = null, coopAnim = null;
+
+function initCoopGame() {
+  coopCanvas = document.getElementById("coop-canvas");
+  if (!coopCanvas) return;
+  coopCtx = coopCanvas.getContext("2d");
+  animateCoop();
+}
+
+function nextCoopTarget() {
+  targetFreq = (Math.random() * 6 + 2).toFixed(2);
+  targetPhase = Math.floor(Math.random() * 320 + 20);
+}
+
+function animateCoop() {
+  if (!coopCanvas || !coopCtx) return;
+  const panel = document.getElementById("tab-coop");
+  if (panel && panel.classList.contains("active")) {
+    const W = coopCanvas.width = coopCanvas.offsetWidth * (window.devicePixelRatio || 1);
+    const H = coopCanvas.height = coopCanvas.offsetHeight * (window.devicePixelRatio || 1);
+
+    const freqInput = parseFloat(document.getElementById("coop-freq-slider").value) || 2;
+    const phaseInput = parseFloat(document.getElementById("coop-phase-slider").value) || 0;
+    
+    document.getElementById("coop-freq-val").textContent = freqInput.toFixed(2) + " kHz";
+    document.getElementById("coop-phase-val").textContent = phaseInput + "°";
+
+    coopCtx.clearRect(0, 0, W, H);
+
+    // Grid lines
+    coopCtx.strokeStyle = "rgba(56,189,248,0.12)";
+    coopCtx.lineWidth = 1;
+    for (let x = 0; x < W; x += 40) { coopCtx.beginPath(); coopCtx.moveTo(x, 0); coopCtx.lineTo(x, H); coopCtx.stroke(); }
+    for (let y = 0; y < H; y += 40) { coopCtx.beginPath(); coopCtx.moveTo(0, y); coopCtx.lineTo(W, y); coopCtx.stroke(); }
+
+    const time = Date.now() * 0.003;
+
+    // Draw Target Wave (dashed cyan)
+    coopCtx.setLineDash([6, 6]);
+    coopCtx.strokeStyle = "#06b6d4";
+    coopCtx.lineWidth = 2.5;
+    coopCtx.beginPath();
+    for (let x = 0; x < W; x += 2) {
+      const y = H / 2 + Math.sin((x / W) * targetFreq * Math.PI * 4 + (targetPhase * Math.PI / 180) + time) * (H * 0.35);
+      if (x === 0) coopCtx.moveTo(x, y); else coopCtx.lineTo(x, y);
+    }
+    coopCtx.stroke();
+    coopCtx.setLineDash([]);
+
+    // Draw Team Wave (solid green / orange)
+    const freqDiff = Math.abs(freqInput - targetFreq);
+    const phaseDiff = Math.abs(phaseInput - targetPhase) % 360;
+    const freqMatch = Math.max(0, 1 - (freqDiff / 5));
+    const phaseMatch = Math.max(0, 1 - (phaseDiff / 180));
+    const totalMatch = Math.floor((freqMatch * 0.6 + phaseMatch * 0.4) * 100);
+
+    const pctEl = document.getElementById("coop-pct");
+    if (pctEl) pctEl.textContent = totalMatch + "%";
+
+    const isLocked = totalMatch >= 96;
+    const pill = document.getElementById("coop-lock-pill");
+    if (pill) {
+      if (isLocked) {
+        pill.className = "pill ok";
+        pill.textContent = "SIGNAL PHASE LOCKED! ✓";
+      } else {
+        pill.className = "pill mid";
+        pill.textContent = `ALIGNING: Freq Δ=${freqDiff.toFixed(2)}, Phase Δ=${phaseDiff}°`;
+      }
+    }
+
+    coopCtx.strokeStyle = isLocked ? "#22c55e" : "#facc15";
+    coopCtx.lineWidth = isLocked ? 3.5 : 2;
+    coopCtx.beginPath();
+    for (let x = 0; x < W; x += 2) {
+      const y = H / 2 + Math.sin((x / W) * freqInput * Math.PI * 4 + (phaseInput * Math.PI / 180) + time) * (H * 0.35);
+      if (x === 0) coopCtx.moveTo(x, y); else coopCtx.lineTo(x, y);
+    }
+    coopCtx.stroke();
+
+    if (isLocked) {
+      coopScore++;
+      document.getElementById("coop-score").textContent = coopScore;
+      nextCoopTarget();
+    }
+  }
+  requestAnimationFrame(animateCoop);
+}
+
+new MutationObserver(() => {
+  const panel = document.getElementById("tab-coop");
+  if (panel && panel.classList.contains("active") && !coopCanvas) {
+    initCoopGame();
+  }
+}).observe(document.getElementById("tab-coop"), { attributes: true, attributeFilter: ["class"] });
+
 })();
 </script>
