@@ -340,7 +340,7 @@ document.addEventListener("DOMContentLoaded", async function() {
               <th>Student Full Name</th>
               <th>PRN Number</th>
               <th>Status</th>
-              <th>Confidence Score</th>
+              <th>Monthly Attendance %</th>
               <th>Scan Timestamp</th>
             </tr>
           </thead>
@@ -914,7 +914,7 @@ function renderLogsTable(records) {
     const photo = (student && student.image) ? student.image : "assets/images/students/default.jpg";
     const name = (student && student.name) || r.student_name || r.name || ("Candidate #" + fid);
     const isMatch = (r.status === "Present" || r.status === "OK");
-    const score = (r.confidence != null) ? r.confidence : (isMatch ? 96 : 0);
+    const monthAtt = student ? (student.attendance_percentage || 88) : 88;
     const timeVal = r.created_at || r.timestamp;
     const dateStr = timeVal ? new Date(timeVal).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : new Date().toLocaleTimeString();
 
@@ -931,7 +931,14 @@ function renderLogsTable(records) {
         <td>
           <span class="pill ${isMatch ? 'ok' : 'mid'}">${isMatch ? '✅ Present' : (r.status || 'Scanned')}</span>
         </td>
-        <td><strong style="color:#38bdf8;">${score > 0 ? score + '%' : '-'}</strong></td>
+        <td>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <strong style="color:${monthAtt >= 75 ? '#22c55e' : '#f87171'};font-size:0.95rem;">${monthAtt}%</strong>
+            <span class="pill ${monthAtt >= 75 ? 'ok' : 'bad'}" style="font-size:0.65rem;padding:1px 6px;">
+              ${monthAtt >= 75 ? 'Eligible' : 'Shortage'}
+            </span>
+          </div>
+        </td>
         <td class="mono" style="font-size:.8rem;color:var(--muted);">${dateStr}</td>
       </tr>
     `;

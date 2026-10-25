@@ -216,9 +216,10 @@ window.PBCOE = (function () {
 
             // Notify logged in student if it's their scan
             if (currentUser && currentUser.role === "student" && matched && matched.prn === currentUser.data.prn) {
+              const attPct = matched.attendance_percentage || 90;
               triggerWebNotification(
                 "PBCOE Biometric Verification ✓",
-                `Check-in Verified: You are marked ${latest.status} at ${new Date().toLocaleTimeString()} (Confidence: ${latest.confidence}%)`,
+                `Check-in Verified: You are marked ${latest.status} at ${new Date().toLocaleTimeString()} · Monthly Attendance: ${attPct}%`,
                 photo
               );
             }

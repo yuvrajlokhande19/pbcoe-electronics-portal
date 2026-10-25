@@ -270,50 +270,75 @@ document.addEventListener("DOMContentLoaded", async function() {
   </div>
 </div>
 
-<!-- ================= HERO ================= -->
-<section class="hero circuit-bg">
-  <div class="blob blue" style="width:420px;height:420px;top:-120px;right:-80px"></div>
-  <div class="blob yellow" style="width:320px;height:320px;bottom:-100px;left:-60px"></div>
-  <div class="container hero-grid" style="align-items:center;">
+<!-- ================= HERO WITH INTERACTIVE WEBGL / CANVAS PARTICLES ================= -->
+<section class="hero circuit-bg" style="position:relative;overflow:hidden;">
+  <!-- Interactive Background Canvas (Electronics Constellation & Signal Lines) -->
+  <canvas id="hero-circuit-canvas" style="position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:all;opacity:0.85;"></canvas>
+
+  <div class="blob blue" style="width:420px;height:420px;top:-120px;right:-80px;z-index:1;pointer-events:none;"></div>
+  <div class="blob yellow" style="width:320px;height:320px;bottom:-100px;left:-60px;z-index:1;pointer-events:none;"></div>
+
+  <div class="container hero-grid" style="align-items:center;position:relative;z-index:2;">
     <div class="hero-copy">
       <div class="crumb reveal" style="--d:.02s;margin-bottom:0.75rem;">
         <span style="color:var(--blue);font-weight:700;">DTE: EN 4177</span> // ESTABLISHED 2007 // DEPT ESTD 2008 // INTAKE: 60
       </div>
-      <h1 class="reveal" style="--d:.08s;font-size:clamp(1.9rem,3.8vw,2.9rem);line-height:1.15;margin-bottom:1rem;">
+      <h1 class="reveal" style="--d:.08s;font-size:clamp(1.9rem,3.8vw,3.1rem);line-height:1.15;margin-bottom:1rem;">
         Where Circuits Become <br><span class="grad">Careers.</span>
       </h1>
       <p class="lead reveal" style="--d:.16s;font-size:1.02rem;color:var(--muted);line-height:1.6;margin-bottom:1.5rem;">
-        Official Electronics &amp; Telecommunication (ETC) Portal of Priyadarshini Bhagwati College of Engineering, Nagpur. Simulate real circuits, master embedded systems and VHDL hardware, play logic challenges, and access student services under NEP 2020.
+        Official Electronics &amp; Telecommunication (ETC) Engineering Portal of Priyadarshini Bhagwati College of Engineering, Nagpur. Simulate hardware circuits, master ARM embedded architectures and VHDL digital design, explore biometric telemetry, and prepare for global electronics innovation under NEP 2020.
       </p>
+      
       <div class="hero-cta reveal" style="--d:.24s;display:flex;gap:12px;flex-wrap:wrap;">
-        <a href="simulator.html" class="btn btn-primary">⚡ Launch Circuit Lab</a>
+        <a href="simulator.html" class="btn btn-primary" style="box-shadow:0 0 20px rgba(56,189,248,0.4);">⚡ Launch Circuit Lab</a>
         <a href="attendance.html" class="btn btn-ghost">🪪 Biometric Station</a>
         <a href="games.html" class="btn btn-accent">🎮 Play Logic Arcade</a>
         <a href="student-portal.html" class="btn btn-ghost">🎓 Student Portal →</a>
       </div>
+
       <div class="hero-badges reveal" style="--d:.32s;margin-top:1.6rem;">
         <span class="chip"><i></i>R307 IOT NODE ONLINE</span>
         <span class="chip warn"><i></i>NEP 2020 5TH SEM</span>
         <span class="chip crit"><i></i>NAAC GRADE 'A+'</span>
+        <span class="chip" style="border-color:rgba(168,85,247,0.4);"><i style="background:#a855f7;box-shadow:0 0 8px #a855f7;"></i>INTERACTIVE TELEMETRY</span>
       </div>
     </div>
 
-    <!-- Animated CPU Stage & Lightning Canvas -->
+    <!-- Enhanced Animated CPU Hologram Stage with Live Oscilloscope HUD -->
     <div class="cpu-stage reveal zoom" style="--d:.2s;">
       <canvas id="lightning-canvas" aria-hidden="true"></canvas>
       <div class="cpu-core">
         <div class="cpu-ring"></div>
         <div class="cpu-ring r2"></div>
+        <div class="cpu-ring" style="inset:48px;border-radius:44px;border:1px dashed rgba(56,189,248,0.5);animation:spinSlow 12s linear infinite;"></div>
+        
         <div class="cpu-chip">
+          <!-- Live LED Status Indicators -->
+          <div style="position:absolute;top:10px;left:10px;display:flex;gap:4px;">
+            <span style="width:5px;height:5px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e;"></span>
+            <span style="width:5px;height:5px;border-radius:50%;background:#38bdf8;box-shadow:0 0 6px #38bdf8;"></span>
+            <span style="width:5px;height:5px;border-radius:50%;background:#f59e0b;box-shadow:0 0 6px #f59e0b;"></span>
+          </div>
+          
           <svg viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="1.4" aria-hidden="true">
             <rect x="6" y="6" width="12" height="12" rx="2"/>
             <rect x="9.5" y="9.5" width="5" height="5" rx="1"/>
             <path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4" stroke-linecap="round"/>
           </svg>
         </div>
-        <span class="orbit-tag b">ESP32 · NODE</span>
-        <span class="orbit-tag y">CLK 240MHz</span>
-        <span class="orbit-tag r">R307 · OPTICAL</span>
+
+        <span class="orbit-tag b" style="top:10px;left:-20px;">ESP32 · NODE</span>
+        <span class="orbit-tag y" style="top:20px;right:-25px;">CLK 240MHz</span>
+        <span class="orbit-tag r" style="bottom:18px;left:-20px;">R307 · OPTICAL</span>
+        <span class="orbit-tag b" style="bottom:10px;right:-20px;border-color:#a855f7;color:#c084fc;">SUPABASE · CLOUD</span>
+      </div>
+
+      <!-- Live Mini Spectrum Monitor HUD -->
+      <div style="position:absolute;bottom:-15px;background:var(--glass-strong);border:1px solid var(--glass-border);border-radius:12px;padding:6px 14px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow-sm);backdrop-filter:blur(8px);z-index:3;">
+        <span class="mono" style="font-size:0.7rem;color:var(--blue);font-weight:700;">LIVE RF CARRIER:</span>
+        <canvas id="hero-mini-wave" width="90" height="20" style="display:block;"></canvas>
+        <span class="mono" style="font-size:0.7rem;color:#22c55e;">2.4 GHz OK</span>
       </div>
     </div>
   </div>
@@ -371,6 +396,153 @@ document.addEventListener("DOMContentLoaded", async function() {
             <span class="pill ok">02 Patents</span>
             <span class="pill ok">32+ Peer-Reviewed Papers</span>
             <a href="faculty.html" class="btn btn-sm btn-ghost" style="padding:4px 12px;font-size:0.8rem;">View Full Faculty Directory →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= INTERACTIVE HARDWARE & LAB ARCHITECTURE EXPLORER ================= -->
+<section class="section" style="padding-top:1.5rem;padding-bottom:2rem;">
+  <div class="container">
+    <div class="center reveal" style="margin-bottom:2rem;">
+      <span class="kicker">// INTERACTIVE SYSTEM ARCHITECTURE</span>
+      <h2 class="section-title">Department Technology &amp; <span class="grad-text">Hardware Stack</span></h2>
+      <p class="section-sub">Explore the foundational engineering technologies built, programmed, and researched at PBCOE ETC.</p>
+    </div>
+
+    <!-- Interactive Tabs -->
+    <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:1.5rem;">
+      <button class="btn btn-sm btn-primary" id="btn-hw-biometric" onclick="switchHwTab('biometric')">🪪 Biometric IoT Cloud Station</button>
+      <button class="btn btn-sm btn-ghost" id="btn-hw-vhdl" onclick="switchHwTab('vhdl')">💻 VHDL &amp; FPGA Synthesis</button>
+      <button class="btn btn-sm btn-ghost" id="btn-hw-embedded" onclick="switchHwTab('embedded')">⚡ ARM Cortex Embedded Systems</button>
+      <button class="btn btn-sm btn-ghost" id="btn-hw-rf" onclick="switchHwTab('rf')">📡 RF &amp; Wireless Telemetry</button>
+    </div>
+
+    <!-- Tab 1: Biometric Node -->
+    <div id="hw-tab-biometric" class="card reveal zoom" style="padding:28px;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:24px;align-items:center;">
+        <div>
+          <span class="pill ok" style="margin-bottom:8px;display:inline-block;">ACTIVE HARDWARE STATION</span>
+          <h3 style="margin:0 0 10px;font-size:1.35rem;color:var(--fg);">ESP32 + R307 Optical Biometric Pipeline</h3>
+          <p style="font-size:0.9rem;line-height:1.6;color:var(--muted);">
+            High-accuracy dual-pass optical fingerprint acquisition node stationed in the department. Captures 500 DPI biometric ridges via the R307 prism sensor, converts minutiae vectors into secure encrypted templates, and transmits real-time telemetry packets directly to Supabase Cloud PostgreSQL over WiFi.
+          </p>
+          <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;">
+            <a href="attendance.html" class="btn btn-sm btn-primary">Open Live Attendance Station ⚡</a>
+            <a href="student-portal.html" class="btn btn-sm btn-ghost">Candidate Verification Hub →</a>
+          </div>
+        </div>
+        <div style="background:var(--bg-2);border:1px solid var(--glass-border);border-radius:16px;padding:20px;font-family:var(--font-mono);font-size:0.8rem;">
+          <div style="color:var(--blue);font-weight:700;margin-bottom:8px;">// HARDWARE SPECIFICATIONS</div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);">
+            <span>Core Microcontroller:</span><strong style="color:var(--fg);">ESP32 WROOM-32 (240MHz)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);">
+            <span>Optical Sensor:</span><strong style="color:var(--fg);">R307 Dual-Pass 500 DPI</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);">
+            <span>Cloud Bus:</span><strong style="color:var(--fg);">Supabase REST HTTPS</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;">
+            <span>Registered Cohort:</span><strong style="color:#22c55e;">65 Students Active</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 2: VHDL & FPGA -->
+    <div id="hw-tab-vhdl" class="card reveal zoom" style="display:none;padding:28px;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:24px;align-items:center;">
+        <div>
+          <span class="pill mid" style="margin-bottom:8px;display:inline-block;">ET506-1T &amp; ET507P COURSE</span>
+          <h3 style="margin:0 0 10px;font-size:1.35rem;color:var(--fg);">Digital System Design Using VHDL &amp; FPGA</h3>
+          <p style="font-size:0.9rem;line-height:1.6;color:var(--muted);">
+            Led by <strong>Dr. Jayant Y. Hande</strong>, students design complex digital systems from finite state machines (FSM) to ALU pipelines. Workstations feature Xilinx Vivado for behavioral simulation, RTL elaboration, synthesis, and physical bitstream deployment onto Spartan/Artix FPGA kits.
+          </p>
+          <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;">
+            <a href="academics.html#syllabus" class="btn btn-sm btn-primary">Explore VHDL Syllabus Bank</a>
+            <a href="facilities.html" class="btn btn-sm btn-ghost">View VLSI Suite Labs →</a>
+          </div>
+        </div>
+        <div style="background:var(--bg-2);border:1px solid var(--glass-border);border-radius:16px;padding:20px;font-family:var(--font-mono);font-size:0.8rem;">
+          <div style="color:var(--blue);font-weight:700;margin-bottom:8px;">// LAB ARTIFACTS &amp; TOOLING</div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);">
+            <span>EDA Environment:</span><strong style="color:var(--fg);">Xilinx Vivado / ModelSim</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);">
+            <span>Target Hardware:</span><strong style="color:var(--fg);">Xilinx Artix-7 FPGA Trainers</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);">
+            <span>Faculty Incharge:</span><strong style="color:var(--fg);">Dr. Jayant Y. Hande</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;">
+            <span>Credits:</span><strong style="color:#f59e0b;">3 Theory + 1 Practical</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 3: Embedded Systems -->
+    <div id="hw-tab-embedded" class="card reveal zoom" style="display:none;padding:28px;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:24px;align-items:center;">
+        <div>
+          <span class="pill ok" style="margin-bottom:8px;display:inline-block;">ET501T &amp; ET503P COURSE</span>
+          <h3 style="margin:0 0 10px;font-size:1.35rem;color:var(--fg);">ARM Cortex-M &amp; Embedded C Systems</h3>
+          <p style="font-size:0.9rem;line-height:1.6;color:var(--muted);">
+            Guided by Academic Coordinator <strong>Mr. Suhas D. Kakde</strong>, students master 32-bit ARM Cortex architecture, register-level memory mapping, NVIC interrupts, DMA transfers, and industry peripheral protocols (I2C, SPI, UART, CAN Bus).
+          </p>
+          <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;">
+            <a href="simulator.html" class="btn btn-sm btn-primary">Try Interactive Simulator</a>
+            <a href="academics.html" class="btn btn-sm btn-ghost">View 5th Sem Timetable →</a>
+          </div>
+        </div>
+        <div style="background:var(--bg-2);border:1px solid var(--glass-border);border-radius:16px;padding:20px;font-family:var(--font-mono);font-size:0.8rem;">
+          <div style="color:var(--blue);font-weight:700;margin-bottom:8px;">// PLATFORM SPECIFICATIONS</div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);">
+            <span>Target CPU:</span><strong style="color:var(--fg);">STM32 ARM Cortex-M4</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);">
+            <span>Development IDE:</span><strong style="color:var(--fg);">Keil uVision / STM32CubeIDE</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);">
+            <span>Faculty Incharge:</span><strong style="color:var(--fg);">Mr. Suhas D. Kakde</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;">
+            <span>Credits:</span><strong style="color:#22c55e;">4 Theory + 1 Practical</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 4: RF & Wireless -->
+    <div id="hw-tab-rf" class="card reveal zoom" style="display:none;padding:28px;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:24px;align-items:center;">
+        <div>
+          <span class="pill mid" style="margin-bottom:8px;display:inline-block;">ET502T &amp; ET504P COURSE</span>
+          <h3 style="margin:0 0 10px;font-size:1.35rem;color:var(--fg);">Communication Electronics &amp; RF Systems</h3>
+          <p style="font-size:0.9rem;line-height:1.6;color:var(--muted);">
+            Under course incharge <strong>Mrs. Jayshri Salodkar (Shelke)</strong> and signals faculty <strong>Mrs. Nisha N. Naukarkar</strong>, the lab covers analog and digital modulation, Superheterodyne receivers, microwave testbenches, antenna arrays, and FFT spectrum analysis.
+          </p>
+          <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;">
+            <a href="facilities.html" class="btn btn-sm btn-primary">Explore RF Benches</a>
+            <a href="tools.html" class="btn btn-sm btn-ghost">Engineering Calculators →</a>
+          </div>
+        </div>
+        <div style="background:var(--bg-2);border:1px solid var(--glass-border);border-radius:16px;padding:20px;font-family:var(--font-mono);font-size:0.8rem;">
+          <div style="color:var(--blue);font-weight:700;margin-bottom:8px;">// LABORATORY INSTRUMENTS</div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);">
+            <span>Measurement:</span><strong style="color:var(--fg);">Spectrum Analyzers &amp; DSOs</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);">
+            <span>Modulation:</span><strong style="color:var(--fg);">AM, FM, QPSK, 16-QAM</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);">
+            <span>Faculty Incharges:</span><strong style="color:var(--fg);">Mrs. J. Shelke &amp; Mrs. N. Naukarkar</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;">
+            <span>Frequency Range:</span><strong style="color:#38bdf8;">100 kHz — 3.0 GHz</strong>
           </div>
         </div>
       </div>
@@ -555,10 +727,183 @@ document.addEventListener("DOMContentLoaded", async function() {
 </section>
 
 <script>
+// Interactive Electronics Hardware Tabs
+function switchHwTab(tab) {
+  ['biometric', 'vhdl', 'embedded', 'rf'].forEach(t => {
+    const el = document.getElementById(`hw-tab-${t}`);
+    const btn = document.getElementById(`btn-hw-${t}`);
+    if (el) el.style.display = (t === tab) ? 'block' : 'none';
+    if (btn) btn.className = 'btn btn-sm ' + (t === tab ? 'btn-primary' : 'btn-ghost');
+  });
+}
+
+// Interactive WebGL/Canvas Circuit Constellation Engine
+(function initCircuitConstellation() {
+  const canvas = document.getElementById("hero-circuit-canvas");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  let width, height;
+  let particles = [];
+  let mouse = { x: null, y: null, maxDist: 140 };
+
+  const nodeLabels = ["ANT", "LNA", "MIXER", "ADC", "DSP", "ARM-M4", "ESP32", "FPGA", "R307", "POSTGRES", "VHDL", "5G", "BLE"];
+
+  function resize() {
+    width = canvas.width = canvas.offsetWidth;
+    height = canvas.height = canvas.offsetHeight;
+    initParticles();
+  }
+
+  function initParticles() {
+    particles = [];
+    const count = Math.min(Math.floor((width * height) / 18000), 48);
+    for (let i = 0; i < count; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.7,
+        vy: (Math.random() - 0.5) * 0.7,
+        radius: Math.random() * 2.5 + 2,
+        label: nodeLabels[i % nodeLabels.length],
+        pulse: Math.random() * Math.PI,
+        pulseSpeed: 0.02 + Math.random() * 0.03
+      });
+    }
+  }
+
+  window.addEventListener("resize", resize);
+  canvas.addEventListener("mousemove", e => {
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = e.clientX - rect.left;
+    mouse.y = e.clientY - rect.top;
+  });
+  canvas.addEventListener("mouseleave", () => {
+    mouse.x = null;
+    mouse.y = null;
+  });
+
+  // Click to dispatch lightning ripple
+  canvas.addEventListener("click", e => {
+    const rect = canvas.getBoundingClientRect();
+    const cx = e.clientX - rect.left;
+    const cy = e.clientY - rect.top;
+    particles.forEach(p => {
+      const dx = p.x - cx;
+      const dy = p.y - cy;
+      const dist = Math.hypot(dx, dy);
+      if (dist < 180) {
+        p.vx += (dx / dist) * 2.5;
+        p.vy += (dy / dist) * 2.5;
+      }
+    });
+  });
+
+  resize();
+
+  function draw() {
+    ctx.clearRect(0, 0, width, height);
+
+    // Update and draw lines between nodes
+    for (let i = 0; i < particles.length; i++) {
+      const p1 = particles[i];
+
+      p1.x += p1.vx;
+      p1.y += p1.vy;
+      p1.pulse += p1.pulseSpeed;
+
+      if (p1.x < 0 || p1.x > width) p1.vx *= -1;
+      if (p1.y < 0 || p1.y > height) p1.vy *= -1;
+
+      // Connect to mouse
+      if (mouse.x !== null) {
+        const dx = p1.x - mouse.x;
+        const dy = p1.y - mouse.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist < mouse.maxDist) {
+          const alpha = (1 - dist / mouse.maxDist) * 0.45;
+          ctx.strokeStyle = `rgba(56, 189, 248, ${alpha})`;
+          ctx.lineWidth = 1.2;
+          ctx.beginPath();
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(mouse.x, mouse.y);
+          ctx.stroke();
+        }
+      }
+
+      // Connect to neighbors
+      for (let j = i + 1; j < particles.length; j++) {
+        const p2 = particles[j];
+        const dx = p1.x - p2.x;
+        const dy = p1.y - p2.y;
+        const dist = Math.hypot(dx, dy);
+
+        if (dist < 130) {
+          const alpha = (1 - dist / 130) * 0.22;
+          ctx.strokeStyle = `rgba(56, 189, 248, ${alpha})`;
+          ctx.lineWidth = 0.85;
+          ctx.beginPath();
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+          ctx.stroke();
+
+          // Traveling photon packet
+          const packetPos = (Math.sin(p1.pulse * 2) + 1) / 2;
+          const px = p1.x + (p2.x - p1.x) * packetPos;
+          const py = p1.y + (p2.y - p1.y) * packetPos;
+          ctx.fillStyle = "rgba(250, 204, 21, 0.65)";
+          ctx.beginPath();
+          ctx.arc(px, py, 1.3, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      // Node point with glow
+      const nodeGlow = 0.5 + Math.sin(p1.pulse) * 0.4;
+      ctx.fillStyle = `rgba(56, 189, 248, ${nodeGlow})`;
+      ctx.beginPath();
+      ctx.arc(p1.x, p1.y, p1.radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Small high-tech node label
+      ctx.fillStyle = `rgba(148, 163, 184, 0.45)`;
+      ctx.font = "8px 'Share Tech Mono', monospace";
+      ctx.fillText(p1.label, p1.x + 5, p1.y - 4);
+    }
+
+    requestAnimationFrame(draw);
+  }
+
+  draw();
+})();
+
+// Mini Spectrum Monitor HUD Canvas
+(function initMiniSpectrum() {
+  const canvas = document.getElementById("hero-mini-wave");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  let t = 0;
+
+  function renderWave() {
+    t += 0.08;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = "#38bdf8";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+
+    for (let x = 0; x < canvas.width; x++) {
+      const y = (canvas.height / 2) + Math.sin(x * 0.18 + t) * 6;
+      if (x === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    requestAnimationFrame(renderWave);
+  }
+  renderWave();
+})();
+
+// Supabase Notices loader
 document.addEventListener("DOMContentLoaded", async function() {
   await window.PBCOE.init();
-  
-  // Fetch and render Live Notices
   try {
     const notices = await window.PBCOE.getNotices();
     const cont = document.getElementById("home-notices-container");
@@ -579,8 +924,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     }
   } catch(e) {}
 });
-</script>
-</main>
+</script></main>
 
 <footer>
   <div class="container footer-grid">
