@@ -248,6 +248,42 @@ const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+const playArcadeBeep = (type) => {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    if (type === "correct") {
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.12, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.18);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(); osc.stop(ctx.currentTime + 0.2);
+    } else if (type === "error") {
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(180, ctx.currentTime);
+      gain.gain.setValueAtTime(0.1, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(); osc.stop(ctx.currentTime + 0.16);
+    } else if (type === "lock") {
+      [440, 554.37, 659.25].forEach((freq, i) => {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = "triangle";
+        o.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.08);
+        g.gain.setValueAtTime(0.08, ctx.currentTime + i * 0.08);
+        g.gain.linearRampToValueAtTime(0.01, ctx.currentTime + i * 0.08 + 0.2);
+        o.connect(g); g.connect(ctx.destination);
+        o.start(ctx.currentTime + i * 0.08);
+        o.stop(ctx.currentTime + i * 0.08 + 0.25);
+      });
+    }
+  } catch(e) {}
+};
+
 /* tabs */
 const switchTab = (tabName) => {
   const btn = $(`.tab[data-tab="${tabName}"]`);
@@ -366,10 +402,12 @@ function pick(btn) {
     wScore += 10 + wStreak * 2; wStreak++;
     $("#wave-msg").textContent = `✔ CORRECT — ${answer.name} locked. +${10 + (wStreak - 1) * 2}`;
     $("#wave-msg").style.color = "#22c55e";
+    playArcadeBeep("correct");
   } else {
     wStreak = 0;
     $("#wave-msg").textContent = `✖ That was ${answer.name}. Scope wins this round.`;
     $("#wave-msg").style.color = "#ef4444";
+    playArcadeBeep("error");
   }
   $("#wave-score").textContent = wScore;
   $("#wave-streak").textContent = wStreak;
@@ -425,10 +463,12 @@ function placeTile(btn) {
       $("#vhdl-score").textContent = vScore;
       $("#vhdl-msg").textContent = `✔ COMPILES CLEAN! +100 pts → next construct loading…`;
       $("#vhdl-msg").style.color = "#22c55e";
+      playArcadeBeep("correct");
       setTimeout(() => { vPz = (vPz + 1) % PUZZLES.length; loadPuzzle(); }, 1300);
     }
   } else {
     btn.classList.add("shake");
+    playArcadeBeep("error");
     setTimeout(() => btn.classList.remove("shake"), 400);
     $("#vhdl-msg").textContent = "✖ Syntax order violated — check the highlighted template.";
     $("#vhdl-msg").style.color = "#ef4444";
@@ -451,10 +491,12 @@ window.checkTh1Answer = function() {
   if (val === "0xFD" || val === "FD" || val === "253") {
     res.textContent = "✔ CORRECT! TH1 = 256 - 3 = 253 (0xFD) gives exact 9600 baud rate! (+50 XP)";
     res.style.color = "#22c55e";
+    playArcadeBeep("correct");
     addEmbScore(50);
   } else {
     res.textContent = "✖ Incorrect reload value. Remember: 11059200 / (384 * 9600) = 3. 256 - 3 = 253 = 0xFD";
     res.style.color = "#ef4444";
+    playArcadeBeep("error");
   }
 };
 
@@ -464,10 +506,12 @@ window.checkMaskAnswer = function() {
   if (val === 48) {
     res.textContent = "✔ SPOT ON! (1 << 5) = 32, (1 << 4) = 16. Combined = 48 (0x30)! (+50 XP)";
     res.style.color = "#22c55e";
+    playArcadeBeep("correct");
     addEmbScore(50);
   } else {
     res.textContent = "✖ Not quite. 1<<5 is 32 (GPIO 5 buzzer) and 1<<4 is 16 (GPIO 4 RX). 32 + 16 = 48.";
     res.style.color = "#ef4444";
+    playArcadeBeep("error");
   }
 };
 
@@ -476,10 +520,12 @@ window.checkR307Header = function(ans) {
   if (ans === "0xEF01") {
     res.textContent = "✔ EXCELLENT! 0xEF01 is the universal packet start code for R307 optical prism! (+50 XP)";
     res.style.color = "#22c55e";
+    playArcadeBeep("correct");
     addEmbScore(50);
   } else {
     res.textContent = `✖ ${ans} is not the R307 header. Standard packet preamble is 0xEF01.`;
     res.style.color = "#ef4444";
+    playArcadeBeep("error");
   }
 };
 
@@ -511,7 +557,41 @@ window.handleDuelInput = function(player, val) {
   if (!duelActive) return;
   const fb = document.getElementById("duel-feedback");
   if (val === currentDuelExpected) {
+    playArcadeBeep("correct");
     if (player === 1) {
+      p1Score++;
+      document.getElementById("duel-p1-score").textContent = p1Score;
+      if (fb) fb.innerHTML = `<span style="color:var(--blue);">✔ Player 1 buzzed correctly!</span>`;
+    } else {
+      p2Score++;
+      document.getElementById("duel-p2-score").textContent = p2Score;
+      if (fb) fb.innerHTML = `<span style="color:var(--yellow);">✔ Player 2 buzzed correctly!</span>`;
+    }
+    if (p1Score >= 10 || p2Score >= 10) {
+      duelActive = false;
+      playArcadeBeep("lock");
+      const banner = document.getElementById("duel-winner-banner");
+      const winText = document.getElementById("duel-winner-text");
+      if (banner && winText) {
+        banner.style.display = "block";
+        winText.textContent = `🏆 PLAYER ${p1Score >= 10 ? '1' : '2'} IS THE CIRCUIT CHAMPION!`;
+      }
+      return;
+    }
+    setTimeout(nextDuelRound, 450);
+  } else {
+    playArcadeBeep("error");
+    if (player === 1) {
+      if (fb) fb.innerHTML = `<span style="color:#ef4444;">✖ Player 1 false buzz! (-1 pt)</span>`;
+      p1Score = Math.max(0, p1Score - 1);
+      document.getElementById("duel-p1-score").textContent = p1Score;
+    } else {
+      if (fb) fb.innerHTML = `<span style="color:#ef4444;">✖ Player 2 false buzz! (-1 pt)</span>`;
+      p2Score = Math.max(0, p2Score - 1);
+      document.getElementById("duel-p2-score").textContent = p2Score;
+    }
+  }
+};
       p1Score++;
       document.getElementById("duel-p1-score").textContent = p1Score;
       if (fb) fb.innerHTML = `<span style="color:var(--blue);">✔ Player 1 buzzed correctly!</span>`;
@@ -568,6 +648,7 @@ nextDuelRound();
 
 /* ============ GAME 6: CO-OP FREQUENCY SYNC ============ */
 let coopScore = 0;
+let coopLockCooldown = false;
 let targetFreq = 4.5, targetPhase = 120;
 let coopCanvas = null, coopCtx = null, coopAnim = null;
 
@@ -649,10 +730,15 @@ function animateCoop() {
     }
     coopCtx.stroke();
 
-    if (isLocked) {
+    if (isLocked && !coopLockCooldown) {
+      coopLockCooldown = true;
       coopScore++;
       document.getElementById("coop-score").textContent = coopScore;
-      nextCoopTarget();
+      playArcadeBeep("lock");
+      setTimeout(() => {
+        nextCoopTarget();
+        coopLockCooldown = false;
+      }, 1200);
     }
   }
   requestAnimationFrame(animateCoop);

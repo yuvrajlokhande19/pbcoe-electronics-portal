@@ -11,7 +11,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/whatsapp.css">
 <script src="assets/js/pbcoe-core.js"></script>
+<script src="assets/js/pbcoe-whatsapp.js" defer></script>
 <script src="assets/js/pcb-ambient.js" defer></script>
 <script src="assets/js/easter-eggs.js" defer></script>
 
@@ -304,6 +306,57 @@ document.addEventListener("DOMContentLoaded", async function() {
   }
 });
 </script>
+
+<!-- GLOBAL WHATSAPP LIGHTBOX -->
+<div id="wa-lightbox" class="wa-lightbox" onclick="window.PBCOE_WA.closeLightbox()">
+  <img id="wa-lightbox-img" class="wa-lightbox-img" src="" alt="Enlarged view">
+  <div id="wa-lightbox-cap" style="color:#e9edef;margin-top:12px;font-size:0.95rem;text-align:center;"></div>
+  <div style="display:flex;gap:12px;margin-top:14px;">
+    <button class="btn btn-sm btn-ghost" onclick="event.stopPropagation();window.PBCOE_WA.closeLightbox()" style="color:#f87171;">✕ Close</button>
+  </div>
+</div>
+
+<!-- GLOBAL WHATSAPP CALL SIMULATOR -->
+<div id="wa-call-modal" class="wa-call-modal">
+  <div class="wa-call-box">
+    <img id="wa-call-avatar" src="assets/images/pbcoe-round-seal.png" style="width:84px;height:84px;border-radius:50%;object-fit:cover;border:2.5px solid #00a884;margin-bottom:14px;">
+    <h3 id="wa-call-title" style="margin:0 0 6px;color:#e9edef;font-size:1.15rem;">Voice Call</h3>
+    <p id="wa-call-status" style="font-size:0.85rem;color:#00a884;margin-bottom:24px;">Connecting to PBCOE Encrypted Network...</p>
+    <div style="display:flex;justify-content:center;gap:16px;">
+      <button class="btn btn-sm" onclick="window.PBCOE_WA.endCall()" style="background:#ef4444;color:#fff;border-radius:24px;padding:8px 24px;font-weight:700;">
+        🔴 End Call
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- GLOBAL DOCUMENT VIEWER & VERIFICATION MODAL -->
+<div id="pbcoe-doc-modal" class="pbcoe-doc-modal">
+  <div class="pbcoe-doc-card">
+    <div class="pbcoe-doc-header">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:1.4rem;">📁</span>
+        <div>
+          <h4 id="doc-view-title" style="margin:0;color:#f8fafc;font-size:1.05rem;">Document Title</h4>
+          <span id="doc-view-type" class="pill ok" style="font-size:0.65rem;padding:1px 6px;">Category</span>
+        </div>
+      </div>
+      <button class="btn btn-sm btn-ghost" onclick="window.PBCOE_DOCS.closeViewer()" style="color:#94a3b8;font-size:1.1rem;padding:2px 8px;">✕</button>
+    </div>
+    <div class="pbcoe-doc-body">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+        <div id="doc-view-prn" class="mono" style="font-size:0.82rem;color:#38bdf8;font-weight:700;">PRN: 24121227</div>
+        <div id="doc-view-date" style="font-size:0.8rem;color:var(--muted);">2026-10-29</div>
+      </div>
+      <div id="doc-view-preview" style="text-align:center;margin-bottom:16px;"></div>
+      <div id="doc-view-seal" style="text-align:center;"></div>
+    </div>
+    <div style="padding:14px 20px;background:#1e293b;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+      <button class="btn btn-sm btn-ghost" onclick="window.PBCOE_DOCS.downloadDocument()">📥 Download Document</button>
+      <button class="btn btn-sm btn-primary" onclick="window.PBCOE_DOCS.closeViewer()">Done / Close</button>
+    </div>
+  </div>
+</div>
 
 <main>
 <!--TITLE:Circuit Lab — Live Simulator | PBCOE Electronics Portal-->
