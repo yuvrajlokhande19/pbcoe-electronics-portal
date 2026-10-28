@@ -850,9 +850,8 @@ async function initBiometricStation() {
   // Check URL query parameter to auto-open dialog if directed
   const urlParams = new URLSearchParams(window.location.search);
   const enrollPrn = urlParams.get('enroll');
-  const isLock = urlParams.get('lock') === 'true';
   if (enrollPrn) {
-    setTimeout(() => openEnrollDialog(enrollPrn, isLock), 150);
+    setTimeout(() => openEnrollDialog(enrollPrn), 150);
   }
 }
 
@@ -1065,37 +1064,29 @@ function updateEnrollmentMetrics() {
 }
 
 // Dialog Box Operations
-function openEnrollDialog(prn, isLocked) {
+function openEnrollDialog(prn) {
   const dialog = document.getElementById("enroll-fingerprint-dialog");
   dialog.style.display = "flex";
 
   fullRoster = window.PBCOE.getStudents();
   populateDialogDropdown(fullRoster);
 
-  // If a student is logged in, restrict to student's own fingerprint
-  const currentUser = window.PBCOE.getCurrentUser();
-  if (currentUser && currentUser.role === 'student' && currentUser.data) {
-    prn = currentUser.data.prn;
-    isLocked = true;
-  }
-
   const selectEl = document.getElementById("dialog-student-select");
   const slotEl = document.getElementById("dialog-slot-id");
   const titleEl = document.getElementById("dialog-title-h2");
 
+  // Pre-select student if PRN provided or logged in, but never lock the dropdown
+  const currentUser = window.PBCOE.getCurrentUser();
   if (prn) {
     selectEl.value = prn;
+  } else if (currentUser && currentUser.role === 'student' && currentUser.data && !selectEl.value) {
+    selectEl.value = currentUser.data.prn;
   }
 
-  if (isLocked) {
-    selectEl.disabled = true;
-    slotEl.disabled = true;
-    if (titleEl) titleEl.innerText = "Register Your Own Biometric Fingerprint";
-  } else {
-    selectEl.disabled = false;
-    slotEl.disabled = false;
-    if (titleEl) titleEl.innerText = "Enroll Student Fingerprint";
-  }
+  // Always enable selection so user can choose ANY student freely
+  selectEl.disabled = false;
+  slotEl.disabled = false;
+  if (titleEl) titleEl.innerText = "Biometric Fingerprint Registry";
 
   onDialogStudentChange();
 }

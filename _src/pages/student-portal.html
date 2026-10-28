@@ -531,8 +531,8 @@ function applyStudentData(s) {
 
 function openSelfEnrollment() {
   if (!currentStudent) return;
-  // Redirect to attendance page with self-enroll locked
-  location.href = `attendance.html?enroll=${encodeURIComponent(currentStudent.prn)}&lock=true`;
+  // Redirect to attendance page with student pre-selected
+  location.href = `attendance.html?enroll=${encodeURIComponent(currentStudent.prn)}`;
 }
 
 function requestPushNotifications() {
