@@ -10,12 +10,20 @@
 // ========================================================
 // 1. WiFi & Official Supabase Cloud Configuration
 // ========================================================
-const char* ssid     = "bittu";
-const char* password = "YOUR_WIFI_PASSWORD";
+const char* ssid     = "OPPO A53";
+const char* password = "00000000";
 
 // Supabase REST Endpoint & Publishable Key
 const char* supabaseBaseUrl = "https://vobyuijfocigsbahkvab.supabase.co";
 const char* supabaseApiKey  = "sb_publishable_wIYMMvFnNFMXyFavLagzIA_4rBYuOMN";
+
+// Sensor LED Control Fallback Definitions
+#ifndef FINGERPRINT_LED_ON
+#define FINGERPRINT_LED_ON 0x01
+#define FINGERPRINT_LED_OFF 0x02
+#define FINGERPRINT_LED_BLUE 0x02
+#define FINGERPRINT_LED_RED 0x01
+#endif
 
 // ========================================================
 // 2. Hardware UART on GPIO 4 (D4) & GPIO 2 (D2) + Buzzer D5
@@ -321,6 +329,35 @@ void checkBiometricCommands() {
             updateCommandStatus(cmdId, "STEP_1");
             Serial.println(">> [STEP 1] Optical LED Constant Solid Blue Active! Place finger on sensor glass now...");
           }
+          
+          // DELETE command: remove fingerprint template from R307 flash & ESP32 storage
+          else if (command == "DELETE") {
+            Serial.println("\n---------------------------------------------------");
+            Serial.printf("[COMMAND] Cloud DELETE request: Slot #%d (%s)\n", targetId, studentName.c_str());
+            Serial.println("---------------------------------------------------");
+            if (targetId >= 1 && targetId <= 127) {
+              uint8_t delResult = finger.deleteModel(targetId);
+              String kn = "n_" + String(targetId);
+              String kr = "r_" + String(targetId);
+              prefs.remove(kn.c_str());
+              prefs.remove(kr.c_str());
+              updateCommandStatus(cmdId, "DELETED");
+              if (delResult == FINGERPRINT_OK) {
+                soundCheckInSuccess();
+                Serial.printf(">> [DELETE] Slot #%d successfully erased from R307 flash!\n", targetId);
+              } else {
+                soundUnrecognized();
+                Serial.printf(">> [DELETE] Slot #%d was empty or removed (code: %d)\n", targetId, delResult);
+              }
+            } else {
+              updateCommandStatus(cmdId, "DELETED");
+              Serial.println(">> [DELETE] Invalid slot ID — skipped.");
+            }
+          }
+          else {
+            Serial.printf("[COMMAND] Ignored unknown command #%d: %s\n", cmdId, command.c_str());
+            updateCommandStatus(cmdId, "IGNORED");
+          }
         }
       }
     }
@@ -501,13 +538,37 @@ void handleSerialCommands() {
           Serial.println(">> Optical Blue Light Constant ON! Place finger on sensor glass now (Pass 1 of 2)...");
         }
       }
+    } else if (cmd.startsWith("DELETE")) {
+      int spaceIdx = cmd.indexOf(' ');
+      if (spaceIdx > 0) {
+        int targetSlot = cmd.substring(spaceIdx + 1).toInt();
+        if (targetSlot >= 1 && targetSlot <= 127) {
+          uint8_t p = finger.deleteModel(targetSlot);
+          String kn = "n_" + String(targetSlot);
+          String kr = "r_" + String(targetSlot);
+          prefs.remove(kn.c_str());
+          prefs.remove(kr.c_str());
+          if (p == FINGERPRINT_OK) {
+            Serial.printf(">> [SERIAL] Deleted template at Slot #%d successfully!\n", targetSlot);
+            soundCheckInSuccess();
+          } else {
+            Serial.printf(">> [SERIAL] Slot #%d was empty or could not be deleted (code: %d)\n", targetSlot, p);
+            soundUnrecognized();
+          }
+        }
+      }
+    } else if (cmd == "CLEARALL" || cmd == "EMPTY") {
+      finger.emptyDatabase();
+      prefs.clear();
+      Serial.println(">> [SERIAL] All templates in R307 flash database CLEARED!");
+      soundCheckInSuccess();
     } else if (cmd == "LIST") {
       finger.getTemplateCount();
       Serial.printf("R307 Template Count: %d\n", finger.templateCount);
     } else if (cmd == "BEEP") {
       soundCheckInSuccess();
     } else if (cmd == "HELP") {
-      Serial.println("Commands: ENROLL <id> | LIST | BEEP | HELP");
+      Serial.println("Commands: ENROLL <id> | DELETE <id> | CLEARALL | LIST | BEEP | HELP");
     }
   }
 }

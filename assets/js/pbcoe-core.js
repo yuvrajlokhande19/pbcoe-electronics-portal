@@ -12,9 +12,9 @@ window.PBCOE = (function () {
 
   // Built-in 65-student cohort for 0ms instant display while syncing with cloud
   const EMBEDDED_ROSTER = [
-    { id: 1, fingerprint_id: 1, prn: "24121218", name: "YASH RANJEET INDURKAR", branch: "ETC (Electronics & Telecom)", year: "Second Year (SY)", image: "assets/images/students/24121218.jpg", enrolled: true, attendance_percentage: 97 },
-    { id: 2, fingerprint_id: 2, prn: "24121222", name: "SAHILKUMAR RUSTAM KHOBRAGADE", branch: "ETC (Electronics & Telecom)", year: "Second Year (SY)", image: "assets/images/students/24121222.jpg", enrolled: true, attendance_percentage: 85 },
-    { id: 3, fingerprint_id: 3, prn: "24121199", name: "UJWALA TRYAMBAK BHELKAR", branch: "ETC (Electronics & Telecom)", year: "Second Year (SY)", image: "assets/images/students/24121199.jpg", enrolled: true, attendance_percentage: 97 },
+    { id: 1, fingerprint_id: 1, prn: "24121218", name: "YASH RANJEET INDURKAR", branch: "ETC (Electronics & Telecom)", year: "Second Year (SY)", image: "assets/images/students/24121218.jpg", enrolled: false, attendance_percentage: 97 },
+    { id: 2, fingerprint_id: 2, prn: "24121222", name: "SAHILKUMAR RUSTAM KHOBRAGADE", branch: "ETC (Electronics & Telecom)", year: "Second Year (SY)", image: "assets/images/students/24121222.jpg", enrolled: false, attendance_percentage: 85 },
+    { id: 3, fingerprint_id: 3, prn: "24121199", name: "UJWALA TRYAMBAK BHELKAR", branch: "ETC (Electronics & Telecom)", year: "Second Year (SY)", image: "assets/images/students/24121199.jpg", enrolled: false, attendance_percentage: 97 },
     { id: 4, fingerprint_id: 4, prn: "24121250", name: "SHRAVANI DEEPAK ATKARI", branch: "ETC (Electronics & Telecom)", year: "Second Year (SY)", image: "assets/images/students/24121250.jpg", enrolled: false, attendance_percentage: 83 },
     { id: 5, fingerprint_id: 5, prn: "24121236", name: "POOJA RAJESH UPADHYE", branch: "ETC (Electronics & Telecom)", year: "Second Year (SY)", image: "assets/images/students/24121236.jpg", enrolled: false, attendance_percentage: 83 },
     { id: 6, fingerprint_id: 6, prn: "24121252", name: "VEDANT DILIP NANDANWAR", branch: "ETC (Electronics & Telecom)", year: "Second Year (SY)", image: "assets/images/students/24121252.jpg", enrolled: false, attendance_percentage: 97 },
@@ -27,7 +27,7 @@ window.PBCOE = (function () {
     { id: 13, fingerprint_id: 13, prn: "24121237", name: "YASHRAJ HIWRAJ RANGARI", branch: "ETC (Electronics & Telecom)", year: "Second Year (SY)", image: "assets/images/students/24121237.jpg", enrolled: false, attendance_percentage: 91 },
     { id: 14, fingerprint_id: 14, prn: "24121230", name: "RAJANI NAMDEO MOON", branch: "ETC (Electronics & Telecom)", year: "Second Year (SY)", image: "assets/images/students/24121230.jpg", enrolled: false, attendance_percentage: 94 },
     { id: 15, fingerprint_id: 15, prn: "24121246", name: "VRISHABH NARENDRA SAWWALAKHE", branch: "ETC (Electronics & Telecom)", year: "Second Year (SY)", image: "assets/images/students/24121246.jpg", enrolled: false, attendance_percentage: 88 },
-    { id: 16, fingerprint_id: 16, prn: "24121227", name: "YUVRAJ VILAS LOKHANDE", branch: "ETC (Electronics & Telecom)", year: "Second Year (SY)", image: "assets/images/students/24121227.jpg", enrolled: true, attendance_percentage: 98 },
+    { id: 16, fingerprint_id: 16, prn: "24121227", name: "YUVRAJ VILAS LOKHANDE", branch: "ETC (Electronics & Telecom)", year: "Second Year (SY)", image: "assets/images/students/24121227.jpg", enrolled: false, attendance_percentage: 98 },
     { id: 17, fingerprint_id: 17, prn: "24121215", name: "SHRUTI NARENDRA GOVINDWAR", branch: "ETC (Electronics & Telecom)", year: "Second Year (SY)", image: "assets/images/students/24121215.jpg", enrolled: false, attendance_percentage: 93 },
     { id: 18, fingerprint_id: 18, prn: "24121234", name: "ACHAL ANIL PATLE", branch: "ETC (Electronics & Telecom)", year: "Second Year (SY)", image: "assets/images/students/24121234.jpg", enrolled: false, attendance_percentage: 92 },
     { id: 19, fingerprint_id: 19, prn: "24121242", name: "SIDDHI SHYAMUJI RINAIT", branch: "ETC (Electronics & Telecom)", year: "Second Year (SY)", image: "assets/images/students/24121242.jpg", enrolled: false, attendance_percentage: 95 },
@@ -328,61 +328,84 @@ window.PBCOE = (function () {
     }
   }
 
-  // Sync Students Roster with Supabase Cloud
+  // Sync Students Roster with Supabase Cloud (Pure Cloud Truth)
   async function syncStudentsWithSupabase() {
     try {
-      const url = `${SUPABASE_URL}/rest/v1/students?select=*&order=id.asc`;
+      const url = `${SUPABASE_URL}/rest/v1/students?select=prn,enrolled,fingerprint_id&order=id.asc`;
       const res = await fetch(url, { headers: getSupabaseHeaders(), cache: "no-store" });
       if (res.ok) {
-        const cloudStudents = await res.json();
-        if (cloudStudents && cloudStudents.length > 0) {
-          students = cloudStudents;
+        const cloudRows = await res.json();
+        if (Array.isArray(cloudRows) && cloudRows.length > 0) {
+          // Sync exact cloud enrollment state into in-memory cohort
+          cloudRows.forEach(cr => {
+            const local = students.find(x => x.prn === cr.prn);
+            if (local) {
+              local.enrolled = cr.enrolled === true;
+              if (local.enrolled) {
+                local.fingerprint_id = parseInt(cr.fingerprint_id, 10) || local.id;
+              } else {
+                delete local.fingerprint_id;
+              }
+            }
+          });
+
+          // Mirror into local cache for instantaneous offline fallback
+          try {
+            const map = {};
+            students.forEach(s => {
+              if (s.enrolled) map[s.prn] = { enrolled: true, slot: s.fingerprint_id };
+            });
+            localStorage.setItem("pbcoe_enrolled_map", JSON.stringify(map));
+          } catch(e) {}
+          return;
         }
       }
-    } catch(e) {}
+    } catch(e) {
+      console.warn("Supabase student sync warning:", e);
+    }
 
-    // Apply local storage overrides for instantaneous local persistence
+    // Secondary fallback: only if network completely fails
     try {
       const saved = JSON.parse(localStorage.getItem("pbcoe_enrolled_map") || "{}");
-      Object.keys(saved).forEach(prn => {
-        const match = students.find(x => x.prn === prn);
-        if (match) {
-          if (saved[prn] && saved[prn].enrolled) {
-            match.enrolled = true;
-            match.fingerprint_id = parseInt(saved[prn].slot, 10);
-          } else if (saved[prn] && saved[prn].enrolled === false) {
-            match.enrolled = false;
-            delete match.fingerprint_id;
-          }
+      students.forEach(s => {
+        if (saved[s.prn] && saved[s.prn].enrolled) {
+          s.enrolled = true;
+          s.fingerprint_id = parseInt(saved[s.prn].slot, 10) || s.id;
+        } else {
+          s.enrolled = false;
+          delete s.fingerprint_id;
         }
       });
     } catch(e) {}
   }
 
-  // Mark student as enrolled and update Supabase (immediate local persistence)
+  // Mark student as enrolled in Supabase Cloud DB & local memory
   async function markStudentEnrolled(prn, slotId) {
     const s = students.find(x => x.prn === prn);
     if (!s) return { success: false, message: "Student record not found." };
+    const numericSlot = parseInt(slotId, 10);
     s.enrolled = true;
-    s.fingerprint_id = parseInt(slotId, 10);
+    s.fingerprint_id = numericSlot;
 
     try {
       const saved = JSON.parse(localStorage.getItem("pbcoe_enrolled_map") || "{}");
-      saved[prn] = { enrolled: true, slot: parseInt(slotId, 10), timestamp: Date.now() };
+      saved[prn] = { enrolled: true, slot: numericSlot, timestamp: Date.now() };
       localStorage.setItem("pbcoe_enrolled_map", JSON.stringify(saved));
 
-      // Asynchronously update in Supabase (non-blocking)
-      fetch(`${SUPABASE_URL}/rest/v1/students?prn=eq.${prn}`, {
+      // Direct synchronous update to Supabase students table
+      await fetch(`${SUPABASE_URL}/rest/v1/students?prn=eq.${prn}`, {
         method: "PATCH",
         headers: getSupabaseHeaders(),
-        body: JSON.stringify({ enrolled: true, fingerprint_id: parseInt(slotId, 10) })
-      }).catch(err => console.warn("Supabase student PATCH warning:", err));
-    } catch(e) {}
+        body: JSON.stringify({ enrolled: true, fingerprint_id: numericSlot })
+      });
+    } catch(err) {
+      console.warn("Supabase student PATCH warning:", err);
+    }
 
     return { success: true, student: s };
   }
 
-  // Remove student biometric registration and free slot (guaranteed immediate local deletion)
+  // Remove student biometric registration from Supabase Cloud DB, ESP32 flash & local cache
   async function removeStudentFingerprint(prn) {
     const s = students.find(x => x.prn === prn);
     if (!s) return { success: false, message: "Student record not found." };
@@ -392,18 +415,18 @@ window.PBCOE = (function () {
 
     try {
       const saved = JSON.parse(localStorage.getItem("pbcoe_enrolled_map") || "{}");
-      saved[prn] = { enrolled: false, slot: null, timestamp: Date.now() };
+      delete saved[prn];
       localStorage.setItem("pbcoe_enrolled_map", JSON.stringify(saved));
 
-      // Non-blocking update to Supabase cloud
-      fetch(`${SUPABASE_URL}/rest/v1/students?prn=eq.${prn}`, {
+      // 1. Direct update to Supabase Cloud DB
+      await fetch(`${SUPABASE_URL}/rest/v1/students?prn=eq.${prn}`, {
         method: "PATCH",
         headers: getSupabaseHeaders(),
         body: JSON.stringify({ enrolled: false, fingerprint_id: null })
-      }).catch(err => console.warn("Supabase student remove warning:", err));
+      });
 
-      // Dispatch non-blocking DELETE command to ESP32 node
-      fetch(`${SUPABASE_URL}/rest/v1/biometric_commands`, {
+      // 2. Dispatch DELETE command to ESP32 node queue so sensor hardware memory is freed
+      await fetch(`${SUPABASE_URL}/rest/v1/biometric_commands`, {
         method: "POST",
         headers: getSupabaseHeaders(),
         body: JSON.stringify({
@@ -413,8 +436,10 @@ window.PBCOE = (function () {
           roll_no: prn,
           status: "PENDING"
         })
-      }).catch(err => console.warn("Supabase biometric_commands delete warning:", err));
-    } catch(e) {}
+      });
+    } catch(err) {
+      console.warn("Supabase student remove warning:", err);
+    }
 
     return { success: true, message: `Biometric template for ${s.name} (Slot #${oldSlot}) removed successfully.` };
   }
@@ -554,6 +579,15 @@ window.PBCOE = (function () {
 
   // Trigger Cloud Enrollment via Supabase
   async function triggerCloudEnrollment(id, name, roll) {
+    // Clear any previous stale PENDING commands so ESP32 always processes this latest command immediately
+    try {
+      await fetch(`${SUPABASE_URL}/rest/v1/biometric_commands?status=eq.PENDING`, {
+        method: "PATCH",
+        headers: getSupabaseHeaders(),
+        body: JSON.stringify({ status: "SUPERSEDED" })
+      });
+    } catch(e) {}
+
     const commandPayload = {
       command: "ENROLL",
       target_id: parseInt(id, 10),
