@@ -117,6 +117,63 @@ window.PBCOE = (function () {
   let lastKnownScanId = 0;
   let audioContext = null;
 
+  // Session Security & Anti-Tampering Signature Engine
+  function computeSessionSignature(role, identifier, secret) {
+    let hash = 0;
+    const str = `${role}::${identifier}::${secret}::pbcoe_2026_security_salt`;
+    for (let i = 0; i < str.length; i++) {
+      hash = ((hash << 5) - hash) + str.charCodeAt(i);
+      hash |= 0;
+    }
+    return "SIG_" + Math.abs(hash).toString(36);
+  }
+
+  function validateCurrentUser() {
+    if (!currentUser) return null;
+    try {
+      if (currentUser.role === "student" && currentUser.data && currentUser.data.prn) {
+        const s = students.find(x => x.prn === currentUser.data.prn);
+        if (!s) {
+          currentUser = null;
+          localStorage.removeItem("pbcoe_user");
+          return null;
+        }
+        const expectedSig = computeSessionSignature("student", s.prn, s.dob);
+        if (currentUser.sig && currentUser.sig !== expectedSig) {
+          console.warn("[PBCOE SECURITY] Tampered session signature detected! Terminating unauthorized session.");
+          currentUser = null;
+          localStorage.removeItem("pbcoe_user");
+          return null;
+        }
+        if (!currentUser.sig) {
+          currentUser.sig = expectedSig;
+          localStorage.setItem("pbcoe_user", JSON.stringify(currentUser));
+        }
+        // Always bind authoritative student data from verified roster
+        currentUser.data = s;
+        return currentUser;
+      } else if (currentUser.role === "admin" && currentUser.data && currentUser.data.email) {
+        const expectedSig = computeSessionSignature("admin", currentUser.data.email, "admin_salt_2026");
+        if (currentUser.sig && currentUser.sig !== expectedSig) {
+          console.warn("[PBCOE SECURITY] Tampered admin session detected! Terminating unauthorized session.");
+          currentUser = null;
+          localStorage.removeItem("pbcoe_user");
+          return null;
+        }
+        if (!currentUser.sig) {
+          currentUser.sig = expectedSig;
+          localStorage.setItem("pbcoe_user", JSON.stringify(currentUser));
+        }
+        return currentUser;
+      }
+    } catch(e) {
+      currentUser = null;
+      localStorage.removeItem("pbcoe_user");
+      return null;
+    }
+    return null;
+  }
+
   // Candidate Name & ERP Formatting Helpers for clean, compact UI
   function formatShortName(fullName) {
     if (!fullName) return "";
@@ -641,7 +698,12 @@ window.PBCOE = (function () {
       }
     }
 
-    currentUser = { role: "student", data: s };
+    currentUser = {
+      role: "student",
+      data: s,
+      sig: computeSessionSignature("student", s.prn, s.dob),
+      loginTime: Date.now()
+    };
     localStorage.setItem("pbcoe_user", JSON.stringify(currentUser));
 
     // Ask for native browser notifications on mobile / desktop
@@ -664,26 +726,32 @@ window.PBCOE = (function () {
     }
 
     if ((u === "admin" || u === "hod") && (p === "pbcoe2026" || p === "password123" || p === "admin123" || p === "pokle123")) {
+      const email = "hod.etc@pbcoe.edu.in";
       currentUser = {
         role: "admin",
         data: {
           name: "Dr. Pravin B. Pokle",
           designation: "Associate Professor & Head of Department (ETC)",
-          email: "hod.etc@pbcoe.edu.in",
+          email: email,
           college: "Priyadarshini Bhagwati College of Engineering, Nagpur"
-        }
+        },
+        sig: computeSessionSignature("admin", email, "admin_salt_2026"),
+        loginTime: Date.now()
       };
       localStorage.setItem("pbcoe_user", JSON.stringify(currentUser));
       return { success: true, user: currentUser };
     } else if ((u === "coordinator" || u === "kakde") && (p === "pbcoe2026" || p === "kakde123")) {
+      const email = "suhas.kakde@pbcoe.edu.in";
       currentUser = {
         role: "admin",
         data: {
           name: "Mr. Suhas D. Kakde",
           designation: "Assistant Professor & Academic Coordinator (ETC)",
-          email: "suhas.kakde@pbcoe.edu.in",
+          email: email,
           college: "Priyadarshini Bhagwati College of Engineering, Nagpur"
-        }
+        },
+        sig: computeSessionSignature("admin", email, "admin_salt_2026"),
+        loginTime: Date.now()
       };
       localStorage.setItem("pbcoe_user", JSON.stringify(currentUser));
       return { success: true, user: currentUser };
@@ -818,7 +886,7 @@ window.PBCOE = (function () {
     loginStudent: loginStudent,
     loginAdmin: loginAdmin,
     logout: logout,
-    getCurrentUser: () => currentUser,
+    getCurrentUser: () => validateCurrentUser(),
     pollAttendance: pollAttendanceFromSupabase,
     showToast: showToast,
     playChime: playNotificationChime,

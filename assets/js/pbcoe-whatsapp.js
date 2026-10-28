@@ -223,14 +223,21 @@
         id: user.data.prn || user.data.email || "CURRENT_USER",
         name: user.data.name || "Student User",
         role: user.role || "student",
-        avatar: user.data.image || "https://ui-avatars.com/api/?name=" + encodeURIComponent(user.data.name || "User")
+        avatar: user.data.image || "https://ui-avatars.com/api/?name=" + encodeURIComponent(user.data.name || "User"),
+        isAuth: true
       };
     }
+    let gid = localStorage.getItem("pbcoe_guest_id");
+    if (!gid) {
+      gid = Math.random().toString(36).slice(2, 7);
+      localStorage.setItem("pbcoe_guest_id", gid);
+    }
     return {
-      id: "24121227",
-      name: "Yuvraj Lokhande",
-      role: "student",
-      avatar: "assets/images/students/yuvraj-lokhande.jpg"
+      id: "guest_" + gid,
+      name: "Guest Student (Unverified)",
+      role: "guest",
+      avatar: "https://ui-avatars.com/api/?name=Guest&background=334155&color=94a3b8",
+      isAuth: false
     };
   }
 
@@ -352,11 +359,17 @@
         const isSent = m.sender_id === sender.id || m.sender_id === "CURRENT_USER" || m.sender_id === "me";
         const bubbleClass = isSent ? "wa-bubble-sent" : "wa-bubble-received";
         const timeStr = new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const roleClass = (m.sender_role || "student").toLowerCase();
+        const roleLabel = (m.sender_role || "STUDENT").toUpperCase();
+
+        const senderTag = isSent
+          ? `<div class="wa-sender-tag"><span class="wa-sender-name">You (${sender.name})</span><span class="wa-role-badge self">YOU</span></div>`
+          : `<div class="wa-sender-tag"><span class="wa-sender-name">${m.sender_name || 'Class Participant'}</span><span class="wa-role-badge ${roleClass}">${roleLabel}</span></div>`;
 
         html += `
           <div class="wa-bubble ${bubbleClass}">
             <button type="button" class="wa-msg-del" title="Delete message" onclick="event.stopPropagation(); window.PBCOE_WA.deleteMessage('${activeContactId}', '${m.id}')">🗑️</button>
-            ${!isSent ? `<div class="wa-sender-tag">${m.sender_name}</div>` : ''}
+            ${senderTag}
             ${m.image ? `
               <div class="wa-bubble-img-wrap" onclick="window.PBCOE_WA.openLightbox('${m.image}', '${encodeURIComponent(m.text || '')}')">
                 <img src="${m.image}" class="wa-bubble-img" alt="Attached Image">
@@ -393,6 +406,16 @@
     if (!text && !stagedImage && !stagedDoc) return;
 
     const sender = getCurrentSender();
+    if (!sender.isAuth) {
+      const wantLogin = confirm(
+        "PBCOE Department Authentication:\nYou are sending as a Guest. Would you like to log in with your ERP ID & DOB to display your verified candidate name and PRN?"
+      );
+      if (wantLogin && window.PBCOE_AUTH) {
+        window.PBCOE_AUTH.openLogin('student');
+        return;
+      }
+    }
+
     const newMsg = {
       id: "m_" + Date.now(),
       sender_id: sender.id,
@@ -469,11 +492,23 @@
       if (!msgs[contactId]) msgs[contactId] = [];
 
       let contact = DEFAULT_CONTACTS.find(c => c.id === contactId);
+      if (!contact && window.PBCOE && window.PBCOE.getStudents) {
+        const prn = contactId.replace("direct_", "");
+        const s = window.PBCOE.getStudentByPrn(prn);
+        if (s) {
+          contact = {
+            id: contactId,
+            name: window.PBCOE.formatShortName ? window.PBCOE.formatShortName(s.name) : s.name,
+            role: "student"
+          };
+        }
+      }
+      const resolvedRole = contactId.includes("pokle") ? "hod" : (contactId.includes("kakde") ? "coordinator" : (contactId.includes("shende") ? "principal" : "student"));
       const replyMsg = {
         id: "m_reply_" + Date.now(),
         sender_id: contactId,
-        sender_name: contact ? contact.name : "Contact",
-        sender_role: "faculty",
+        sender_name: contact ? contact.name : "Class Participant",
+        sender_role: resolvedRole,
         text: replyText,
         image: replyImg,
         timestamp: Date.now(),

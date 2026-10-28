@@ -385,34 +385,21 @@ document.addEventListener("DOMContentLoaded", async function() {
       <div>
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
           <h1 class="reveal" style="--d:.08s;margin:0;" id="sp-name">Candidate Profile</h1>
-          <span id="sp-auth-badge" class="pill mid" style="font-size:0.72rem;padding:2px 8px;">PUBLIC PREVIEW</span>
+          <span id="sp-auth-badge" class="pill mid" style="font-size:0.72rem;padding:2px 8px;">SECURITY GATE ACTIVE</span>
         </div>
         <p class="section-sub reveal" style="--d:.16s mono;margin-top:6px;" id="sp-sub">B.TECH ETC · SECOND YEAR (SY) · PBCOE NAGPUR</p>
       </div>
-      <div style="margin-left:auto;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+      <div id="sp-header-actions" style="margin-left:auto;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
         <button id="sp-enroll-btn" class="btn btn-sm btn-primary" style="display:none;" onclick="openSelfEnrollment()">
           🪪 Register My Fingerprint
         </button>
-        <button class="btn btn-sm btn-ghost" onclick="window.PBCOE_AUTH.openLogin()">
-          🔐 Login with ERP ID &amp; DOB
+        <button id="sp-login-btn" class="btn btn-sm btn-ghost" onclick="window.PBCOE_AUTH.openLogin('student')">
+          🔐 Student Login (PRN + DOB)
+        </button>
+        <button id="sp-logout-btn" class="btn btn-sm btn-ghost" style="display:none;color:#f87171;border-color:rgba(239,68,68,0.4);" onclick="window.PBCOE.logout()">
+          🚪 Logout
         </button>
         <a href="attendance.html" class="btn btn-sm btn-ghost">Live Stream ⚡</a>
-      </div>
-    </div>
-
-    <!-- Quick Public Attendance Selector (No Login Required) -->
-    <div class="card reveal" style="margin-top:1.5rem;padding:14px 18px;background:var(--glass-strong);border:1px solid var(--glass-border);border-radius:14px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <span style="font-size:1.1rem;">🔍</span>
-          <span style="font-weight:700;font-size:0.85rem;color:var(--blue);text-transform:uppercase;">View Any Student Attendance (No Login Required)</span>
-        </div>
-        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;flex:1;max-width:540px;justify-content:flex-end;">
-          <select class="select" id="sp-public-select" onchange="onPublicSelectChange()" style="padding:0.4rem 0.8rem;font-size:0.85rem;flex:1;min-width:240px;">
-            <!-- Populated with all 65 students -->
-          </select>
-          <input type="text" id="sp-public-prn" class="input" placeholder="Or enter PRN (e.g. 24121227)" style="max-width:200px;padding:0.4rem 0.8rem;font-size:0.85rem;" oninput="onPublicPrnInput()">
-        </div>
       </div>
     </div>
 
@@ -429,8 +416,54 @@ document.addEventListener("DOMContentLoaded", async function() {
   </div>
 </div>
 
-<section class="section" style="padding-top:2rem">
+<!-- INSTITUTIONAL AUTHENTICATION GATE (SHOWN WHEN NOT LOGGED IN) -->
+<div id="student-gate" style="display:none;padding:3.5rem 1rem;">
+  <div class="container" style="max-width:580px;">
+    <div class="card" style="text-align:center;padding:2.8rem 2rem;background:var(--bg-2);border:2px solid var(--glass-border);border-radius:22px;box-shadow:0 20px 50px rgba(0,0,0,0.6);">
+      <div style="width:72px;height:72px;border-radius:20px;background:rgba(56,189,248,0.12);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:2.4rem;margin:0 auto 1.4rem;border:1.5px solid rgba(56,189,248,0.3);">
+        🔐
+      </div>
+      <h2 style="margin:0 0 10px;font-size:1.45rem;color:var(--fg);">Candidate Authentication Required</h2>
+      <p style="font-size:0.92rem;color:var(--muted);line-height:1.65;margin-bottom:1.8rem;">
+        Access to individual biometric telemetry logs, continuous internal sessional scores, official attendance certificates, and class timetable is strictly restricted under PBCOE Institutional IT Security &amp; NEP 2020 Compliance Policy.
+      </p>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <button class="btn btn-primary" style="width:100%;font-size:1.02rem;padding:0.8rem;" onclick="window.PBCOE_AUTH.openLogin('student')">
+          ⚡ Authenticate via University PRN &amp; Registered DOB
+        </button>
+        <a href="attendance.html" class="btn btn-ghost" style="width:100%;font-size:0.88rem;">
+          View Public Daily Attendance Terminal ➔
+        </a>
+      </div>
+      <div style="margin-top:1.8rem;padding-top:1.2rem;border-top:1px solid var(--border);font-size:0.75rem;color:var(--muted);">
+        Priyadarshini Bhagwati College of Engineering · ETC Dept · DTE: EN 4177
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AUTHENTICATED CANDIDATE DASHBOARD -->
+<section class="section" id="sp-authenticated-content" style="display:none;padding-top:2rem">
   <div class="container">
+
+    <!-- FACULTY AUDIT INSPECTION STRIP (VISIBLE ONLY FOR ADMIN/FACULTY SESSIONS) -->
+    <div id="sp-faculty-audit-banner" class="card" style="display:none;background:rgba(245,158,11,0.14);border:1.5px solid #f59e0b;color:#fcd34d;padding:12px 18px;margin-bottom:1.8rem;border-radius:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:1.3rem;">🛡️</span>
+          <div>
+            <strong style="color:#f59e0b;">Faculty Administrative Audit Mode:</strong>
+            <span style="font-size:0.84rem;color:#fde68a;" id="sp-faculty-inspector-name">Authorized inspection</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <label style="font-size:0.8rem;color:#fcd34d;">Inspect Candidate:</label>
+          <select id="sp-audit-select" class="select" onchange="onAuditSelectChange()" style="padding:4px 8px;font-size:0.82rem;background:#090d16;color:#f8fafc;border-color:#f59e0b;">
+            <!-- Populated for admin -->
+          </select>
+        </div>
+      </div>
+    </div>
     
     <!-- Top Row: Academic Telemetry + Biometrics -->
     <div class="grid-2" style="align-items:stretch">
@@ -729,36 +762,79 @@ let fullCohort = [];
 async function initStudentView() {
   await window.PBCOE.init();
   fullCohort = window.PBCOE.getStudents();
-  populatePublicDropdown();
   renderStudentDocuments();
 
-  // 1. Check URL query param e.g. student-portal.html?prn=24121227
+  const user = window.PBCOE.getCurrentUser();
   const urlParams = new URLSearchParams(window.location.search);
   const prnParam = urlParams.get('prn');
 
-  // 2. Check cached logged in student session
-  const user = window.PBCOE.getCurrentUser();
+  const gateEl = document.getElementById("student-gate");
+  const contentEl = document.getElementById("sp-authenticated-content");
+  const enrollBtn = document.getElementById("sp-enroll-btn");
+  const loginBtn = document.getElementById("sp-login-btn");
+  const logoutBtn = document.getElementById("sp-logout-btn");
+  const authBadge = document.getElementById("sp-auth-badge");
 
-  if (prnParam) {
-    const matched = window.PBCOE.getStudentByPrn(prnParam);
-    if (matched) currentStudent = matched;
-  } else if (user && user.role === 'student' && user.data) {
+  // STRICT AUTHENTICATION GUARD
+  if (!user) {
+    // Unauthenticated: Show gate, hide private records
+    if (gateEl) gateEl.style.display = "block";
+    if (contentEl) contentEl.style.display = "none";
+    if (enrollBtn) enrollBtn.style.display = "none";
+    if (loginBtn) loginBtn.style.display = "inline-flex";
+    if (logoutBtn) logoutBtn.style.display = "none";
+
+    document.getElementById("sp-name").innerText = "Institutional Student Gateway";
+    document.getElementById("sp-sub").innerText = "Authentication Required · Please login with your registered University PRN & DOB";
+    authBadge.className = "pill bad";
+    authBadge.innerText = "ACCESS RESTRICTED (LOGIN REQUIRED)";
+    return;
+  }
+
+  // Authenticated user exists
+  if (gateEl) gateEl.style.display = "none";
+  if (contentEl) contentEl.style.display = "block";
+  if (loginBtn) loginBtn.style.display = "none";
+  if (logoutBtn) logoutBtn.style.display = "inline-flex";
+
+  if (user.role === 'student' && user.data) {
+    // STRICT ANTI-TAMPERING: A student is strictly restricted to their own verified profile.
+    // If the URL contains an arbitrary ?prn=..., we ignore it and strip it from the URL.
+    if (prnParam && prnParam !== user.data.prn) {
+      console.warn(`[SECURITY] URL parameter prn=${prnParam} ignored. Student restricted to authorized PRN ${user.data.prn}.`);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
     currentStudent = user.data;
-  } else {
-    // Default preview: Yuvraj Lokhande (Slot 16) or first student
-    const defaultCandidate = window.PBCOE.getStudentByPrn("24121227") || fullCohort[0];
-    currentStudent = defaultCandidate;
-  }
-
-  if (currentStudent) {
     applyStudentData(currentStudent);
-  }
 
-  // Update Auth Badge & Self-Enroll button
-  if (user && user.role === 'student' && currentStudent && user.data.prn === currentStudent.prn) {
-    document.getElementById("sp-auth-badge").className = "pill ok";
-    document.getElementById("sp-auth-badge").innerText = "LOGGED IN (VERIFIED)";
-    document.getElementById("sp-enroll-btn").style.display = "inline-flex";
+    authBadge.className = "pill ok";
+    authBadge.innerText = "VERIFIED CANDIDATE SESSION";
+    if (enrollBtn) enrollBtn.style.display = "inline-flex";
+  } else if (user.role === 'admin' && user.data) {
+    // FACULTY AUDIT MODE
+    const auditBanner = document.getElementById("sp-faculty-audit-banner");
+    if (auditBanner) auditBanner.style.display = "block";
+    const inspName = document.getElementById("sp-faculty-inspector-name");
+    if (inspName) inspName.innerText = `${user.data.name} (${user.data.designation || 'Faculty'})`;
+
+    populateAuditDropdown();
+
+    // Faculty can inspect requested student via URL or default to first
+    let target = fullCohort[0];
+    if (prnParam) {
+      const match = window.PBCOE.getStudentByPrn(prnParam);
+      if (match) target = match;
+    }
+    currentStudent = target;
+    applyStudentData(currentStudent);
+
+    const auditSel = document.getElementById("sp-audit-select");
+    if (auditSel && currentStudent) auditSel.value = currentStudent.prn;
+
+    authBadge.className = "pill mid";
+    authBadge.innerText = "FACULTY AUDIT MODE";
+    if (enrollBtn) enrollBtn.style.display = "none";
   }
 
   renderStudentTimetable();
@@ -770,36 +846,30 @@ async function initStudentView() {
       const todayLogs = logs.filter(l => (l.prn === currentStudent.prn || l.fingerprint_id === currentStudent.id));
       if (todayLogs.length > 0) {
         const latest = todayLogs[0];
-        document.getElementById("sp-checkin-status").innerText = `CHECK-IN: ${new Date(latest.created_at).toLocaleTimeString()}`;
-        document.getElementById("sp-checkin-status").className = "pill ok";
+        const statusEl = document.getElementById("sp-checkin-status");
+        if (statusEl) {
+          statusEl.innerText = `CHECK-IN: ${new Date(latest.created_at).toLocaleTimeString()}`;
+          statusEl.className = "pill ok";
+        }
       }
     }
   });
 }
 
-function populatePublicDropdown() {
-  const sel = document.getElementById("sp-public-select");
+function populateAuditDropdown() {
+  const sel = document.getElementById("sp-audit-select");
   if (!sel) return;
-  sel.innerHTML = '<option value="">-- Select Candidate (65 Students) --</option>' + 
-    fullCohort.map(s => `<option value="${s.prn}">${s.name} (PRN: ${s.prn}) - Slot #${s.id}</option>`).join("");
+  sel.innerHTML = fullCohort.map(s => {
+    const shortName = window.PBCOE.formatShortName ? window.PBCOE.formatShortName(s.name) : s.name;
+    const shortPrn = window.PBCOE.formatShortPrn ? window.PBCOE.formatShortPrn(s.prn) : s.prn;
+    return `<option value="${s.prn}">${shortName} (${shortPrn}) - Slot #${s.id}</option>`;
+  }).join("");
 }
 
-function onPublicSelectChange() {
-  const prn = document.getElementById("sp-public-select").value;
-  if (!prn) return;
-  document.getElementById("sp-public-prn").value = prn;
+function onAuditSelectChange() {
+  const prn = document.getElementById("sp-audit-select").value;
   const s = window.PBCOE.getStudentByPrn(prn);
   if (s) {
-    currentStudent = s;
-    applyStudentData(s);
-  }
-}
-
-function onPublicPrnInput() {
-  const prn = document.getElementById("sp-public-prn").value.trim();
-  const s = window.PBCOE.getStudentByPrn(prn);
-  if (s) {
-    document.getElementById("sp-public-select").value = prn;
     currentStudent = s;
     applyStudentData(s);
   }
