@@ -53,40 +53,18 @@
       </div>
     </div>
 
-    <!-- Enhanced Animated CPU Hologram Stage with Live Oscilloscope HUD -->
-    <div class="cpu-stage reveal zoom" style="--d:.2s;">
-      <canvas id="lightning-canvas" aria-hidden="true"></canvas>
-      <div class="cpu-core">
-        <div class="cpu-ring"></div>
-        <div class="cpu-ring r2"></div>
-        <div class="cpu-ring" style="inset:48px;border-radius:44px;border:1px dashed rgba(56,189,248,0.5);animation:spinSlow 12s linear infinite;"></div>
-        
-        <div class="cpu-chip">
-          <!-- Live LED Status Indicators -->
-          <div style="position:absolute;top:10px;left:10px;display:flex;gap:4px;">
-            <span style="width:5px;height:5px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e;"></span>
-            <span style="width:5px;height:5px;border-radius:50%;background:#38bdf8;box-shadow:0 0 6px #38bdf8;"></span>
-            <span style="width:5px;height:5px;border-radius:50%;background:#f59e0b;box-shadow:0 0 6px #f59e0b;"></span>
-          </div>
-          
-          <svg viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="1.4" aria-hidden="true">
-            <rect x="6" y="6" width="12" height="12" rx="2"/>
-            <rect x="9.5" y="9.5" width="5" height="5" rx="1"/>
-            <path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4" stroke-linecap="round"/>
-          </svg>
-        </div>
-
-        <span class="orbit-tag b" style="top:10px;left:-20px;">ESP32 · NODE</span>
-        <span class="orbit-tag y" style="top:20px;right:-25px;">CLK 240MHz</span>
-        <span class="orbit-tag r" style="bottom:18px;left:-20px;">R307 · OPTICAL</span>
-        <span class="orbit-tag b" style="bottom:10px;right:-20px;">ARM · CORTEX-M4</span>
+    <!-- Interactive 3D Multilayer PCB Hardware Stage (ESP32 + R307 Biometric Core) -->
+    <div class="pcb-3d-stage reveal zoom" style="--d:.2s;">
+      <div class="pcb-3d-viewport">
+        <canvas id="pcb-3d-canvas" width="500" height="400" title="Interactive 3D PCB Board: Drag to rotate, click to pulse signal!"></canvas>
       </div>
 
-      <!-- Live Mini Spectrum Monitor HUD -->
-      <div style="position:absolute;bottom:-15px;background:var(--glass-strong);border:1px solid var(--glass-border);border-radius:12px;padding:6px 14px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow-sm);backdrop-filter:blur(8px);z-index:3;">
-        <span class="mono" style="font-size:0.7rem;color:var(--blue);font-weight:700;">LIVE RF CARRIER:</span>
-        <canvas id="hero-mini-wave" width="90" height="20" style="display:block;"></canvas>
-        <span class="mono" style="font-size:0.7rem;color:#22c55e;">2.4 GHz OK</span>
+      <!-- Live 3D PCB Telemetry Badges (Adaptive Theme-Aware) -->
+      <div class="pcb-3d-hud">
+        <div class="pcb-chip-badge"><span style="color:#22c55e;">●</span> ESP32-WROOM · 240MHz</div>
+        <div class="pcb-chip-badge"><span style="color:#38bdf8;">●</span> R307 FTIR Prism Sensor</div>
+        <div class="pcb-chip-badge"><span style="color:#f59e0b;">●</span> UART TTL 57600</div>
+        <div class="pcb-chip-badge"><span style="color:#a855f7;">●</span> Drag to 3D Inspect 🔄</div>
       </div>
     </div>
   </div>
@@ -740,32 +718,12 @@ function switchHwTab(tab) {
 
   draw();
 })();
+</script>
 
-// Mini Spectrum Monitor HUD Canvas
-(function initMiniSpectrum() {
-  const canvas = document.getElementById("hero-mini-wave");
-  if (!canvas) return;
-  const ctx = canvas.getContext("2d");
-  let t = 0;
+<!-- Interactive 3D Multilayer PCB Hardware Engine -->
+<script src="assets/js/pcb-3d.js"></script>
 
-  function renderWave() {
-    t += 0.08;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.strokeStyle = "#38bdf8";
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-
-    for (let x = 0; x < canvas.width; x++) {
-      const y = (canvas.height / 2) + Math.sin(x * 0.18 + t) * 6;
-      if (x === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-    requestAnimationFrame(renderWave);
-  }
-  renderWave();
-})();
-
+<script>
 // Supabase Notices loader
 document.addEventListener("DOMContentLoaded", async function() {
   await window.PBCOE.init();
