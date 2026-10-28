@@ -397,6 +397,30 @@
   border-top-left-radius: 0;
 }
 
+.wa-msg-del {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 1px 5px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+}
+
+.wa-bubble:hover .wa-msg-del {
+  opacity: 1;
+}
+
+.wa-msg-del:hover {
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.2);
+}
+
 .wa-sender-tag {
   font-size: 0.74rem;
   font-weight: 700;

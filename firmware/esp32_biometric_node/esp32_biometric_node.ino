@@ -50,9 +50,11 @@ void soundDoubleScan() {
   playBuzzerTone(3300, 50);
 }
 
-// 3. Unrecognized Fingerprint / Error: Low warning buzz
+// 3. Unrecognized Fingerprint: Soft double-pip alert (no harsh unauth buzzer)
 void soundUnrecognized() {
-  playBuzzerTone(550, 480);
+  playBuzzerTone(1800, 60);
+  delay(35);
+  playBuzzerTone(2200, 75);
 }
 
 // 4. Optical Pass Captured: Short confirmation pip
@@ -269,7 +271,7 @@ void markStudentEnrolledInSupabase(String roll, int slotId) {
 // Poll Supabase for pending enrollment commands
 void checkBiometricCommands() {
   static unsigned long lastCheck = 0;
-  if (millis() - lastCheck < 2000) return;
+  if (millis() - lastCheck < 350) return;
   lastCheck = millis();
 
   if (WiFi.status() != WL_CONNECTED) return;

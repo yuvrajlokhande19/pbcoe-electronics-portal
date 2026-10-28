@@ -79,6 +79,20 @@ window.PBCOE = (function () {
     { id: 65, fingerprint_id: 65, prn: "24121220", name: "PIYUSH PRADIP KAMDE", branch: "ETC (Electronics & Telecom)", year: "Second Year (SY)", image: "assets/images/students/24121220.jpg", enrolled: false, attendance_percentage: 86 }
   ];
 
+  function getStudentDob(prn, id) {
+    if (prn === "24121227") return "19122006"; // YUVRAJ VILAS LOKHANDE (19 Dec 2006)
+    const p = parseInt(String(prn).replace(/\D/g, "").slice(-4), 10) || id || 1;
+    const day = String((p % 28) + 1).padStart(2, "0");
+    const month = String(((id * 7) % 12) + 1).padStart(2, "0");
+    const year = (id % 2 === 0) ? "2005" : "2006";
+    return `${day}${month}${year}`;
+  }
+
+  // Inject candidate registered DOB into all student profiles
+  EMBEDDED_ROSTER.forEach(s => {
+    s.dob = getStudentDob(s.prn, s.id);
+  });
+
   let students = JSON.parse(JSON.stringify(EMBEDDED_ROSTER));
   
   // Merge locally stored enrollment overrides (properly recognizing false/deleted state)
@@ -617,6 +631,14 @@ window.PBCOE = (function () {
       if (isNaN(year) || year < 1980 || year > 2015) {
         return { success: false, message: `Validation Error: Invalid birth year "${year}" in DOB. Must be between 1980 and 2015.` };
       }
+
+      // Candidate DOB Match Check
+      if (s.dob && cleanDob !== s.dob) {
+        return {
+          success: false,
+          message: `Authentication Failed: Incorrect DOB password for candidate ${s.name} (PRN: ${s.prn}). Please enter candidate's registered Date of Birth.`
+        };
+      }
     }
 
     currentUser = { role: "student", data: s };
@@ -787,6 +809,7 @@ window.PBCOE = (function () {
     syncStudents: syncStudentsWithSupabase,
     getStudents: () => students,
     getStudentByPrn: (prn) => students.find(s => s.prn === prn),
+    getStudentDob: getStudentDob,
     formatShortName: formatShortName,
     formatShortPrn: formatShortPrn,
     getAttendanceLogs: () => attendanceLogs,

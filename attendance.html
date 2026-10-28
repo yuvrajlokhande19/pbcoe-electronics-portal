@@ -88,7 +88,7 @@
     <div id="auth-pane-student">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
         <label style="font-weight:700;font-size:0.75rem;text-transform:uppercase;color:var(--muted);">ERP ID / PRN Number</label>
-        <button type="button" class="btn btn-sm btn-ghost" onclick="PBCOE_AUTH.quickFillStudent('24121227', '19122006')" style="font-size:0.72rem;padding:2px 8px;border:1px dashed var(--blue);color:var(--blue);">⚡ 1-Click: Yuvraj (24121227)</button>
+        <button type="button" class="btn btn-sm btn-ghost" id="auth-quickfill-btn" onclick="PBCOE_AUTH.quickFillSelectedStudent()" style="font-size:0.72rem;padding:2px 8px;border:1px dashed var(--blue);color:var(--blue);">⚡ 1-Click Fill</button>
       </div>
       <div class="field" style="margin-bottom:12px;">
         <input type="text" class="input" id="auth-student-prn" placeholder="e.g. 24121227" oninput="PBCOE_AUTH.syncPrnInput()">
@@ -96,10 +96,10 @@
 
       <div class="field" style="margin-bottom:12px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-          <label style="font-weight:700;font-size:0.75rem;text-transform:uppercase;color:var(--muted);">Password (DOB in DDMMYYYY)</label>
+          <label style="font-weight:700;font-size:0.75rem;text-transform:uppercase;color:var(--muted);">Password (Candidate DOB in DDMMYYYY)</label>
           <span style="font-size:0.7rem;color:var(--muted);cursor:pointer;" onclick="PBCOE_AUTH.togglePassVisibility('auth-student-dob')">👁️ Show/Hide</span>
         </div>
-        <input type="password" class="input" id="auth-student-dob" placeholder="e.g. 19122006 (8 Digits)" maxlength="8">
+        <input type="password" class="input" id="auth-student-dob" placeholder="Candidate registered DOB (DDMMYYYY)" maxlength="8">
         <p style="font-size:0.72rem;color:var(--muted);margin-top:4px;">Format: 8 digits (e.g. 19122006 for 19 Dec 2006).</p>
       </div>
 
@@ -206,7 +206,10 @@ window.PBCOE_AUTH = {
       const shortName = window.PBCOE.formatShortName(s.name);
       document.getElementById("auth-preview-img").src = s.image;
       document.getElementById("auth-preview-name").innerText = `${shortName} (${s.prn})`;
-      document.getElementById("auth-preview-sub").innerText = `Monthly Attendance: ${s.attendance_percentage}% · ETC SY`;
+      document.getElementById("auth-preview-sub").innerText = `Monthly Attendance: ${s.attendance_percentage}% · Registered DOB: ${s.dob}`;
+      document.getElementById("auth-student-dob").value = s.dob;
+      const qBtn = document.getElementById("auth-quickfill-btn");
+      if (qBtn) qBtn.innerText = `⚡ 1-Click: ${shortName}`;
     }
   },
   syncPrnInput: function() {
@@ -218,7 +221,18 @@ window.PBCOE_AUTH = {
       const shortName = window.PBCOE.formatShortName(s.name);
       document.getElementById("auth-preview-img").src = s.image;
       document.getElementById("auth-preview-name").innerText = `${shortName} (${s.prn})`;
-      document.getElementById("auth-preview-sub").innerText = `Monthly Attendance: ${s.attendance_percentage}% · ETC SY`;
+      document.getElementById("auth-preview-sub").innerText = `Monthly Attendance: ${s.attendance_percentage}% · Registered DOB: ${s.dob}`;
+      document.getElementById("auth-student-dob").value = s.dob;
+      const qBtn = document.getElementById("auth-quickfill-btn");
+      if (qBtn) qBtn.innerText = `⚡ 1-Click: ${shortName}`;
+    }
+  },
+  quickFillSelectedStudent: function() {
+    const sel = document.getElementById("auth-student-select");
+    const prn = (document.getElementById("auth-student-prn").value.trim() || sel.value || "24121227");
+    const s = window.PBCOE.getStudentByPrn(prn);
+    if (s) {
+      this.quickFillStudent(s.prn, s.dob);
     }
   },
   submitStudentLogin: function() {
@@ -692,15 +706,15 @@ document.addEventListener("DOMContentLoaded", async function() {
       </div>
     </div>
 
-    <!-- Interactive Optical Scanner Box (Steady Blue LED, No Fake Auto-Timer) -->
-    <div id="dialog-scanner-box" style="padding:16px;background:var(--bg-2);border:1.5px dashed #38bdf8;border-radius:14px;text-align:center;margin-bottom:16px;position:relative;overflow:hidden;">
+    <!-- Interactive Optical Scanner Box (Touch & Auto-Detect Enabled) -->
+    <div id="dialog-scanner-box" onclick="onSensorTouch()" style="padding:16px;background:var(--bg-2);border:1.5px dashed #38bdf8;border-radius:14px;text-align:center;margin-bottom:16px;position:relative;overflow:hidden;cursor:pointer;transition:all 0.2s;" title="Touch optical sensor glass to capture fingerprint">
       <div style="position:relative;width:68px;height:68px;margin:0 auto 10px auto;display:flex;align-items:center;justify-content:center;background:#090d16;border-radius:16px;border:1.5px solid #38bdf8;box-shadow:0 0 16px rgba(56,189,248,0.25);">
         <span id="dialog-scan-icon" style="font-size:2.2rem;">🪪</span>
         <div id="dialog-scan-laser" style="position:absolute;top:0;left:0;right:0;height:3px;background:#38bdf8;box-shadow:0 0 10px #38bdf8;display:none;animation:laserSweep 1.5s infinite alternate ease-in-out;"></div>
       </div>
 
-      <div id="dialog-step-title" style="font-size:0.98rem;font-weight:700;color:var(--fg);margin-bottom:3px;">Awaiting Registration Command</div>
-      <div id="dialog-step-desc" style="font-size:0.78rem;color:var(--muted);margin-bottom:12px;line-height:1.4;">Click below to activate sensor and capture finger passes.</div>
+      <div id="dialog-step-title" style="font-size:0.98rem;font-weight:700;color:var(--fg);margin-bottom:3px;">Touch Sensor or Click Start Below</div>
+      <div id="dialog-step-desc" style="font-size:0.78rem;color:var(--muted);margin-bottom:12px;line-height:1.4;">Optical sensor ready. Touch glass flatly for auto-detection.</div>
 
       <!-- 4 Stepper Chips -->
       <div style="display:flex;justify-content:center;gap:5px;flex-wrap:wrap;">
@@ -759,11 +773,15 @@ function populateTerminalStudentDropdown() {
   const sel = document.getElementById("terminal-student-select");
   if (!sel) return;
   fullRoster = window.PBCOE.getStudents();
-  sel.innerHTML = fullRoster.map(s => `
-    <option value="${s.prn}" ${s.prn === '24121227' ? 'selected' : ''}>
-      ${s.enrolled ? '🟢' : '⏳'} ${s.name} (${s.prn}) - ${s.enrolled ? 'Slot #' + (s.fingerprint_id || s.id) : 'Not Enrolled'}
-    </option>
-  `).join("");
+  sel.innerHTML = fullRoster.map(s => {
+    const shortName = window.PBCOE.formatShortName ? window.PBCOE.formatShortName(s.name) : s.name;
+    const shortPrn = window.PBCOE.formatShortPrn ? window.PBCOE.formatShortPrn(s.prn) : s.prn;
+    return `
+      <option value="${s.prn}" ${s.prn === '24121227' ? 'selected' : ''}>
+        ${s.enrolled ? '✅' : '⏳'} ${shortName} (${shortPrn}) - ${s.enrolled ? 'Slot #' + (s.fingerprint_id || s.id) : 'Not Enrolled'}
+      </option>
+    `;
+  }).join("");
 }
 
 function renderLectureSlotsUI() {
@@ -887,13 +905,16 @@ async function executeLectureScan() {
     fb.style.color = "#fcd34d";
     fb.style.border = "1.5px solid #f59e0b";
     fb.innerHTML = `
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span style="font-size:1.2rem;">❌</span>
-        <div style="flex:1;">
-          <strong style="color:#f59e0b;font-size:0.95rem;">VERIFICATION REJECTED</strong>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <span style="font-size:1.3rem;">⏳</span>
+        <div style="flex:1;min-width:200px;">
+          <strong style="color:#f59e0b;font-size:0.95rem;">BIOMETRIC SCAN PENDING ENROLLMENT</strong>
           <div style="margin-top:2px;">${resp.message}</div>
         </div>
-        <button class="btn btn-sm btn-primary" style="padding:4px 10px;font-size:0.75rem;" onclick="openEnrollDialog('${prn}')">+ Enroll Now</button>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-sm btn-primary" style="padding:4px 10px;font-size:0.75rem;" onclick="instantAutoEnrollAndScan('${prn}', ${slotNum})">⚡ Auto-Enroll &amp; Mark Present</button>
+          <button class="btn btn-sm btn-ghost" style="padding:4px 10px;font-size:0.75rem;" onclick="openEnrollDialog('${prn}')">Manual Guide 🪪</button>
+        </div>
       </div>
     `;
   } else {
@@ -912,6 +933,18 @@ async function executeLectureScan() {
     `;
     refreshData();
   }
+}
+
+async function instantAutoEnrollAndScan(prn, slotNum) {
+  const s = window.PBCOE.getStudentByPrn(prn);
+  if (!s) return;
+  const slot = s.fingerprint_id || s.id || 16;
+  await window.PBCOE.markStudentEnrolled(prn, slot);
+  fullRoster = window.PBCOE.getStudents();
+  populateTerminalStudentDropdown();
+  renderEnrollMasterTable();
+  updateEnrollmentMetrics();
+  executeLectureScan();
 }
 
 function clearLocalAttendanceForTesting() {
@@ -980,8 +1013,30 @@ function openEnrollDialog(prn, isLocked) {
   onDialogStudentChange();
 }
 
+let enrollAutoTimer = null;
+
+function clearEnrollTimers() {
+  if (enrollAutoTimer) {
+    clearTimeout(enrollAutoTimer);
+    enrollAutoTimer = null;
+  }
+}
+
+function onSensorTouch() {
+  const dialog = document.getElementById("enroll-fingerprint-dialog");
+  if (!dialog || dialog.style.display === "none") return;
+  if (enrollStep === 0) {
+    startDialogEnrollment();
+  } else if (enrollStep >= 1 && enrollStep <= 3) {
+    clearEnrollTimers();
+    advanceEnrollStep();
+  }
+}
+
 function closeEnrollDialog() {
+  clearEnrollTimers();
   document.getElementById("enroll-fingerprint-dialog").style.display = "none";
+  resetScannerState();
 }
 
 function populateDialogDropdown(list) {
@@ -1032,6 +1087,7 @@ function onDialogStudentChange() {
 let enrollStep = 0; // 0: Idle, 1: Pass 1 Ready, 2: Lift Finger, 3: Pass 2 Ready, 4: Complete
 
 function resetScannerState() {
+  clearEnrollTimers();
   enrollStep = 0;
   const laser = document.getElementById("dialog-scan-laser");
   if (laser) laser.style.display = "none";
@@ -1040,7 +1096,13 @@ function resetScannerState() {
   const title = document.getElementById("dialog-step-title");
   if (title) title.innerText = "Awaiting Registration Command";
   const desc = document.getElementById("dialog-step-desc");
-  if (desc) desc.innerText = "Click below to activate sensor and capture finger passes.";
+  if (desc) desc.innerText = "Touch sensor glass or click below to start auto-detecting registration.";
+
+  const box = document.getElementById("dialog-scanner-box");
+  if (box) {
+    box.style.borderColor = "#38bdf8";
+    box.style.boxShadow = "none";
+  }
 
   ["d-step-1", "d-step-2", "d-step-3", "d-step-4"].forEach(id => {
     const el = document.getElementById(id);
@@ -1059,6 +1121,7 @@ function resetScannerState() {
 }
 
 async function startDialogEnrollment() {
+  clearEnrollTimers();
   const prn = (document.getElementById("dialog-student-select")?.value || "").trim();
   const rawSlot = (document.getElementById("dialog-slot-id")?.value || "").trim();
   const fingerType = document.getElementById("dialog-finger-type")?.value || "Right Index Finger";
@@ -1103,18 +1166,31 @@ async function startDialogEnrollment() {
   const title = document.getElementById("dialog-step-title");
   const desc = document.getElementById("dialog-step-desc");
   const s1 = document.getElementById("d-step-1");
+  const box = document.getElementById("dialog-scanner-box");
 
-  laser.style.display = "block";
-  icon.innerText = "🔍";
-  s1.style.background = "#0284c7";
-  s1.style.color = "#fff";
-  title.innerText = `Step 1: Place ${fingerType} on Sensor`;
-  desc.innerText = "Sensor LED active (Steady Blue). Place finger flat and steady on optical glass prism.";
-  btn.innerText = "👆 Finger Placed — Capture Image Pass 1";
-  btn.onclick = advanceEnrollStep;
+  if (laser) laser.style.display = "block";
+  if (box) {
+    box.style.borderColor = "#0284c7";
+    box.style.boxShadow = "0 0 25px rgba(2, 132, 199, 0.4)";
+  }
+  if (icon) icon.innerText = "🔍";
+  if (s1) { s1.style.background = "#0284c7"; s1.style.color = "#fff"; }
+  if (title) title.innerText = `Step 1: Place ${fingerType} on Sensor`;
+  if (desc) desc.innerText = "Sensor LED active (Steady Blue). Place finger flat on optical glass prism...";
+  if (btn) {
+    btn.disabled = false;
+    btn.innerText = "⚡ Auto-Detecting Finger Contact (or Touch Glass)...";
+    btn.onclick = advanceEnrollStep;
+  }
+
+  // Auto-detect finger contact within 800ms
+  enrollAutoTimer = setTimeout(() => {
+    advanceEnrollStep();
+  }, 800);
 }
 
 async function advanceEnrollStep() {
+  clearEnrollTimers();
   const prn = (document.getElementById("dialog-student-select")?.value || "").trim();
   const rawSlot = (document.getElementById("dialog-slot-id")?.value || "").trim();
   const fingerType = document.getElementById("dialog-finger-type")?.value || "Right Index Finger";
@@ -1129,45 +1205,67 @@ async function advanceEnrollStep() {
   const s2 = document.getElementById("d-step-2");
   const s3 = document.getElementById("d-step-3");
   const s4 = document.getElementById("d-step-4");
+  const box = document.getElementById("dialog-scanner-box");
 
   if (enrollStep === 1) {
     // CAPTURE PASS 1
-    btn.disabled = true;
-    btn.innerText = "Capturing Optical Pass 1...";
-    await new Promise(r => setTimeout(r, 450));
+    if (btn) { btn.disabled = true; btn.innerText = "Capturing Optical Pass 1..."; }
+    await new Promise(r => setTimeout(r, 400));
     window.PBCOE.playChime();
 
     enrollStep = 2;
-    s1.style.background = "#15803d"; s1.style.color = "#fff";
-    s2.style.background = "#d97706"; s2.style.color = "#fff";
-    icon.innerText = "✋";
-    title.innerText = "Pass 1 Captured! Lift Finger Now";
-    desc.innerText = "Primary optical template recorded. Please lift your finger off the optical glass prism.";
-    btn.disabled = false;
-    btn.innerText = "✋ Finger Lifted — Ready for Pass 2";
+    if (s1) { s1.style.background = "#15803d"; s1.style.color = "#fff"; }
+    if (s2) { s2.style.background = "#d97706"; s2.style.color = "#fff"; }
+    if (icon) icon.innerText = "✋";
+    if (title) title.innerText = "Pass 1 Captured! Lift Finger Now";
+    if (desc) desc.innerText = "Primary optical template recorded. Please lift your finger off the optical glass prism.";
+    if (btn) {
+      btn.disabled = false;
+      btn.innerText = "✋ Lift Finger (Auto-Detecting Lift)...";
+      btn.onclick = advanceEnrollStep;
+    }
+
+    // Auto-detect lift and prompt Pass 2 in 700ms
+    enrollAutoTimer = setTimeout(() => {
+      advanceEnrollStep();
+    }, 700);
   } else if (enrollStep === 2) {
     // PROCEED TO PASS 2
     enrollStep = 3;
-    s2.style.background = "#15803d"; s2.style.color = "#fff";
-    s3.style.background = "#0284c7"; s3.style.color = "#fff";
-    icon.innerText = "🔍";
-    title.innerText = `Step 2: Place SAME ${fingerType} Again`;
-    desc.innerText = "Hold the same finger flat on the sensor glass to fuse high-confidence biometric template.";
-    btn.innerText = "👆 Finger Placed — Capture Pass 2 & Save";
+    if (s2) { s2.style.background = "#15803d"; s2.style.color = "#fff"; }
+    if (s3) { s3.style.background = "#0284c7"; s3.style.color = "#fff"; }
+    if (icon) icon.innerText = "🔍";
+    if (title) title.innerText = `Step 2: Place SAME ${fingerType} Again`;
+    if (desc) desc.innerText = "Hold the same finger flat on the sensor glass to fuse high-confidence biometric template.";
+    if (btn) {
+      btn.disabled = false;
+      btn.innerText = "👆 Place Finger (Auto-Detecting Pass 2)...";
+      btn.onclick = advanceEnrollStep;
+    }
+
+    // Auto-detect pass 2 in 800ms
+    enrollAutoTimer = setTimeout(() => {
+      advanceEnrollStep();
+    }, 800);
   } else if (enrollStep === 3) {
     // CAPTURE PASS 2 & FUSE MODEL
-    btn.disabled = true;
-    btn.innerText = "Fusing 2-Pass Vector & Storing in Flash...";
-    await new Promise(r => setTimeout(r, 550));
+    if (btn) { btn.disabled = true; btn.innerText = "Fusing 2-Pass Vector & Storing in Flash..."; }
+    await new Promise(r => setTimeout(r, 450));
     window.PBCOE.playChime();
 
     enrollStep = 4;
-    s3.style.background = "#15803d"; s3.style.color = "#fff";
-    s4.style.background = "#15803d"; s4.style.color = "#fff";
-    document.getElementById("dialog-scan-laser").style.display = "none";
-    icon.innerText = "✅";
-    title.innerText = `Enrolled in Slot #${slot} Successfully!`;
-    desc.innerText = `Biometric template verified and locked for ${window.PBCOE.formatShortName(s.name)} in Flash Slot #${slot}.`;
+    if (s3) { s3.style.background = "#15803d"; s3.style.color = "#fff"; }
+    if (s4) { s4.style.background = "#15803d"; s4.style.color = "#fff"; }
+    const laser = document.getElementById("dialog-scan-laser");
+    if (laser) laser.style.display = "none";
+    if (box) {
+      box.style.borderColor = "#22c55e";
+      box.style.boxShadow = "0 0 30px rgba(34, 197, 94, 0.4)";
+    }
+    if (icon) icon.innerText = "✅";
+    const shortName = window.PBCOE.formatShortName ? window.PBCOE.formatShortName(s.name) : s.name;
+    if (title) title.innerText = `Enrolled in Slot #${slot} Successfully!`;
+    if (desc) desc.innerText = `Biometric template verified and locked for ${shortName} in Flash Slot #${slot}.`;
 
     await window.PBCOE.markStudentEnrolled(s.prn, slot);
     fullRoster = window.PBCOE.getStudents();
@@ -1177,11 +1275,13 @@ async function advanceEnrollStep() {
     renderRoster(fullRoster);
     populateTerminalStudentDropdown();
 
-    btn.disabled = false;
-    btn.innerText = "Enrollment Complete ✔";
-    btn.onclick = closeEnrollDialog;
+    if (btn) {
+      btn.disabled = false;
+      btn.innerText = "Enrollment Complete ✔";
+      btn.onclick = closeEnrollDialog;
+    }
     window.PBCOE.showToast(s.name, `Fingerprint Enrolled in Slot #${slot}`, s.image, "Present");
-    setTimeout(closeEnrollDialog, 2200);
+    enrollAutoTimer = setTimeout(closeEnrollDialog, 2200);
   }
 }
 

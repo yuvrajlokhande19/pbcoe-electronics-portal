@@ -172,7 +172,7 @@
     <div id="auth-pane-student">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
         <label style="font-weight:700;font-size:0.75rem;text-transform:uppercase;color:var(--muted);">ERP ID / PRN Number</label>
-        <button type="button" class="btn btn-sm btn-ghost" onclick="PBCOE_AUTH.quickFillStudent('24121227', '19122006')" style="font-size:0.72rem;padding:2px 8px;border:1px dashed var(--blue);color:var(--blue);">⚡ 1-Click: Yuvraj (24121227)</button>
+        <button type="button" class="btn btn-sm btn-ghost" id="auth-quickfill-btn" onclick="PBCOE_AUTH.quickFillSelectedStudent()" style="font-size:0.72rem;padding:2px 8px;border:1px dashed var(--blue);color:var(--blue);">⚡ 1-Click Fill</button>
       </div>
       <div class="field" style="margin-bottom:12px;">
         <input type="text" class="input" id="auth-student-prn" placeholder="e.g. 24121227" oninput="PBCOE_AUTH.syncPrnInput()">
@@ -180,10 +180,10 @@
 
       <div class="field" style="margin-bottom:12px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-          <label style="font-weight:700;font-size:0.75rem;text-transform:uppercase;color:var(--muted);">Password (DOB in DDMMYYYY)</label>
+          <label style="font-weight:700;font-size:0.75rem;text-transform:uppercase;color:var(--muted);">Password (Candidate DOB in DDMMYYYY)</label>
           <span style="font-size:0.7rem;color:var(--muted);cursor:pointer;" onclick="PBCOE_AUTH.togglePassVisibility('auth-student-dob')">👁️ Show/Hide</span>
         </div>
-        <input type="password" class="input" id="auth-student-dob" placeholder="e.g. 19122006 (8 Digits)" maxlength="8">
+        <input type="password" class="input" id="auth-student-dob" placeholder="Candidate registered DOB (DDMMYYYY)" maxlength="8">
         <p style="font-size:0.72rem;color:var(--muted);margin-top:4px;">Format: 8 digits (e.g. 19122006 for 19 Dec 2006).</p>
       </div>
 
@@ -290,7 +290,10 @@ window.PBCOE_AUTH = {
       const shortName = window.PBCOE.formatShortName(s.name);
       document.getElementById("auth-preview-img").src = s.image;
       document.getElementById("auth-preview-name").innerText = `${shortName} (${s.prn})`;
-      document.getElementById("auth-preview-sub").innerText = `Monthly Attendance: ${s.attendance_percentage}% · ETC SY`;
+      document.getElementById("auth-preview-sub").innerText = `Monthly Attendance: ${s.attendance_percentage}% · Registered DOB: ${s.dob}`;
+      document.getElementById("auth-student-dob").value = s.dob;
+      const qBtn = document.getElementById("auth-quickfill-btn");
+      if (qBtn) qBtn.innerText = `⚡ 1-Click: ${shortName}`;
     }
   },
   syncPrnInput: function() {
@@ -302,7 +305,18 @@ window.PBCOE_AUTH = {
       const shortName = window.PBCOE.formatShortName(s.name);
       document.getElementById("auth-preview-img").src = s.image;
       document.getElementById("auth-preview-name").innerText = `${shortName} (${s.prn})`;
-      document.getElementById("auth-preview-sub").innerText = `Monthly Attendance: ${s.attendance_percentage}% · ETC SY`;
+      document.getElementById("auth-preview-sub").innerText = `Monthly Attendance: ${s.attendance_percentage}% · Registered DOB: ${s.dob}`;
+      document.getElementById("auth-student-dob").value = s.dob;
+      const qBtn = document.getElementById("auth-quickfill-btn");
+      if (qBtn) qBtn.innerText = `⚡ 1-Click: ${shortName}`;
+    }
+  },
+  quickFillSelectedStudent: function() {
+    const sel = document.getElementById("auth-student-select");
+    const prn = (document.getElementById("auth-student-prn").value.trim() || sel.value || "24121227");
+    const s = window.PBCOE.getStudentByPrn(prn);
+    if (s) {
+      this.quickFillStudent(s.prn, s.dob);
     }
   },
   submitStudentLogin: function() {

@@ -355,6 +355,7 @@
 
         html += `
           <div class="wa-bubble ${bubbleClass}">
+            <button type="button" class="wa-msg-del" title="Delete message" onclick="event.stopPropagation(); window.PBCOE_WA.deleteMessage('${activeContactId}', '${m.id}')">🗑️</button>
             ${!isSent ? `<div class="wa-sender-tag">${m.sender_name}</div>` : ''}
             ${m.image ? `
               <div class="wa-bubble-img-wrap" onclick="window.PBCOE_WA.openLightbox('${m.image}', '${encodeURIComponent(m.text || '')}')">
@@ -638,6 +639,26 @@
     renderContactsList();
   }
 
+  function deleteMessage(contactId, msgId) {
+    if (!confirm("Are you sure you want to delete this message?")) return;
+    const msgs = getStoredMessages();
+    if (msgs[contactId]) {
+      msgs[contactId] = msgs[contactId].filter(m => m.id !== msgId);
+      saveStoredMessages(msgs);
+      renderActiveChat();
+      renderContactsList();
+    }
+  }
+
+  function clearCurrentChat() {
+    if (!confirm("Clear all messages in this conversation?")) return;
+    const msgs = getStoredMessages();
+    msgs[activeContactId] = [];
+    saveStoredMessages(msgs);
+    renderActiveChat();
+    renderContactsList();
+  }
+
   // Expose API
   window.PBCOE_WA = {
     init: function() {
@@ -648,6 +669,8 @@
     backToContacts,
     filterContacts,
     sendMessage,
+    deleteMessage,
+    clearCurrentChat,
     handleFileInput,
     cancelAttachment,
     openLightbox,
