@@ -322,8 +322,9 @@ void checkBiometricCommands() {
             enrollStepMsg = "Step 1: Place finger flat on optical sensor";
             enrollStartTime = millis();
 
-            // Set CONSTANT SOLID BLUE LIGHT on optical sensor prism
-            finger.LEDcontrol(FINGERPRINT_LED_ON, 0, FINGERPRINT_LED_BLUE);
+            // Set CONSTANT SOLID BLUE LIGHT on optical sensor prism (both optical backlight & Aura LED)
+            finger.LEDcontrol(true);
+            finger.LEDcontrol(FINGERPRINT_LED_ON, 0, FINGERPRINT_LED_BLUE, 0);
 
             soundEnrollStep();
             updateCommandStatus(cmdId, "STEP_1");
@@ -376,7 +377,8 @@ void processEnrollment() {
   // Check for 60-second timeout
   if (millis() - enrollStartTime > 60000) {
     Serial.println(">> [ENROLL] Registration timed out (60s). Returning to attendance mode.");
-    finger.LEDcontrol(FINGERPRINT_LED_OFF, 0, FINGERPRINT_LED_BLUE);
+    finger.LEDcontrol(false);
+    finger.LEDcontrol(FINGERPRINT_LED_OFF, 0, FINGERPRINT_LED_BLUE, 0);
     soundUnrecognized();
     updateCommandStatus(activeCommandId, "FAILED");
     currentMode = MODE_ATTENDANCE;
@@ -429,7 +431,8 @@ void processEnrollment() {
             updateCommandStatus(activeCommandId, "SUCCESS");
 
             // Turn off LED after successful enrollment
-            finger.LEDcontrol(FINGERPRINT_LED_OFF, 0, FINGERPRINT_LED_BLUE);
+            finger.LEDcontrol(false);
+            finger.LEDcontrol(FINGERPRINT_LED_OFF, 0, FINGERPRINT_LED_BLUE, 0);
 
             // Double celebration chime
             soundCheckInSuccess();
@@ -445,7 +448,8 @@ void processEnrollment() {
             enrollProgress = 0;
             activeCommandId = 0;
           } else {
-            finger.LEDcontrol(FINGERPRINT_LED_OFF, 0, FINGERPRINT_LED_BLUE);
+            finger.LEDcontrol(false);
+            finger.LEDcontrol(FINGERPRINT_LED_OFF, 0, FINGERPRINT_LED_BLUE, 0);
             soundUnrecognized();
             updateCommandStatus(activeCommandId, "FAILED");
             currentMode = MODE_ATTENDANCE;
@@ -453,7 +457,8 @@ void processEnrollment() {
             activeCommandId = 0;
           }
         } else {
-          finger.LEDcontrol(FINGERPRINT_LED_OFF, 0, FINGERPRINT_LED_BLUE);
+          finger.LEDcontrol(false);
+          finger.LEDcontrol(FINGERPRINT_LED_OFF, 0, FINGERPRINT_LED_BLUE, 0);
           soundUnrecognized();
           updateCommandStatus(activeCommandId, "FAILED");
           currentMode = MODE_ATTENDANCE;
@@ -532,7 +537,8 @@ void handleSerialCommands() {
           currentMode = MODE_ENROLLING;
           enrollProgress = 1;
           enrollStartTime = millis();
-          finger.LEDcontrol(FINGERPRINT_LED_ON, 0, FINGERPRINT_LED_BLUE);
+          finger.LEDcontrol(true);
+          finger.LEDcontrol(FINGERPRINT_LED_ON, 0, FINGERPRINT_LED_BLUE, 0);
           soundEnrollStep();
           Serial.printf("\n[SERIAL] Manual enrollment triggered for Slot #%d (%s)\n", targetSlot, sName.c_str());
           Serial.println(">> Optical Blue Light Constant ON! Place finger on sensor glass now (Pass 1 of 2)...");
@@ -656,7 +662,8 @@ void setup() {
       currentMode = MODE_ENROLLING;
       enrollProgress = 1;
       enrollStartTime = millis();
-      finger.LEDcontrol(FINGERPRINT_LED_ON, 0, FINGERPRINT_LED_BLUE);
+      finger.LEDcontrol(true);
+      finger.LEDcontrol(FINGERPRINT_LED_ON, 0, FINGERPRINT_LED_BLUE, 0);
       soundEnrollStep();
 
       server.send(200, "application/json", "{\"status\":\"ENROLL_STARTED\",\"slot\":" + String(tid) + "}");

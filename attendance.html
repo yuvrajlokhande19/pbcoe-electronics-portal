@@ -529,6 +529,23 @@ document.addEventListener("DOMContentLoaded", async function() {
     <!-- VIEW 1: LIVE ATTENDANCE STREAM             -->
     <!-- ========================================== -->
     <div id="view-feed">
+      <!-- Dynamic Banner: Unrecognized Optical Fingerprint Alert -->
+      <div id="unrecognized-scan-alert" style="display:none;background:linear-gradient(90deg, rgba(239,68,68,0.2) 0%, rgba(245,158,11,0.14) 100%);border:1.5px solid #ef4444;border-radius:14px;padding:14px 18px;margin-bottom:1.4rem;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;box-shadow:0 0 25px rgba(239,68,68,0.25);">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="font-size:1.8rem;">⚠️</span>
+          <div>
+            <div style="font-weight:700;color:#fca5a5;font-size:1rem;">Unrecognized Fingerprint Placed on Optical Sensor!</div>
+            <div style="font-size:0.82rem;color:var(--muted);margin-top:2px;" id="unrecognized-alert-meta">Optical prism scan not matched with any template in sensor flash memory.</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <button class="btn btn-sm btn-primary" onclick="openClaimFingerprintDialog()" style="background:#ef4444;border-color:#ef4444;padding:7px 16px;font-size:0.86rem;font-weight:700;box-shadow:0 0 15px rgba(239,68,68,0.45);">
+            ➕ Assign &amp; Enroll Candidate Now 🪪
+          </button>
+          <button class="btn btn-sm btn-ghost" onclick="dismissUnrecognizedAlert()" style="padding:6px 12px;font-size:0.8rem;">Dismiss</button>
+        </div>
+      </div>
+
       <div class="card reveal" style="overflow-x:auto;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem;">
           <div>
@@ -732,6 +749,73 @@ document.addEventListener("DOMContentLoaded", async function() {
     </div>
     <div style="text-align:center;margin-top:12px;">
       <a href="javascript:void(0)" onclick="simulateHardwareAutoFlow()" style="font-size:0.75rem;color:var(--muted);text-decoration:underline;">🧪 Test Hardware Auto-Flow (Auto Pass 1 ➔ Lift ➔ Pass 2 ➔ Save)</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- POPUP MODAL DIALOG: CLAIM / ASSIGN UNRECOGNIZED FINGERPRINT  -->
+<!-- ============================================================ -->
+<div id="claim-fingerprint-dialog" style="display:none;position:fixed;inset:0;background:rgba(2,6,23,0.85);z-index:999999;justify-content:center;align-items:center;padding:16px;backdrop-filter:blur(10px);">
+  <div class="card" style="max-width:480px;width:100%;max-height:92vh;overflow-y:auto;background:var(--bg,#0b0f19);border:1.5px solid #ef4444;box-shadow:0 0 40px rgba(239,68,68,0.35);border-radius:18px;padding:24px;position:relative;">
+    
+    <!-- Header -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:10px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:1.6rem;color:#ef4444;">🪪</span>
+        <div>
+          <h2 style="margin:0;font-size:1.15rem;color:#fca5a5;font-family:'Share Tech Mono',monospace;">Assign Unrecognized Fingerprint</h2>
+          <p style="margin:0;font-size:0.75rem;color:var(--muted);">Bind detected optical scan to a candidate &amp; mark attendance</p>
+        </div>
+      </div>
+      <button onclick="closeClaimFingerprintDialog()" style="background:none;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer;" title="Close dialog">✕</button>
+    </div>
+
+    <!-- Alert Context Box -->
+    <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:12px;margin-bottom:14px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:1.4rem;">🔍</span>
+        <div>
+          <strong style="color:#fca5a5;font-size:0.88rem;">Unidentified Fingerprint Scan Detected</strong>
+          <div style="font-size:0.78rem;color:var(--muted);margin-top:2px;" id="claim-scan-meta">Detected on R307 sensor glass. Select which candidate this fingerprint belongs to.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Candidate Selection Dropdown -->
+    <div class="field" style="margin-bottom:12px;">
+      <label style="font-size:0.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;">Select Candidate (Whose Fingerprint is this?)</label>
+      <select class="select" id="claim-student-select" onchange="onClaimStudentChange()" style="padding:0.5rem 0.8rem;font-size:0.9rem;">
+        <!-- Populated with all candidates, unenrolled first -->
+      </select>
+    </div>
+
+    <!-- Candidate Preview Card -->
+    <div style="display:flex;gap:12px;align-items:center;padding:12px;background:var(--bg-2);border-radius:12px;border:1px solid var(--border);margin-bottom:14px;">
+      <img id="claim-card-photo" src="assets/images/students/24121227.jpg" style="width:52px;height:52px;border-radius:10px;object-fit:cover;border:1.5px solid #38bdf8;" onerror="this.src='https://ui-avatars.com/api/?name=Candidate&background=1e293b&color=38bdf8'">
+      <div style="flex:1;min-width:0;">
+        <div id="claim-card-name" style="font-weight:700;font-size:0.98rem;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Yuvraj Lokhande</div>
+        <div id="claim-card-prn" class="mono" style="font-size:0.78rem;color:var(--muted);margin-top:1px;">PRN: 24121227 · ETC (SY)</div>
+        <div style="margin-top:4px;">
+          <span id="claim-card-status" class="pill mid" style="font-size:0.68rem;padding:2px 8px;">PENDING REGISTRATION</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Target Slot Selection -->
+    <div class="field" style="margin-bottom:14px;">
+      <label style="font-size:0.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;">Assign Sensor Slot</label>
+      <input type="number" class="input" id="claim-slot-id" min="1" max="127" value="16" style="padding:0.45rem 0.7rem;font-size:0.9rem;">
+      <p style="font-size:0.72rem;color:var(--muted);margin-top:4px;">Template will be locked into R307 flash slot so future placements automatically mark attendance.</p>
+    </div>
+
+    <!-- Action Buttons -->
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-primary" id="claim-btn-save" style="flex:2;min-width:180px;font-size:0.9rem;padding:10px 14px;background:#22c55e;border-color:#22c55e;" onclick="executeClaimFingerprint()">
+        ✅ Save, Bind &amp; Mark Present Now ⚡
+      </button>
+      <button class="btn btn-ghost" onclick="closeClaimFingerprintDialog()" style="padding:10px 16px;">Cancel</button>
     </div>
 
   </div>
@@ -1638,6 +1722,21 @@ function renderLogsTable(records) {
   const totalScansEl = document.getElementById("stat-total-scans");
   if (totalScansEl) totalScansEl.innerText = records.length;
 
+  // Check if latest scan is unregistered
+  const alertEl = document.getElementById("unrecognized-scan-alert");
+  if (records && records.length > 0) {
+    const latest = records[0];
+    const isUnreg = (latest.status === "Unregistered" || latest.fingerprint_id === 0 || latest.prn === "N/A");
+    if (isUnreg && alertEl && alertEl.dataset.dismissed !== "true") {
+      alertEl.style.display = "flex";
+      const meta = document.getElementById("unrecognized-alert-meta");
+      const timeStr = latest.created_at ? new Date(latest.created_at).toLocaleTimeString() : new Date().toLocaleTimeString();
+      if (meta) meta.innerText = `Scan detected on R307 optical sensor at ${timeStr}. Not bound to any student profile yet.`;
+    } else if (!isUnreg && alertEl && alertEl.dataset.userOpened !== "true") {
+      alertEl.style.display = "none";
+    }
+  }
+
   if (!records || records.length === 0) {
     tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:2.5rem;color:var(--muted);">No scans recorded yet. Place finger on R307 sensor or test via terminal above.</td></tr>`;
     return;
@@ -1668,6 +1767,13 @@ function renderLogsTable(records) {
         <td>
           <strong style="color:var(--fg);font-size:0.92rem;">${name}</strong>
           ${student ? `<div style="font-size:0.75rem;color:var(--muted);">${student.branch}</div>` : (isUnregistered ? `<div style="font-size:0.72rem;color:#f87171;">Prism scan not recognized in flash</div>` : '')}
+          ${isUnregistered ? `
+            <div style="margin-top:6px;">
+              <button class="btn btn-sm btn-primary" style="padding:3px 9px;font-size:0.75rem;background:#ef4444;border-color:#ef4444;border-radius:6px;box-shadow:0 0 10px rgba(239,68,68,0.35);" onclick="openClaimFingerprintDialog('${r.id}')">
+                ➕ Assign to Student 🪪
+              </button>
+            </div>
+          ` : ''}
         </td>
         <td class="mono">${isUnregistered ? '<span style="color:#f87171;">Unregistered</span>' : (prn || (student ? student.prn : 'N/A'))}</td>
         <td>
@@ -1691,6 +1797,139 @@ function renderLogsTable(records) {
       </tr>
     `;
   }).join("");
+}
+
+// ─── Unregistered Fingerprint Claim Engine ─────────────────────────────────
+let currentClaimLogId = null;
+
+function openClaimFingerprintDialog(logId) {
+  currentClaimLogId = logId || null;
+  const dialog = document.getElementById("claim-fingerprint-dialog");
+  if (!dialog) return;
+  dialog.style.display = "flex";
+
+  fullRoster = window.PBCOE.getStudents();
+  populateClaimDropdown(fullRoster);
+
+  // If Yuvraj is not enrolled, default to Yuvraj
+  const sel = document.getElementById("claim-student-select");
+  if (sel) {
+    const yuvraj = fullRoster.find(s => s.prn === "24121227");
+    if (yuvraj && !yuvraj.enrolled) sel.value = "24121227";
+  }
+  onClaimStudentChange();
+}
+
+function closeClaimFingerprintDialog() {
+  const dialog = document.getElementById("claim-fingerprint-dialog");
+  if (dialog) dialog.style.display = "none";
+  currentClaimLogId = null;
+}
+
+function dismissUnrecognizedAlert() {
+  const alertEl = document.getElementById("unrecognized-scan-alert");
+  if (alertEl) {
+    alertEl.style.display = "none";
+    alertEl.dataset.dismissed = "true";
+  }
+}
+
+function populateClaimDropdown(list) {
+  const sel = document.getElementById("claim-student-select");
+  if (!sel) return;
+  // Sort unenrolled candidates first
+  const sorted = [...list].sort((a, b) => (a.enrolled === b.enrolled ? 0 : a.enrolled ? 1 : -1));
+  sel.innerHTML = sorted.map(s => {
+    const shortName = window.PBCOE.formatShortName ? window.PBCOE.formatShortName(s.name) : s.name;
+    const shortPrn = window.PBCOE.formatShortPrn ? window.PBCOE.formatShortPrn(s.prn) : s.prn;
+    return `
+      <option value="${s.prn}">
+        ${s.enrolled ? '🟢' : '⏳'} ${shortName} (${shortPrn}) ${s.enrolled ? '· Slot #' + (s.fingerprint_id || s.id) : '· (Not Enrolled)'}
+      </option>
+    `;
+  }).join("");
+}
+
+function onClaimStudentChange() {
+  const prn = document.getElementById("claim-student-select")?.value;
+  const s = window.PBCOE.getStudentByPrn(prn);
+  if (!s) return;
+  const shortName = window.PBCOE.formatShortName ? window.PBCOE.formatShortName(s.name) : s.name;
+  const shortPrn = window.PBCOE.formatShortPrn ? window.PBCOE.formatShortPrn(s.prn) : s.prn;
+  const photo = document.getElementById("claim-card-photo");
+  const nameEl = document.getElementById("claim-card-name");
+  const prnEl = document.getElementById("claim-card-prn");
+  const statusEl = document.getElementById("claim-card-status");
+  const slotInput = document.getElementById("claim-slot-id");
+
+  if (photo) photo.src = s.image;
+  if (nameEl) nameEl.innerText = `${shortName} (${shortPrn})`;
+  if (prnEl) prnEl.innerText = `PRN: ${s.prn} · ETC (SY)`;
+  if (slotInput) slotInput.value = s.fingerprint_id || s.id;
+  if (statusEl) {
+    statusEl.className = s.enrolled ? "pill ok" : "pill mid";
+    statusEl.innerText = s.enrolled ? `REGISTERED (SLOT #${s.fingerprint_id || s.id})` : "PENDING REGISTRATION";
+  }
+}
+
+async function executeClaimFingerprint() {
+  const prn = document.getElementById("claim-student-select")?.value;
+  const rawSlot = document.getElementById("claim-slot-id")?.value;
+  const btn = document.getElementById("claim-btn-save");
+  const s = window.PBCOE.getStudentByPrn(prn);
+  if (!s) return;
+  const slot = parseInt(rawSlot, 10) || s.id;
+  const shortName = window.PBCOE.formatShortName ? window.PBCOE.formatShortName(s.name) : s.name;
+
+  if (btn) { btn.disabled = true; btn.innerText = "Binding & Recording Attendance..."; }
+
+  // 1. Mark candidate enrolled in cloud database & memory
+  await window.PBCOE.markStudentEnrolled(prn, slot);
+
+  // 2. Record attendance for current active lecture slot
+  await window.PBCOE.recordLectureAttendance(prn);
+
+  // 3. Patch the Supabase attendance_logs record if logId is available
+  if (currentClaimLogId) {
+    try {
+      await fetch(`https://vobyuijfocigsbahkvab.supabase.co/rest/v1/attendance_logs?id=eq.${currentClaimLogId}`, {
+        method: "PATCH",
+        headers: {
+          "apikey": "sb_publishable_wIYMMvFnNFMXyFavLagzIA_4rBYuOMN",
+          "Authorization": "Bearer sb_publishable_wIYMMvFnNFMXyFavLagzIA_4rBYuOMN",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          prn: s.prn,
+          student_name: s.name,
+          status: "Present",
+          fingerprint_id: slot
+        })
+      });
+    } catch(e) {}
+  }
+
+  // 4. Send ENROLL command to ESP32 node queue so sensor hardware locks it in R307 flash
+  await window.PBCOE.triggerCloudEnrollment(slot, s.name, s.prn);
+
+  // 5. Success notifications & UI updates
+  if (window.PBCOE.playChime) {
+    window.PBCOE.playChime();
+    setTimeout(() => window.PBCOE.playChime(), 350);
+  }
+  window.PBCOE.showToast(shortName, `Fingerprint Bound & Marked Present (Slot #${slot})`, s.image, "Present");
+
+  closeClaimFingerprintDialog();
+  dismissUnrecognizedAlert();
+
+  fullRoster = window.PBCOE.getStudents();
+  renderEnrollMasterTable();
+  updateEnrollmentMetrics();
+  renderRoster(fullRoster);
+  populateTerminalStudentDropdown();
+  refreshData();
+
+  if (btn) { btn.disabled = false; btn.innerText = "✅ Save, Bind & Mark Present Now ⚡"; }
 }
 
 document.addEventListener("DOMContentLoaded", initBiometricStation);
