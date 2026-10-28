@@ -19,9 +19,12 @@
 
 <header class="nav" id="nav">
   <div class="nav-inner">
-    <a class="brand" href="index.html" style="display:flex;align-items:center;gap:10px;">
-      <img src="assets/images/pbcoe-round-seal.png" alt="PBCOE Seal" style="height:38px;width:38px;border-radius:50%;object-fit:contain;background:#fff;padding:1px;border:1.5px solid rgba(56,189,248,0.6);box-shadow:0 0 10px rgba(56,189,248,0.3);">
-      <span>PBCOE · ETC<small>DTE: EN 4177 · NAAC 'A+'</small></span>
+    <a class="brand" href="index.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
+      <img src="assets/images/pbcoe-round-seal.png" alt="PBCOE Seal" style="height:38px;width:38px;border-radius:50%;object-fit:contain;background:#fff;padding:1px;border:1.5px solid rgba(56,189,248,0.6);box-shadow:0 0 10px rgba(56,189,248,0.3);flex-shrink:0;">
+      <div style="display:flex;flex-direction:column;line-height:1.2;min-width:0;">
+        <span style="font-weight:700;font-size:0.96rem;color:var(--fg);white-space:nowrap;letter-spacing:0.02em;">PBCOE · ETC</span>
+        <span style="font-size:0.62rem;color:var(--muted);white-space:nowrap;letter-spacing:0.04em;">DTE: EN 4177 · NAAC 'A+'</span>
+      </div>
     </a>
     <ul class="nav-links">
       <li><a class="nlink" href="index.html">Home</a></li>
@@ -248,21 +251,37 @@ window.PBCOE_AUTH = {
     if (user) {
       if (user.role === 'admin') {
         slot.innerHTML = `
-          <a href="faculty-portal.html" class="btn btn-sm btn-ghost" style="display:inline-flex;align-items:center;gap:6px;">
-            <span>🛡️</span> Admin Console
+          <a href="faculty-portal.html" class="btn btn-sm btn-ghost" style="display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(250,204,21,0.35);padding:4px 9px;border-radius:8px;">
+            <span style="color:var(--yellow);">🛡️</span> <span style="font-size:0.82rem;font-weight:600;">Faculty Admin</span>
           </a>
-          <button onclick="window.PBCOE.logout()" class="btn btn-sm btn-ghost" style="padding:4px 8px;margin-left:4px;" title="Logout">✕</button>
+          <button onclick="window.PBCOE.logout()" class="btn btn-sm btn-ghost" style="padding:4px 7px;margin-left:4px;border-radius:8px;" title="Logout">🚪</button>
         `;
       } else if (user.role === 'student') {
-        const s = user.data;
+        const s = user.data || {};
+        const rawFirst = (s.name || "Student").split(' ')[0];
+        const firstName = rawFirst.charAt(0).toUpperCase() + rawFirst.slice(1).toLowerCase();
+        const initials = (s.name || "ST").split(' ').map(n=>n[0]).slice(0,2).join('') || 'ST';
+        const hasPhoto = s.image && s.image.trim() !== "" && !s.image.includes("default.jpg");
+
         slot.innerHTML = `
-          <a href="student-portal.html" class="btn btn-sm btn-ghost" style="display:inline-flex;align-items:center;gap:8px;padding:3px 10px;">
-            <img src="${s.image}" style="width:24px;height:24px;border-radius:6px;object-fit:cover;">
-            <span style="max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.name.split(' ')[0]}</span>
+          <a href="student-portal.html?prn=${encodeURIComponent(s.prn || '')}" class="btn btn-sm btn-ghost" style="display:inline-flex;align-items:center;gap:7px;padding:3px 9px;border:1px solid var(--glass-border);border-radius:99px;background:rgba(56,189,248,0.06);" title="Open Student Portal">
+            ${hasPhoto ? `
+              <img src="${s.image}" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex'" style="width:24px;height:24px;border-radius:50%;object-fit:cover;border:1.5px solid var(--blue);flex-shrink:0;">
+              <span style="display:none;width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg, #2563eb, #38bdf8);color:#fff;font-weight:700;font-size:0.7rem;align-items:center;justify-content:center;flex-shrink:0;">${initials}</span>
+            ` : `
+              <span style="display:inline-flex;width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg, #2563eb, #38bdf8);color:#fff;font-weight:700;font-size:0.7rem;align-items:center;justify-content:center;flex-shrink:0;">${initials}</span>
+            `}
+            <span style="max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;font-size:0.83rem;color:var(--fg);">Hi, ${firstName} 👋</span>
           </a>
-          <button onclick="window.PBCOE.logout()" class="btn btn-sm btn-ghost" style="padding:4px 8px;margin-left:4px;" title="Logout">✕</button>
+          <button onclick="window.PBCOE.logout()" class="btn btn-sm btn-ghost" style="padding:4px 7px;margin-left:3px;border-radius:8px;" title="Logout Candidate Session">🚪</button>
         `;
       }
+    } else {
+      slot.innerHTML = `
+        <button id="nav-login-btn" class="btn btn-accent btn-sm" onclick="PBCOE_AUTH.openLogin()" style="display:inline-flex;align-items:center;gap:6px;font-weight:600;padding:5px 12px;border-radius:8px;">
+          <span style="font-size:0.9rem;">🔐</span> Login
+        </button>
+      `;
     }
   }
 };
@@ -349,6 +368,87 @@ document.addEventListener("DOMContentLoaded", async function() {
       </div>
     </div>
 
+    <!-- ============================================================ -->
+    <!-- HOURLY LECTURE ATTENDANCE CONSOLE (10:00 AM – 5:00 PM)       -->
+    <!-- Rule: Strictly 1 Attendance Scan Per Candidate Per Lecture   -->
+    <!-- ============================================================ -->
+    <div class="card reveal" style="margin-bottom:1.8rem;border:1.5px solid var(--glass-border);background:linear-gradient(180deg, var(--bg-2) 0%, rgba(15,23,42,0.4) 100%);">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:1rem;border-bottom:1px solid var(--border);padding-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:1.5rem;">🕒</span>
+          <div>
+            <h3 style="margin:0;font-size:1.15rem;color:var(--fg);">Hourly Lecture Attendance System <span class="pill ok" style="font-size:0.68rem;padding:2px 8px;vertical-align:middle;">1 SCAN PER LECTURE</span></h3>
+            <p style="margin:2px 0 0;font-size:0.8rem;color:var(--muted);">1-Hour Lecture Slots (10:00 AM – 5:00 PM) · Automatic Duplicate Protection</p>
+          </div>
+        </div>
+        <div id="live-lecture-clock" class="mono" style="font-size:0.85rem;color:var(--blue);background:rgba(56,189,248,0.1);padding:4px 12px;border-radius:99px;border:1px solid rgba(56,189,248,0.3);">
+          ● ACTIVE CLOCK: --:--:--
+        </div>
+      </div>
+
+      <!-- Current Active Lecture Banner -->
+      <div id="active-lecture-banner" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;padding:12px 16px;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.3);border-radius:12px;margin-bottom:1.2rem;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="width:12px;height:12px;border-radius:50%;background:#22c55e;box-shadow:0 0 10px #22c55e;display:inline-block;"></span>
+          <div>
+            <div style="font-size:0.75rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:0.06em;" id="active-slot-pill">ACTIVE LECTURE SLOT #1 (10:00 AM – 11:00 AM)</div>
+            <div style="font-size:1.05rem;font-weight:700;color:var(--fg);margin-top:2px;" id="active-slot-title">ET501T Embedded Systems</div>
+            <div style="font-size:0.8rem;color:var(--muted);" id="active-slot-meta">Faculty: Mr. Suhas D. Kakde · Room: E-101 (IoT Lab)</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="pill mid" style="font-size:0.75rem;" id="active-slot-timer">⏱️ 1-Hour Session</span>
+        </div>
+      </div>
+
+      <!-- 7 Hourly Lecture Slot Selector Pills -->
+      <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:10px;margin-bottom:1.2rem;" id="lecture-slot-pills">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Interactive Biometric Scan Check-in Terminal -->
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:14px;">
+        <div style="font-size:0.8rem;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
+          <span>Biometric Sensor Verification Terminal</span>
+          <span style="color:var(--yellow);font-size:0.75rem;">Rule: 1 check-in per candidate per lecture</span>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:12px;align-items:end;">
+          <div>
+            <label style="font-size:0.75rem;color:var(--muted);display:block;margin-bottom:4px;">Select Candidate to Scan</label>
+            <select id="terminal-student-select" class="select" style="width:100%;font-size:0.88rem;padding:0.45rem 0.7rem;">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+
+          <div>
+            <label style="font-size:0.75rem;color:var(--muted);display:block;margin-bottom:4px;">Target Lecture Slot</label>
+            <select id="terminal-slot-select" class="select" style="width:100%;font-size:0.88rem;padding:0.45rem 0.7rem;">
+              <option value="1">Slot 1: 10:00 - 11:00 AM · ET501T Embedded Systems</option>
+              <option value="2">Slot 2: 11:00 - 12:00 PM · ET502T Communication Electronics</option>
+              <option value="3">Slot 3: 12:00 - 01:00 PM · ET505T Signals &amp; Systems</option>
+              <option value="4">Slot 4: 01:00 - 02:00 PM · ET507 Academic Seminar / Recess</option>
+              <option value="5">Slot 5: 02:00 - 03:00 PM · ET503P Embedded Lab - Batch A</option>
+              <option value="6">Slot 6: 03:00 - 04:00 PM · ET503P Embedded Lab - Batch B</option>
+              <option value="7">Slot 7: 04:00 - 05:00 PM · ET506-1T VHDL Advanced Synthesis</option>
+            </select>
+          </div>
+
+          <div style="display:flex;gap:8px;align-items:center;">
+            <button class="btn btn-primary" id="terminal-btn-scan" style="flex:1;padding:9px 16px;font-size:0.9rem;" onclick="executeLectureScan()">
+              ⚡ Verify Optical Scan
+            </button>
+            <button class="btn btn-ghost btn-sm" onclick="quickFillTerminalYuvraj()" title="Quick fill Yuvraj Lokhande" style="padding:9px 12px;font-size:0.8rem;border:1px dashed var(--blue);color:var(--blue);white-space:nowrap;">
+              👤 Yuvraj #16
+            </button>
+          </div>
+        </div>
+
+        <!-- Terminal Status Message Banner -->
+        <div id="terminal-feedback" style="display:none;margin-top:12px;padding:10px 14px;border-radius:10px;font-size:0.85rem;line-height:1.45;"></div>
+      </div>
+    </div>
+
     <!-- ========================================== -->
     <!-- VIEW 1: LIVE ATTENDANCE STREAM             -->
     <!-- ========================================== -->
@@ -357,23 +457,27 @@ document.addEventListener("DOMContentLoaded", async function() {
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem;">
           <div>
             <h3 style="margin:0;">Real-Time Biometric Stream</h3>
-            <p style="font-size:0.8rem;color:var(--muted);margin-top:2px;">Live incoming optical scan verifications from cloud queue</p>
+            <p style="font-size:0.8rem;color:var(--muted);margin-top:2px;">Live incoming optical scan verifications from cloud queue (1 per lecture)</p>
           </div>
-          <span class="mono" style="font-size:.8rem;color:#22c55e;">● CLOUD LISTENING</span>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <button class="btn btn-sm btn-ghost" onclick="clearLocalAttendanceForTesting()" style="font-size:0.75rem;padding:3px 8px;" title="Reset daily lecture attendance cache for simulation testing">Reset Test Scans 🔄</button>
+            <span class="mono" style="font-size:.8rem;color:#22c55e;">● CLOUD LISTENING</span>
+          </div>
         </div>
-        <table class="tbl" style="width:100%;min-width:680px;">
+        <table class="tbl" style="width:100%;min-width:740px;">
           <thead>
             <tr>
               <th>Candidate Photo</th>
               <th>Student Full Name</th>
               <th>PRN Number</th>
-              <th>Status</th>
+              <th>Lecture / Course Slot</th>
               <th>Monthly Attendance %</th>
+              <th>Status</th>
               <th>Scan Timestamp</th>
             </tr>
           </thead>
           <tbody id="attendance-tbody">
-            <tr><td colspan="6" style="text-align:center;padding:2.5rem;color:var(--muted);">Syncing attendance stream...</td></tr>
+            <tr><td colspan="7" style="text-align:center;padding:2.5rem;color:var(--muted);">Syncing attendance stream...</td></tr>
           </tbody>
         </table>
       </div>
@@ -557,6 +661,10 @@ async function initBiometricStation() {
   await window.PBCOE.init();
   fullRoster = window.PBCOE.getStudents();
   populateDialogDropdown(fullRoster);
+  populateTerminalStudentDropdown();
+  renderLectureSlotsUI();
+  updateLectureClock();
+  setInterval(updateLectureClock, 1000);
   renderEnrollMasterTable();
   renderRoster(fullRoster);
   updateEnrollmentMetrics();
@@ -571,6 +679,177 @@ async function initBiometricStation() {
   const isLock = urlParams.get('lock') === 'true';
   if (enrollPrn) {
     setTimeout(() => openEnrollDialog(enrollPrn, isLock), 150);
+  }
+}
+
+function populateTerminalStudentDropdown() {
+  const sel = document.getElementById("terminal-student-select");
+  if (!sel) return;
+  fullRoster = window.PBCOE.getStudents();
+  sel.innerHTML = fullRoster.map(s => `
+    <option value="${s.prn}" ${s.prn === '24121227' ? 'selected' : ''}>
+      ${s.enrolled ? '🟢' : '⏳'} ${s.name} (${s.prn}) - ${s.enrolled ? 'Slot #' + (s.fingerprint_id || s.id) : 'Not Enrolled'}
+    </option>
+  `).join("");
+}
+
+function renderLectureSlotsUI() {
+  const container = document.getElementById("lecture-slot-pills");
+  if (!container || !window.PBCOE.getLectureSlots) return;
+  const slots = window.PBCOE.getLectureSlots();
+  const currentSlot = window.PBCOE.getCurrentLectureSlot();
+
+  container.innerHTML = slots.map(s => {
+    const isCurrent = currentSlot && currentSlot.slot_num === s.slot_num;
+    return `
+      <button type="button" class="btn btn-sm ${isCurrent ? 'btn-primary' : 'btn-ghost'}" style="white-space:nowrap;font-size:0.75rem;padding:4px 10px;border-radius:99px;" onclick="selectLectureSlot(${s.slot_num})">
+        ${isCurrent ? '● ' : ''}Slot #${s.slot_num}: ${s.start}-${s.end} (${s.subject.split(' ')[0]})
+      </button>
+    `;
+  }).join("");
+}
+
+function selectLectureSlot(num) {
+  const sel = document.getElementById("terminal-slot-select");
+  if (sel) sel.value = String(num);
+  const slots = window.PBCOE.getLectureSlots();
+  const target = slots.find(s => s.slot_num === num);
+  if (target) {
+    const title = document.getElementById("active-slot-title");
+    const pill = document.getElementById("active-slot-pill");
+    const meta = document.getElementById("active-slot-meta");
+    if (title) title.innerText = target.subject;
+    if (pill) pill.innerText = `SELECTED LECTURE SLOT #${target.slot_num} (${target.start} – ${target.end})`;
+    if (meta) meta.innerText = `Faculty: ${target.faculty} · Room: ${target.room}`;
+  }
+}
+
+function updateLectureClock() {
+  const now = new Date();
+  const clockEl = document.getElementById("live-lecture-clock");
+  if (clockEl) {
+    clockEl.innerText = `● ACTIVE CLOCK: ${now.toLocaleTimeString()}`;
+  }
+
+  if (!window.PBCOE || !window.PBCOE.getCurrentLectureSlot) return;
+  const cur = window.PBCOE.getCurrentLectureSlot(now);
+  const title = document.getElementById("active-slot-title");
+  const pill = document.getElementById("active-slot-pill");
+  const meta = document.getElementById("active-slot-meta");
+  const timer = document.getElementById("active-slot-timer");
+
+  const sel = document.getElementById("terminal-slot-select");
+  // Only auto-update header if user hasn't manually selected a slot
+  if (!sel || sel.dataset.userChanged !== "true") {
+    if (title && cur) title.innerText = cur.subject;
+    if (pill && cur) pill.innerText = `ACTIVE LECTURE SLOT #${cur.slot_num} (${cur.start} – ${cur.end})`;
+    if (meta && cur) meta.innerText = `Faculty: ${cur.faculty} · Room: ${cur.room}`;
+    if (sel && cur) sel.value = String(cur.slot_num);
+  }
+
+  // Calculate remaining minutes in current hour
+  const minsLeft = 60 - now.getMinutes();
+  if (timer) timer.innerText = `⏱️ ${minsLeft}m remaining in hour`;
+}
+
+function quickFillTerminalYuvraj() {
+  const sel = document.getElementById("terminal-student-select");
+  if (sel) sel.value = "24121227";
+  const fb = document.getElementById("terminal-feedback");
+  if (fb) {
+    fb.style.display = "block";
+    fb.style.background = "rgba(56,189,248,0.12)";
+    fb.style.color = "#38bdf8";
+    fb.style.border = "1px solid rgba(56,189,248,0.3)";
+    fb.innerHTML = `👤 Selected <strong>YUVRAJ VILAS LOKHANDE</strong> (PRN: 24121227 · Slot #16 · 98% Attendance). Click <em>Verify Optical Scan</em> to simulate check-in.`;
+  }
+}
+
+async function executeLectureScan() {
+  const prn = (document.getElementById("terminal-student-select")?.value || "").trim();
+  const slotNum = parseInt(document.getElementById("terminal-slot-select")?.value || "1", 10);
+  const fb = document.getElementById("terminal-feedback");
+  const btn = document.getElementById("terminal-btn-scan");
+
+  if (!prn) {
+    alert("Please select a candidate to scan.");
+    return;
+  }
+
+  if (btn) {
+    btn.disabled = true;
+    btn.innerText = "Scanning Optical Sensor...";
+  }
+
+  // Visual simulation pause (350ms) to mirror R307 FTIR capture
+  await new Promise(r => setTimeout(r, 350));
+
+  const resp = await window.PBCOE.recordLectureAttendance(prn, slotNum);
+
+  if (btn) {
+    btn.disabled = false;
+    btn.innerText = "⚡ Verify Optical Scan";
+  }
+
+  if (!fb) return;
+  fb.style.display = "block";
+
+  if (resp.duplicate) {
+    // DUPLICATE ATTEMPT BLOCKED
+    fb.style.background = "rgba(239,68,68,0.15)";
+    fb.style.color = "#fca5a5";
+    fb.style.border = "1.5px solid #ef4444";
+    fb.innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:1.2rem;">⚠️</span>
+        <div>
+          <strong style="color:#ef4444;font-size:0.95rem;">DUPLICATE ATTENDANCE BLOCKED</strong>
+          <div style="margin-top:2px;">${resp.message}</div>
+        </div>
+      </div>
+    `;
+  } else if (!resp.success) {
+    // ENROLLMENT MISSING OR ERROR
+    fb.style.background = "rgba(245,158,11,0.15)";
+    fb.style.color = "#fcd34d";
+    fb.style.border = "1.5px solid #f59e0b";
+    fb.innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:1.2rem;">❌</span>
+        <div style="flex:1;">
+          <strong style="color:#f59e0b;font-size:0.95rem;">VERIFICATION REJECTED</strong>
+          <div style="margin-top:2px;">${resp.message}</div>
+        </div>
+        <button class="btn btn-sm btn-primary" style="padding:4px 10px;font-size:0.75rem;" onclick="openEnrollDialog('${prn}')">+ Enroll Now</button>
+      </div>
+    `;
+  } else {
+    // ATTENDANCE SUCCESS
+    fb.style.background = "rgba(34,197,94,0.15)";
+    fb.style.color = "#86efac";
+    fb.style.border = "1.5px solid #22c55e";
+    fb.innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:1.2rem;">✅</span>
+        <div>
+          <strong style="color:#22c55e;font-size:0.95rem;">BIOMETRIC ATTENDANCE RECORDED</strong>
+          <div style="margin-top:2px;">${resp.message} · Timestamp: ${new Date().toLocaleTimeString()}</div>
+        </div>
+      </div>
+    `;
+    refreshData();
+  }
+}
+
+function clearLocalAttendanceForTesting() {
+  localStorage.removeItem("pbcoe_lecture_attendance");
+  const fb = document.getElementById("terminal-feedback");
+  if (fb) {
+    fb.style.display = "block";
+    fb.style.background = "rgba(56,189,248,0.15)";
+    fb.style.color = "#38bdf8";
+    fb.style.border = "1px solid rgba(56,189,248,0.3)";
+    fb.innerHTML = `🔄 <strong>Daily Lecture Test Cache Cleared:</strong> All 7 hourly slots are now open for new test check-ins.`;
   }
 }
 
@@ -757,9 +1036,12 @@ async function startDialogEnrollment() {
     desc.innerText = `Biometric template locked for ${s.name} (${s.prn}) in Slot #${slot}.`;
 
     window.PBCOE.markStudentEnrolled(s.prn, slot);
+    fullRoster = window.PBCOE.getStudents();
     onDialogStudentChange();
     renderEnrollMasterTable();
     updateEnrollmentMetrics();
+    renderRoster(fullRoster);
+    populateTerminalStudentDropdown();
 
     window.PBCOE.showToast(s.name, `Fingerprint Enrolled in Slot #${slot}`, s.image, "Present");
     btn.disabled = false;
@@ -921,6 +1203,7 @@ async function removeFingerprint(prn) {
   updateEnrollmentMetrics();
   renderRoster(fullRoster);
   populateDialogDropdown(fullRoster);
+  populateTerminalStudentDropdown();
   window.PBCOE.showToast(s.name, `Fingerprint Removed (Slot #${slot} freed)`, s.image, "Scanned");
 }
 
@@ -1019,7 +1302,7 @@ function renderLogsTable(records) {
   if (totalScansEl) totalScansEl.innerText = records.length;
 
   if (!records || records.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:2.5rem;color:var(--muted);">No scans recorded yet. Place finger on R307 sensor to test.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:2.5rem;color:var(--muted);">No scans recorded yet. Place finger on R307 sensor or test via terminal above.</td></tr>`;
     return;
   }
 
@@ -1034,6 +1317,8 @@ function renderLogsTable(records) {
     const monthAtt = student ? (student.attendance_percentage || 88) : 88;
     const timeVal = r.created_at || r.timestamp;
     const dateStr = timeVal ? new Date(timeVal).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : new Date().toLocaleTimeString();
+    const lectureTitle = r.lecture_title || (r.lecture_slot ? `Slot #${r.lecture_slot} Lecture` : "ET501T Embedded Systems");
+    const slotBadge = r.lecture_slot ? `Slot #${r.lecture_slot}` : "Slot #1";
 
     return `
       <tr>
@@ -1046,7 +1331,10 @@ function renderLogsTable(records) {
         </td>
         <td class="mono">${prn || (student ? student.prn : 'N/A')}</td>
         <td>
-          <span class="pill ${isMatch ? 'ok' : 'mid'}">${isMatch ? '✅ Present' : (r.status || 'Scanned')}</span>
+          <span class="pill ok" style="font-size:0.72rem;padding:2px 8px;font-weight:600;">
+            ${slotBadge} · ${lectureTitle.split(' ')[0]}
+          </span>
+          <div style="font-size:0.72rem;color:var(--muted);margin-top:2px;">${lectureTitle}</div>
         </td>
         <td>
           <div style="display:flex;align-items:center;gap:6px;">
@@ -1055,6 +1343,9 @@ function renderLogsTable(records) {
               ${monthAtt >= 75 ? 'Eligible' : 'Shortage'}
             </span>
           </div>
+        </td>
+        <td>
+          <span class="pill ${isMatch ? 'ok' : 'mid'}">${isMatch ? '✅ Present' : (r.status || 'Scanned')}</span>
         </td>
         <td class="mono" style="font-size:.8rem;color:var(--muted);">${dateStr}</td>
       </tr>

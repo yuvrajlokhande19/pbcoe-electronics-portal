@@ -81,13 +81,19 @@ window.PBCOE = (function () {
 
   let students = JSON.parse(JSON.stringify(EMBEDDED_ROSTER));
   
-  // Merge locally stored enrollment overrides
+  // Merge locally stored enrollment overrides (properly recognizing false/deleted state)
   try {
     const savedEnrolled = JSON.parse(localStorage.getItem("pbcoe_enrolled_map") || "{}");
     students.forEach(s => {
-      if (savedEnrolled[s.prn]) {
-        s.enrolled = true;
-        s.fingerprint_id = savedEnrolled[s.prn].slot || s.id;
+      if (savedEnrolled && savedEnrolled[s.prn]) {
+        const item = savedEnrolled[s.prn];
+        if (item.enrolled === true) {
+          s.enrolled = true;
+          s.fingerprint_id = parseInt(item.slot, 10) || s.id;
+        } else if (item.enrolled === false) {
+          s.enrolled = false;
+          delete s.fingerprint_id;
+        }
       }
     });
   } catch(e) {}
@@ -142,6 +148,7 @@ window.PBCOE = (function () {
 
   // Floating Toast Alert
   function showToast(title, subtitle, photoUrl, status = "Present") {
+    if (typeof document === "undefined") return;
     let toast = document.getElementById("pbcoe-floating-toast");
     if (!toast) {
       toast = document.createElement("div");
@@ -265,28 +272,30 @@ window.PBCOE = (function () {
     } catch(e) {}
   }
 
-  // Mark student as enrolled and update Supabase
+  // Mark student as enrolled and update Supabase (immediate local persistence)
   async function markStudentEnrolled(prn, slotId) {
     const s = students.find(x => x.prn === prn);
-    if (s) {
-      s.enrolled = true;
-      s.fingerprint_id = parseInt(slotId, 10);
-      try {
-        const saved = JSON.parse(localStorage.getItem("pbcoe_enrolled_map") || "{}");
-        saved[prn] = { enrolled: true, slot: parseInt(slotId, 10), timestamp: Date.now() };
-        localStorage.setItem("pbcoe_enrolled_map", JSON.stringify(saved));
+    if (!s) return { success: false, message: "Student record not found." };
+    s.enrolled = true;
+    s.fingerprint_id = parseInt(slotId, 10);
 
-        // Update in Supabase
-        await fetch(`${SUPABASE_URL}/rest/v1/students?prn=eq.${prn}`, {
-          method: "PATCH",
-          headers: getSupabaseHeaders(),
-          body: JSON.stringify({ enrolled: true, fingerprint_id: parseInt(slotId, 10) })
-        });
-      } catch(e) {}
-    }
+    try {
+      const saved = JSON.parse(localStorage.getItem("pbcoe_enrolled_map") || "{}");
+      saved[prn] = { enrolled: true, slot: parseInt(slotId, 10), timestamp: Date.now() };
+      localStorage.setItem("pbcoe_enrolled_map", JSON.stringify(saved));
+
+      // Asynchronously update in Supabase (non-blocking)
+      fetch(`${SUPABASE_URL}/rest/v1/students?prn=eq.${prn}`, {
+        method: "PATCH",
+        headers: getSupabaseHeaders(),
+        body: JSON.stringify({ enrolled: true, fingerprint_id: parseInt(slotId, 10) })
+      }).catch(err => console.warn("Supabase student PATCH warning:", err));
+    } catch(e) {}
+
+    return { success: true, student: s };
   }
 
-  // Remove student biometric registration and free slot
+  // Remove student biometric registration and free slot (guaranteed immediate local deletion)
   async function removeStudentFingerprint(prn) {
     const s = students.find(x => x.prn === prn);
     if (!s) return { success: false, message: "Student record not found." };
@@ -299,15 +308,15 @@ window.PBCOE = (function () {
       saved[prn] = { enrolled: false, slot: null, timestamp: Date.now() };
       localStorage.setItem("pbcoe_enrolled_map", JSON.stringify(saved));
 
-      // Update in Supabase cloud
-      await fetch(`${SUPABASE_URL}/rest/v1/students?prn=eq.${prn}`, {
+      // Non-blocking update to Supabase cloud
+      fetch(`${SUPABASE_URL}/rest/v1/students?prn=eq.${prn}`, {
         method: "PATCH",
         headers: getSupabaseHeaders(),
         body: JSON.stringify({ enrolled: false, fingerprint_id: null })
-      });
+      }).catch(err => console.warn("Supabase student remove warning:", err));
 
-      // Dispatch DELETE command to ESP32 node
-      await fetch(`${SUPABASE_URL}/rest/v1/biometric_commands`, {
+      // Dispatch non-blocking DELETE command to ESP32 node
+      fetch(`${SUPABASE_URL}/rest/v1/biometric_commands`, {
         method: "POST",
         headers: getSupabaseHeaders(),
         body: JSON.stringify({
@@ -317,10 +326,143 @@ window.PBCOE = (function () {
           roll_no: prn,
           status: "PENDING"
         })
-      });
+      }).catch(err => console.warn("Supabase biometric_commands delete warning:", err));
     } catch(e) {}
 
     return { success: true, message: `Biometric template for ${s.name} (Slot #${oldSlot}) removed successfully.` };
+  }
+
+  // 10:00 AM to 5:00 PM Hourly Lecture Slot Framework (1-Hour Slots)
+  const LECTURE_SLOTS = [
+    { slot_num: 1, id: "slot_1", start: "10:00", end: "11:00", start_hour: 10, end_hour: 11, subject: "ET501T Embedded Systems", faculty: "Mr. Suhas D. Kakde", room: "E-101 (IoT Lab)" },
+    { slot_num: 2, id: "slot_2", start: "11:00", end: "12:00", start_hour: 11, end_hour: 12, subject: "ET502T Communication Electronics", faculty: "Mrs. Jayshri Shelke", room: "E-108" },
+    { slot_num: 3, id: "slot_3", start: "12:00", end: "13:00", start_hour: 12, end_hour: 13, subject: "ET505T Signals & Systems", faculty: "Mrs. Nisha Naukarkar", room: "E-310" },
+    { slot_num: 4, id: "slot_4", start: "13:00", end: "14:00", start_hour: 13, end_hour: 14, subject: "ET507 Technical Seminar / Recess", faculty: "Dr. Pravin B. Pokle (HOD)", room: "Seminar Hall" },
+    { slot_num: 5, id: "slot_5", start: "14:00", end: "15:00", start_hour: 14, end_hour: 15, subject: "ET503P Embedded Lab - Batch A", faculty: "Mr. Suhas D. Kakde", room: "E-101 (Hardware Lab)" },
+    { slot_num: 6, id: "slot_6", start: "15:00", end: "16:00", start_hour: 15, end_hour: 16, subject: "ET503P Embedded Lab - Batch B", faculty: "Dr. Jayant Hande", room: "E-205 (FPGA Lab)" },
+    { slot_num: 7, id: "slot_7", start: "16:00", end: "17:00", start_hour: 16, end_hour: 17, subject: "ET506-1T VHDL Advanced Synthesis", faculty: "Dr. Jayant Hande", room: "E-115" }
+  ];
+
+  function getLectureSlots() {
+    return LECTURE_SLOTS;
+  }
+
+  function getCurrentLectureSlot(customDate = new Date()) {
+    const hours = customDate.getHours();
+    const mins = customDate.getMinutes();
+    const curTime = hours + (mins / 60);
+
+    for (let slot of LECTURE_SLOTS) {
+      if (curTime >= slot.start_hour && curTime < slot.end_hour) {
+        return { ...slot, isCurrent: true };
+      }
+    }
+    // Outside 10:00 - 17:00: return Slot 1 with isSimulation flag so lab testing works anytime!
+    return { ...LECTURE_SLOTS[0], isSimulation: true };
+  }
+
+  function getLectureAttendanceHistory() {
+    try {
+      return JSON.parse(localStorage.getItem("pbcoe_lecture_attendance") || "{}");
+    } catch(e) {
+      return {};
+    }
+  }
+
+  function canMarkAttendanceForSlot(prn, slotNum, date = new Date()) {
+    const history = getLectureAttendanceHistory();
+    const dateKey = date.toISOString().split("T")[0];
+    const key = `${dateKey}_slot${slotNum}_${prn}`;
+    return !history[key];
+  }
+
+  // Strict constraint: Exactly 1 attendance scan per candidate per lecture!
+  async function recordLectureAttendance(prn, customSlotNum = null) {
+    const s = students.find(x => x.prn === prn);
+    if (!s) {
+      return { success: false, duplicate: false, message: `Candidate with PRN ${prn} not found.` };
+    }
+
+    if (!s.enrolled) {
+      return { 
+        success: false, 
+        duplicate: false, 
+        message: `Biometric Scan Rejected: ${s.name} (PRN: ${s.prn}) is NOT enrolled. Please enroll fingerprint before marking attendance.` 
+      };
+    }
+
+    const now = new Date();
+    const dateKey = now.toISOString().split("T")[0];
+    const activeSlot = customSlotNum 
+      ? (LECTURE_SLOTS.find(slot => slot.slot_num === parseInt(customSlotNum, 10)) || getCurrentLectureSlot(now))
+      : getCurrentLectureSlot(now);
+
+    const slotNum = activeSlot.slot_num;
+    const historyKey = `${dateKey}_slot${slotNum}_${prn}`;
+    const history = getLectureAttendanceHistory();
+
+    // DUPLICATE CHECK: 1 scan per lecture rule
+    if (history[historyKey]) {
+      const prior = history[historyKey];
+      return {
+        success: false,
+        duplicate: true,
+        slot: activeSlot,
+        student: s,
+        message: `Duplicate Scan Blocked: ${s.name} has already marked attendance for Slot #${slotNum} (${activeSlot.start} - ${activeSlot.end}: ${activeSlot.subject}) at ${new Date(prior.timestamp).toLocaleTimeString()}. Candidate is permitted only 1 attendance scan per lecture hour.`
+      };
+    }
+
+    // Record valid attendance
+    const record = {
+      id: Date.now(),
+      student_name: s.name,
+      prn: s.prn,
+      fingerprint_id: s.fingerprint_id || s.id,
+      lecture_slot: slotNum,
+      lecture_title: activeSlot.subject,
+      faculty_in_charge: activeSlot.faculty,
+      status: "Present",
+      timestamp: now.toISOString(),
+      created_at: now.toISOString(),
+      verified_by: "R307 Optical Sensor (FTIR Prism)"
+    };
+
+    history[historyKey] = {
+      timestamp: now.toISOString(),
+      student_name: s.name,
+      slot_num: slotNum,
+      subject: activeSlot.subject
+    };
+    try {
+      localStorage.setItem("pbcoe_lecture_attendance", JSON.stringify(history));
+    } catch(e) {}
+
+    // Add to in-memory attendanceLogs
+    attendanceLogs.unshift(record);
+
+    // Audio chime & notification toast
+    showToast(s.name, `Present in Slot #${slotNum} (${activeSlot.start}-${activeSlot.end}) · ${activeSlot.subject}`, s.image, "Present");
+
+    // Push to Supabase PostgREST in background
+    fetch(`${SUPABASE_URL}/rest/v1/attendance_logs`, {
+      method: "POST",
+      headers: getSupabaseHeaders({ "Prefer": "return=representation" }),
+      body: JSON.stringify({
+        student_name: s.name,
+        prn: s.prn,
+        fingerprint_id: s.fingerprint_id || s.id,
+        status: "Present"
+      })
+    }).catch(err => console.warn("Supabase attendance log error:", err));
+
+    return {
+      success: true,
+      duplicate: false,
+      slot: activeSlot,
+      record: record,
+      message: `Attendance Verified: ${s.name} marked Present for Slot #${slotNum} (${activeSlot.subject}).`
+    };
   }
 
   // Trigger Cloud Enrollment via Supabase
@@ -643,6 +785,11 @@ window.PBCOE = (function () {
     getBiometricCommandStatus: getBiometricCommandStatus,
     markStudentEnrolled: markStudentEnrolled,
     removeStudentFingerprint: removeStudentFingerprint,
+    getLectureSlots: getLectureSlots,
+    getCurrentLectureSlot: getCurrentLectureSlot,
+    canMarkAttendanceForSlot: canMarkAttendanceForSlot,
+    recordLectureAttendance: recordLectureAttendance,
+    getLectureAttendanceHistory: getLectureAttendanceHistory,
     getNotices: getNotices,
     postNotice: postNotice,
     getChatMessages: getChatMessages,

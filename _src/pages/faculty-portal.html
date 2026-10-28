@@ -501,7 +501,13 @@ function renderFacultyRoster(list) {
           <span class="pill ${isRisk ? 'bad' : 'ok'}">${s.attendance_percentage}% ${isRisk ? '⚠️ AT RISK' : 'NORMAL'}</span>
         </td>
         <td>
-          <a href="attendance.html?enroll=${s.prn}" class="btn btn-sm btn-ghost" style="padding:3px 10px;font-size:0.75rem;">Enroll Finger 🪪</a>
+          ${s.enrolled ? `
+            <span class="pill ok" style="font-size:0.68rem;padding:2px 8px;margin-right:6px;">✅ Slot #${s.fingerprint_id || s.id}</span>
+            <a href="attendance.html?enroll=${s.prn}" class="btn btn-sm btn-ghost" style="padding:3px 8px;font-size:0.75rem;">Manage 🪪</a>
+          ` : `
+            <span class="pill mid" style="font-size:0.68rem;padding:2px 8px;margin-right:6px;">⏳ Not Enrolled</span>
+            <a href="attendance.html?enroll=${s.prn}" class="btn btn-sm btn-primary" style="padding:3px 10px;font-size:0.75rem;">+ Enroll 🪪</a>
+          `}
         </td>
       </tr>
     `;

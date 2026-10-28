@@ -517,36 +517,89 @@ function switchHwTab(tab) {
   });
 }
 
-// Interactive WebGL/Canvas Circuit Constellation Engine
-(function initCircuitConstellation() {
+// Advanced High-Vibe Electronics PCB Circuit & Signal Telemetry Canvas Engine
+(function initElectronicsCircuitVibe() {
   const canvas = document.getElementById("hero-circuit-canvas");
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
   let width, height;
-  let particles = [];
-  let mouse = { x: null, y: null, maxDist: 140 };
+  let traces = [];
+  let vias = [];
+  let pulses = [];
+  let mouse = { x: null, y: null, active: false };
 
-  const nodeLabels = ["ANT", "LNA", "MIXER", "ADC", "DSP", "ARM-M4", "ESP32", "FPGA", "R307", "POSTGRES", "VHDL", "5G", "BLE"];
+  const COMPONENT_CHIPS = [
+    { label: "ESP32-WROOM", w: 74, h: 44, pins: 18 },
+    { label: "R307-FTIR", w: 64, h: 36, pins: 8 },
+    { label: "STM32F4-ARM", w: 70, h: 70, pins: 24 },
+    { label: "CYCLONE-IV", w: 76, h: 76, pins: 28 },
+    { label: "MAX3232-TTL", w: 56, h: 32, pins: 10 }
+  ];
 
   function resize() {
     width = canvas.width = canvas.offsetWidth;
     height = canvas.height = canvas.offsetHeight;
-    initParticles();
+    generatePCBNetwork();
   }
 
-  function initParticles() {
-    particles = [];
-    const count = Math.min(Math.floor((width * height) / 18000), 48);
-    for (let i = 0; i < count; i++) {
-      particles.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.7,
-        vy: (Math.random() - 0.5) * 0.7,
-        radius: Math.random() * 2.5 + 2,
-        label: nodeLabels[i % nodeLabels.length],
-        pulse: Math.random() * Math.PI,
-        pulseSpeed: 0.02 + Math.random() * 0.03
+  function generatePCBNetwork() {
+    traces = [];
+    vias = [];
+    pulses = [];
+
+    // Grid spacing
+    const gridSize = 42;
+    const cols = Math.floor(width / gridSize);
+    const rows = Math.floor(height / gridSize);
+
+    // Generate Vias (SMD via connection points)
+    const numVias = Math.min(Math.floor((width * height) / 14000), 55);
+    for (let i = 0; i < numVias; i++) {
+      const gx = Math.floor(Math.random() * (cols - 4) + 2) * gridSize;
+      const gy = Math.floor(Math.random() * (rows - 4) + 2) * gridSize;
+      vias.push({
+        x: gx,
+        y: gy,
+        r: 3.5,
+        type: Math.random() > 0.6 ? "smd_pad" : "via_hole",
+        label: i % 4 === 0 ? ["TX0", "RX0", "SDA", "SCL", "CLK", "3V3", "GND", "GPIO2"][i % 8] : ""
+      });
+    }
+
+    // Connect vias with real 90° and 45° PCB copper traces
+    for (let i = 0; i < vias.length; i++) {
+      const v1 = vias[i];
+      // Find nearest 2 neighbors
+      const neighbors = vias
+        .filter((_, idx) => idx !== i)
+        .map(v2 => ({ v2, dist: Math.hypot(v2.x - v1.x, v2.y - v1.y) }))
+        .sort((a, b) => a.dist - b.dist)
+        .slice(0, 2);
+
+      neighbors.forEach(({ v2, dist }) => {
+        if (dist < 240) {
+          // Create orthogonal / 45° route
+          const midX = v1.x + (v2.x - v1.x) * 0.5;
+          const points = [
+            { x: v1.x, y: v1.y },
+            { x: midX, y: v1.y },
+            { x: v2.x, y: v2.y }
+          ];
+          traces.push({
+            points,
+            color: Math.random() > 0.4 ? "rgba(56, 189, 248, 0.22)" : "rgba(250, 204, 21, 0.2)",
+            width: Math.random() > 0.7 ? 1.6 : 1.0,
+            activePulse: Math.random()
+          });
+
+          // Add a signal electron packet
+          pulses.push({
+            points,
+            progress: Math.random(),
+            speed: 0.003 + Math.random() * 0.005,
+            color: Math.random() > 0.5 ? "#38bdf8" : "#facc15"
+          });
+        }
       });
     }
   }
@@ -556,26 +609,28 @@ function switchHwTab(tab) {
     const rect = canvas.getBoundingClientRect();
     mouse.x = e.clientX - rect.left;
     mouse.y = e.clientY - rect.top;
+    mouse.active = true;
   });
   canvas.addEventListener("mouseleave", () => {
-    mouse.x = null;
-    mouse.y = null;
+    mouse.active = false;
   });
 
-  // Click to dispatch lightning ripple
+  // Click generates high-frequency digital signal arc
   canvas.addEventListener("click", e => {
     const rect = canvas.getBoundingClientRect();
     const cx = e.clientX - rect.left;
     const cy = e.clientY - rect.top;
-    particles.forEach(p => {
-      const dx = p.x - cx;
-      const dy = p.y - cy;
-      const dist = Math.hypot(dx, dy);
-      if (dist < 180) {
-        p.vx += (dx / dist) * 2.5;
-        p.vy += (dy / dist) * 2.5;
-      }
-    });
+    for (let i = 0; i < 4; i++) {
+      pulses.push({
+        points: [
+          { x: cx, y: cy },
+          { x: cx + (Math.random() - 0.5) * 200, y: cy + (Math.random() - 0.5) * 200 }
+        ],
+        progress: 0,
+        speed: 0.02 + Math.random() * 0.02,
+        color: "#22c55e"
+      });
+    }
   });
 
   resize();
@@ -583,71 +638,101 @@ function switchHwTab(tab) {
   function draw() {
     ctx.clearRect(0, 0, width, height);
 
-    // Update and draw lines between nodes
-    for (let i = 0; i < particles.length; i++) {
-      const p1 = particles[i];
-
-      p1.x += p1.vx;
-      p1.y += p1.vy;
-      p1.pulse += p1.pulseSpeed;
-
-      if (p1.x < 0 || p1.x > width) p1.vx *= -1;
-      if (p1.y < 0 || p1.y > height) p1.vy *= -1;
-
-      // Connect to mouse
-      if (mouse.x !== null) {
-        const dx = p1.x - mouse.x;
-        const dy = p1.y - mouse.y;
-        const dist = Math.hypot(dx, dy);
-        if (dist < mouse.maxDist) {
-          const alpha = (1 - dist / mouse.maxDist) * 0.45;
-          ctx.strokeStyle = `rgba(56, 189, 248, ${alpha})`;
-          ctx.lineWidth = 1.2;
-          ctx.beginPath();
-          ctx.moveTo(p1.x, p1.y);
-          ctx.lineTo(mouse.x, mouse.y);
-          ctx.stroke();
-        }
-      }
-
-      // Connect to neighbors
-      for (let j = i + 1; j < particles.length; j++) {
-        const p2 = particles[j];
-        const dx = p1.x - p2.x;
-        const dy = p1.y - p2.y;
-        const dist = Math.hypot(dx, dy);
-
-        if (dist < 130) {
-          const alpha = (1 - dist / 130) * 0.22;
-          ctx.strokeStyle = `rgba(56, 189, 248, ${alpha})`;
-          ctx.lineWidth = 0.85;
-          ctx.beginPath();
-          ctx.moveTo(p1.x, p1.y);
-          ctx.lineTo(p2.x, p2.y);
-          ctx.stroke();
-
-          // Traveling photon packet
-          const packetPos = (Math.sin(p1.pulse * 2) + 1) / 2;
-          const px = p1.x + (p2.x - p1.x) * packetPos;
-          const py = p1.y + (p2.y - p1.y) * packetPos;
-          ctx.fillStyle = "rgba(250, 204, 21, 0.65)";
-          ctx.beginPath();
-          ctx.arc(px, py, 1.3, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-
-      // Node point with glow
-      const nodeGlow = 0.5 + Math.sin(p1.pulse) * 0.4;
-      ctx.fillStyle = `rgba(56, 189, 248, ${nodeGlow})`;
+    // 1. Draw Subtle PCB Grid Coordinate System
+    ctx.strokeStyle = "rgba(148, 163, 184, 0.035)";
+    ctx.lineWidth = 1;
+    const step = 42;
+    for (let x = 0; x < width; x += step) {
       ctx.beginPath();
-      ctx.arc(p1.x, p1.y, p1.radius, 0, Math.PI * 2);
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, height);
+      ctx.stroke();
+    }
+    for (let y = 0; y < height; y += step) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(width, y);
+      ctx.stroke();
+    }
+
+    // 2. Draw Copper PCB Traces
+    traces.forEach(t => {
+      ctx.strokeStyle = t.color;
+      ctx.lineWidth = t.width;
+      ctx.beginPath();
+      ctx.moveTo(t.points[0].x, t.points[0].y);
+      for (let p = 1; p < t.points.length; p++) {
+        ctx.lineTo(t.points[p].x, t.points[p].y);
+      }
+      ctx.stroke();
+    });
+
+    // 3. Draw Traveling Electric Current Packets
+    pulses.forEach(p => {
+      p.progress += p.speed;
+      if (p.progress >= 1) p.progress = 0;
+
+      // Linear interpolation along trace points
+      const p1 = p.points[0];
+      const p2 = p.points[p.points.length - 1];
+      const cx = p1.x + (p2.x - p1.x) * p.progress;
+      const cy = p1.y + (p2.y - p1.y) * p.progress;
+
+      // Glowing electron head
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = p.color;
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 2.2, 0, Math.PI * 2);
       ctx.fill();
 
-      // Small high-tech node label
-      ctx.fillStyle = `rgba(148, 163, 184, 0.45)`;
-      ctx.font = "8px 'Share Tech Mono', monospace";
-      ctx.fillText(p1.label, p1.x + 5, p1.y - 4);
+      // Reset shadow for next drawings
+      ctx.shadowBlur = 0;
+    });
+
+    // 4. Draw Via Holes and Component Pads
+    vias.forEach(v => {
+      // Outer copper ring
+      ctx.strokeStyle = "rgba(56, 189, 248, 0.55)";
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.arc(v.x, v.y, v.r, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Inner drill hole
+      ctx.fillStyle = "rgba(11, 15, 25, 0.9)";
+      ctx.beginPath();
+      ctx.arc(v.x, v.y, v.r * 0.45, 0, Math.PI * 2);
+      ctx.fill();
+
+      // High-tech Pin Labels
+      if (v.label) {
+        ctx.fillStyle = "rgba(148, 163, 184, 0.55)";
+        ctx.font = "8px 'Share Tech Mono', monospace";
+        ctx.fillText(v.label, v.x + 6, v.y - 3);
+      }
+    });
+
+    // 5. Interactive Cursor Electromagnetic Induction
+    if (mouse.active && mouse.x !== null) {
+      const grad = ctx.createRadialGradient(mouse.x, mouse.y, 4, mouse.x, mouse.y, 140);
+      grad.addColorStop(0, "rgba(56, 189, 248, 0.16)");
+      grad.addColorStop(1, "rgba(56, 189, 248, 0)");
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(mouse.x, mouse.y, 140, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Draw electronic crosshair target
+      ctx.strokeStyle = "rgba(56, 189, 248, 0.35)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(mouse.x, mouse.y, 18, 0, Math.PI * 2);
+      ctx.moveTo(mouse.x - 24, mouse.y);
+      ctx.lineTo(mouse.x + 24, mouse.y);
+      ctx.moveTo(mouse.x, mouse.y - 24);
+      ctx.lineTo(mouse.x, mouse.y + 24);
+      ctx.stroke();
     }
 
     requestAnimationFrame(draw);
