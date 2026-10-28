@@ -639,11 +639,16 @@ function openEnrollDialog(prn, isLocked) {
 }
 
 let enrollAutoTimer = null;
+let hardwarePollTimer = null;
 
 function clearEnrollTimers() {
   if (enrollAutoTimer) {
     clearTimeout(enrollAutoTimer);
     enrollAutoTimer = null;
+  }
+  if (hardwarePollTimer) {
+    clearInterval(hardwarePollTimer);
+    hardwarePollTimer = null;
   }
 }
 
@@ -653,8 +658,7 @@ function onSensorTouch() {
   if (enrollStep === 0) {
     startDialogEnrollment();
   } else if (enrollStep >= 1 && enrollStep <= 3) {
-    clearEnrollTimers();
-    advanceEnrollStep();
+    advanceEnrollStep(enrollStep);
   }
 }
 
@@ -719,14 +723,15 @@ function resetScannerState() {
   const icon = document.getElementById("dialog-scan-icon");
   if (icon) icon.innerText = "🪪";
   const title = document.getElementById("dialog-step-title");
-  if (title) title.innerText = "Awaiting Registration Command";
+  if (title) title.innerText = "Optical Sensor Ready (Standby)";
   const desc = document.getElementById("dialog-step-desc");
-  if (desc) desc.innerText = "Touch sensor glass or click below to start auto-detecting registration.";
+  if (desc) desc.innerText = "Click Start or touch sensor glass below to activate constant blue optical beam.";
 
   const box = document.getElementById("dialog-scanner-box");
   if (box) {
     box.style.borderColor = "#38bdf8";
     box.style.boxShadow = "none";
+    box.style.background = "var(--bg-2)";
   }
 
   ["d-step-1", "d-step-2", "d-step-3", "d-step-4"].forEach(id => {
@@ -780,10 +785,7 @@ async function startDialogEnrollment() {
     if (!confirmOverride) return;
   }
 
-  // Dispatch command to Supabase in background
-  window.PBCOE.triggerCloudEnrollment(slot, s.name, s.prn);
-
-  // Transition to Step 1: Optical Prism Activated (Steady Blue Light)
+  // Transition to Step 1: CONSTANT SOLID BLUE OPTICAL BEAM ACTIVE
   enrollStep = 1;
   const btn = document.getElementById("dialog-btn-start");
   const laser = document.getElementById("dialog-scan-laser");
@@ -795,32 +797,60 @@ async function startDialogEnrollment() {
 
   if (laser) laser.style.display = "block";
   if (box) {
-    box.style.borderColor = "#0284c7";
-    box.style.boxShadow = "0 0 25px rgba(2, 132, 199, 0.4)";
+    // Constant solid blue aura as requested
+    box.style.borderColor = "#38bdf8";
+    box.style.boxShadow = "0 0 35px #0284c7, inset 0 0 25px rgba(56,189,248,0.35)";
+    box.style.background = "radial-gradient(circle, rgba(2,132,199,0.3) 0%, rgba(15,23,42,0.95) 85%)";
   }
   if (icon) icon.innerText = "🔍";
   if (s1) { s1.style.background = "#0284c7"; s1.style.color = "#fff"; }
-  if (title) title.innerText = `Step 1: Place ${fingerType} on Sensor`;
-  if (desc) desc.innerText = "Sensor LED active (Steady Blue). Place finger flat on optical glass prism...";
+  if (title) title.innerText = `Step 1: Optical Blue Light Active — Place ${fingerType}`;
+  if (desc) desc.innerText = "Hardware optical blue LED constant ON. Place finger flatly and steady on the sensor glass.";
   if (btn) {
     btn.disabled = false;
-    btn.innerText = "⚡ Auto-Detecting Finger Contact (or Touch Glass)...";
-    btn.onclick = advanceEnrollStep;
+    btn.innerText = "👆 Touch Glass / Place Finger to Capture Pass 1";
+    btn.onclick = () => advanceEnrollStep(1);
   }
 
-  // Auto-detect finger contact within 800ms
-  enrollAutoTimer = setTimeout(() => {
-    advanceEnrollStep();
-  }, 800);
+  // Dispatch cloud command to Supabase for hardware ESP32
+  try {
+    const cmdRes = await window.PBCOE.triggerCloudEnrollment(slot, s.name, s.prn);
+    const cmdId = cmdRes && cmdRes.commandId;
+    if (cmdId) {
+      pollHardwareEnrollment(cmdId, s, slot, fingerType);
+    }
+  } catch(e) {}
 }
 
-async function advanceEnrollStep() {
-  clearEnrollTimers();
+function pollHardwareEnrollment(cmdId, s, slot, fingerType) {
+  if (hardwarePollTimer) clearInterval(hardwarePollTimer);
+  hardwarePollTimer = setInterval(async () => {
+    if (enrollStep === 0 || enrollStep === 4) {
+      clearInterval(hardwarePollTimer);
+      return;
+    }
+    try {
+      const stat = await window.PBCOE.getBiometricCommandStatus(cmdId);
+      if (!stat || !stat.status) return;
+      if (stat.status === "LIFT_FINGER" && enrollStep === 1) {
+        advanceEnrollStep(1);
+      } else if (stat.status === "PASS_2" && enrollStep === 2) {
+        advanceEnrollStep(2);
+      } else if (stat.status === "SUCCESS" && enrollStep !== 4) {
+        advanceEnrollStep(3);
+        clearInterval(hardwarePollTimer);
+      }
+    } catch(e) {}
+  }, 350);
+}
+
+async function advanceEnrollStep(fromStep) {
   const prn = (document.getElementById("dialog-student-select")?.value || "").trim();
   const rawSlot = (document.getElementById("dialog-slot-id")?.value || "").trim();
   const fingerType = document.getElementById("dialog-finger-type")?.value || "Right Index Finger";
   const s = window.PBCOE.getStudentByPrn(prn);
   const slot = parseInt(rawSlot, 10);
+  const shortName = s && window.PBCOE.formatShortName ? window.PBCOE.formatShortName(s.name) : (s ? s.name : "Candidate");
 
   const btn = document.getElementById("dialog-btn-start");
   const icon = document.getElementById("dialog-scan-icon");
@@ -832,29 +862,23 @@ async function advanceEnrollStep() {
   const s4 = document.getElementById("d-step-4");
   const box = document.getElementById("dialog-scanner-box");
 
-  if (enrollStep === 1) {
+  if (fromStep === 1) {
     // CAPTURE PASS 1
     if (btn) { btn.disabled = true; btn.innerText = "Capturing Optical Pass 1..."; }
-    await new Promise(r => setTimeout(r, 400));
     window.PBCOE.playChime();
 
     enrollStep = 2;
     if (s1) { s1.style.background = "#15803d"; s1.style.color = "#fff"; }
     if (s2) { s2.style.background = "#d97706"; s2.style.color = "#fff"; }
     if (icon) icon.innerText = "✋";
-    if (title) title.innerText = "Pass 1 Captured! Lift Finger Now";
-    if (desc) desc.innerText = "Primary optical template recorded. Please lift your finger off the optical glass prism.";
+    if (title) title.innerText = "Image 1 OK! Lift Finger Now";
+    if (desc) desc.innerText = "Primary optical minutiae template captured. Lift finger off optical glass prism.";
     if (btn) {
       btn.disabled = false;
-      btn.innerText = "✋ Lift Finger (Auto-Detecting Lift)...";
-      btn.onclick = advanceEnrollStep;
+      btn.innerText = "✋ Finger Lifted — Ready for Pass 2 ➔";
+      btn.onclick = () => advanceEnrollStep(2);
     }
-
-    // Auto-detect lift and prompt Pass 2 in 700ms
-    enrollAutoTimer = setTimeout(() => {
-      advanceEnrollStep();
-    }, 700);
-  } else if (enrollStep === 2) {
+  } else if (fromStep === 2) {
     // PROCEED TO PASS 2
     enrollStep = 3;
     if (s2) { s2.style.background = "#15803d"; s2.style.color = "#fff"; }
@@ -864,18 +888,13 @@ async function advanceEnrollStep() {
     if (desc) desc.innerText = "Hold the same finger flat on the sensor glass to fuse high-confidence biometric template.";
     if (btn) {
       btn.disabled = false;
-      btn.innerText = "👆 Place Finger (Auto-Detecting Pass 2)...";
-      btn.onclick = advanceEnrollStep;
+      btn.innerText = "👆 Finger Placed — Capture Pass 2 & Save ⚡";
+      btn.onclick = () => advanceEnrollStep(3);
     }
-
-    // Auto-detect pass 2 in 800ms
-    enrollAutoTimer = setTimeout(() => {
-      advanceEnrollStep();
-    }, 800);
-  } else if (enrollStep === 3) {
+  } else if (fromStep === 3) {
     // CAPTURE PASS 2 & FUSE MODEL
-    if (btn) { btn.disabled = true; btn.innerText = "Fusing 2-Pass Vector & Storing in Flash..."; }
-    await new Promise(r => setTimeout(r, 450));
+    clearEnrollTimers();
+    if (btn) { btn.disabled = true; btn.innerText = "Fusing 2-Pass Vector & Locking into Flash..."; }
     window.PBCOE.playChime();
 
     enrollStep = 4;
@@ -885,13 +904,14 @@ async function advanceEnrollStep() {
     if (laser) laser.style.display = "none";
     if (box) {
       box.style.borderColor = "#22c55e";
-      box.style.boxShadow = "0 0 30px rgba(34, 197, 94, 0.4)";
+      box.style.boxShadow = "0 0 35px rgba(34, 197, 94, 0.45)";
+      box.style.background = "radial-gradient(circle, rgba(34,197,94,0.2) 0%, rgba(15,23,42,0.95) 85%)";
     }
     if (icon) icon.innerText = "✅";
-    const shortName = window.PBCOE.formatShortName ? window.PBCOE.formatShortName(s.name) : s.name;
-    if (title) title.innerText = `Enrolled in Slot #${slot} Successfully!`;
-    if (desc) desc.innerText = `Biometric template verified and locked for ${shortName} in Flash Slot #${slot}.`;
+    if (title) title.innerText = `Enrolled in Flash Slot #${slot} Successfully!`;
+    if (desc) desc.innerText = `Biometric template verified and permanently locked in R307 memory for ${shortName}.`;
 
+    // Commit authoritative enrollment record
     await window.PBCOE.markStudentEnrolled(s.prn, slot);
     fullRoster = window.PBCOE.getStudents();
     onDialogStudentChange();
@@ -902,11 +922,11 @@ async function advanceEnrollStep() {
 
     if (btn) {
       btn.disabled = false;
-      btn.innerText = "Enrollment Complete ✔";
+      btn.innerText = "Biometric Registration Locked ✔";
       btn.onclick = closeEnrollDialog;
     }
     window.PBCOE.showToast(s.name, `Fingerprint Enrolled in Slot #${slot}`, s.image, "Present");
-    enrollAutoTimer = setTimeout(closeEnrollDialog, 2200);
+    enrollAutoTimer = setTimeout(closeEnrollDialog, 2600);
   }
 }
 

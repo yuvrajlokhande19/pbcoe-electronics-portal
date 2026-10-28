@@ -554,7 +554,6 @@ window.PBCOE = (function () {
 
   // Trigger Cloud Enrollment via Supabase
   async function triggerCloudEnrollment(id, name, roll) {
-    markStudentEnrolled(roll, id);
     const commandPayload = {
       command: "ENROLL",
       target_id: parseInt(id, 10),
