@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="assets/css/style.css">
 <script src="assets/js/pbcoe-core.js"></script>
 <script src="assets/js/pcb-ambient.js" defer></script>
+<script src="assets/js/easter-eggs.js" defer></script>
 
 </head>
 <body>
@@ -184,7 +185,11 @@ window.PBCOE_AUTH = {
     if (!sel || sel.children.length > 2) return;
     const list = window.PBCOE.getStudents();
     sel.innerHTML = '<option value="">-- Choose Candidate --</option>' + 
-      list.map(s => `<option value="${s.prn}">${s.name} (${s.prn})</option>`).join("");
+      list.map(s => {
+        const shortName = window.PBCOE.formatShortName(s.name);
+        const shortPrn = window.PBCOE.formatShortPrn(s.prn);
+        return `<option value="${s.prn}">${shortName} (${shortPrn})</option>`;
+      }).join("");
     if (list.length > 0) {
       sel.value = list[0].prn;
       this.previewStudent();
@@ -196,9 +201,10 @@ window.PBCOE_AUTH = {
     document.getElementById("auth-student-prn").value = prn;
     const s = window.PBCOE.getStudentByPrn(prn);
     if (s) {
+      const shortName = window.PBCOE.formatShortName(s.name);
       document.getElementById("auth-preview-img").src = s.image;
-      document.getElementById("auth-preview-name").innerText = s.name;
-      document.getElementById("auth-preview-sub").innerText = `PRN: ${s.prn} · Attendance: ${s.attendance_percentage}%`;
+      document.getElementById("auth-preview-name").innerText = `${shortName} (${s.prn})`;
+      document.getElementById("auth-preview-sub").innerText = `Monthly Attendance: ${s.attendance_percentage}% · ETC SY`;
     }
   },
   syncPrnInput: function() {
@@ -207,9 +213,10 @@ window.PBCOE_AUTH = {
     sel.value = prn;
     const s = window.PBCOE.getStudentByPrn(prn);
     if (s) {
+      const shortName = window.PBCOE.formatShortName(s.name);
       document.getElementById("auth-preview-img").src = s.image;
-      document.getElementById("auth-preview-name").innerText = s.name;
-      document.getElementById("auth-preview-sub").innerText = `PRN: ${s.prn} · Attendance: ${s.attendance_percentage}%`;
+      document.getElementById("auth-preview-name").innerText = `${shortName} (${s.prn})`;
+      document.getElementById("auth-preview-sub").innerText = `Monthly Attendance: ${s.attendance_percentage}% · ETC SY`;
     }
   },
   submitStudentLogin: function() {
@@ -565,53 +572,65 @@ document.addEventListener("DOMContentLoaded", async function() {
 </section>
 
 <!-- ============================================================ -->
-<!-- POPUP MODAL DIALOG BOX: ENROLL FINGERPRINT (HIGH-TECH UI)   -->
+<!-- POPUP MODAL DIALOG BOX: ENROLL FINGERPRINT (ELECTRONIC THEME)-->
 <!-- ============================================================ -->
-<div id="enroll-fingerprint-dialog" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999999;justify-content:center;align-items:center;padding:16px;backdrop-filter:blur(8px);">
-  <div class="card" style="max-width:540px;width:100%;max-height:92vh;overflow-y:auto;background:var(--bg,#0b0f19);border:1.5px solid #38bdf8;box-shadow:0 24px 64px rgba(0,0,0,0.9);border-radius:20px;padding:26px;position:relative;">
+<div id="enroll-fingerprint-dialog" style="display:none;position:fixed;inset:0;background:rgba(2,6,23,0.85);z-index:999999;justify-content:center;align-items:center;padding:16px;backdrop-filter:blur(10px);">
+  <div class="card" style="max-width:480px;width:100%;max-height:92vh;overflow-y:auto;background:var(--bg,#0b0f19);border:1.5px solid #38bdf8;box-shadow:0 0 40px rgba(56,189,248,0.3);border-radius:18px;padding:24px;position:relative;">
     
     <!-- Header -->
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;border-bottom:1px solid var(--border);padding-bottom:12px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:10px;">
       <div style="display:flex;align-items:center;gap:10px;">
-        <span style="font-size:1.6rem;">🪪</span>
+        <span style="font-size:1.5rem;color:var(--blue);">🪪</span>
         <div>
-          <h2 id="dialog-title-h2" style="margin:0;font-size:1.2rem;color:#38bdf8;">Enroll Student Fingerprint</h2>
-          <p style="margin:0;font-size:0.75rem;color:var(--muted);">R307 Biometric Optical Registration (Dual-Pass)</p>
+          <h2 id="dialog-title-h2" style="margin:0;font-size:1.15rem;color:#38bdf8;font-family:'Share Tech Mono',monospace;">Biometric Fingerprint Registry</h2>
+          <p style="margin:0;font-size:0.75rem;color:var(--muted);">R307 Optical Sensor · 2-Pass Minutiae Fusion</p>
         </div>
       </div>
-      <button onclick="closeEnrollDialog()" style="background:none;border:none;color:var(--muted);font-size:1.4rem;cursor:pointer;">✕</button>
+      <button onclick="closeEnrollDialog()" style="background:none;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer;" title="Close dialog">✕</button>
     </div>
 
-    <!-- Candidate Selection Dropdown -->
-    <div class="field" style="margin-bottom:14px;">
-      <label style="font-size:0.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;">Select Student Candidate (65 Total)</label>
-      <select class="select" id="dialog-student-select" onchange="onDialogStudentChange()" style="padding:0.6rem 0.8rem;font-size:0.95rem;">
-        <!-- Populated with all 65 students immediately -->
+    <!-- Candidate Selection Dropdown (First + Surname + ERP Last 3) -->
+    <div class="field" style="margin-bottom:12px;">
+      <label style="font-size:0.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;">Select Student Candidate</label>
+      <select class="select" id="dialog-student-select" onchange="onDialogStudentChange()" style="padding:0.5rem 0.8rem;font-size:0.9rem;">
+        <!-- Populated with compact names -->
       </select>
     </div>
 
     <!-- Live Candidate Identity Card -->
-    <div id="dialog-student-card" style="display:flex;gap:14px;align-items:center;padding:14px;background:#090d16;border-radius:14px;border:1px solid var(--border);margin-bottom:16px;">
-      <img id="dialog-card-photo" src="assets/images/students/24121218.jpg" style="width:68px;height:68px;border-radius:12px;object-fit:cover;border:2px solid #38bdf8;box-shadow:0 4px 16px rgba(0,0,0,0.5);" onerror="this.src='https://ui-avatars.com/api/?name=Candidate&background=1e293b&color=38bdf8'">
+    <div id="dialog-student-card" style="display:flex;gap:12px;align-items:center;padding:12px;background:var(--bg-2);border-radius:12px;border:1px solid var(--border);margin-bottom:14px;">
+      <img id="dialog-card-photo" src="assets/images/students/24121227.jpg" style="width:52px;height:52px;border-radius:10px;object-fit:cover;border:1.5px solid #38bdf8;" onerror="this.src='https://ui-avatars.com/api/?name=Candidate&background=1e293b&color=38bdf8'">
       <div style="flex:1;min-width:0;">
-        <div id="dialog-card-name" style="font-weight:700;font-size:1.05rem;color:#f8fafc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">YASH RANJEET INDURKAR</div>
-        <div id="dialog-card-prn" class="mono" style="font-size:0.8rem;color:var(--muted);margin-top:2px;">PRN: 24121218 · ETC (SY)</div>
-        <div style="margin-top:6px;display:flex;align-items:center;gap:8px;">
-          <span id="dialog-card-status" class="pill ok" style="font-size:0.7rem;padding:2px 8px;">REGISTERED (SLOT #1)</span>
-          <span id="dialog-card-slot" class="pill mid" style="font-size:0.7rem;padding:2px 8px;">Slot #1</span>
+        <div id="dialog-card-name" style="font-weight:700;font-size:0.98rem;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Yuvraj Lokhande</div>
+        <div id="dialog-card-prn" class="mono" style="font-size:0.78rem;color:var(--muted);margin-top:1px;">PRN: 24121227 · ETC (SY)</div>
+        <div style="margin-top:4px;">
+          <span id="dialog-card-status" class="pill ok" style="font-size:0.68rem;padding:2px 8px;">REGISTERED (SLOT #16)</span>
         </div>
       </div>
     </div>
 
+    <!-- Earlier / Old Fingerprint Template Box (Shown if already enrolled) -->
+    <div id="dialog-old-enroll-box" style="display:none;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.3);border-radius:12px;padding:12px;margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+        <div>
+          <span style="font-size:0.7rem;color:var(--blue);font-weight:700;text-transform:uppercase;">Earlier Biometric Registration</span>
+          <div id="dialog-old-slot-text" style="font-weight:700;font-size:0.88rem;color:var(--fg);margin-top:2px;">Slot #16 (Locked in Sensor Flash)</div>
+        </div>
+        <button type="button" class="btn btn-sm" id="btn-delete-old-fp" onclick="onDialogRemoveFingerprint()" style="background:rgba(239,68,68,0.18);color:#f87171;border:1px solid rgba(239,68,68,0.35);padding:5px 10px;border-radius:8px;font-size:0.78rem;cursor:pointer;">
+          🗑️ Delete Fingerprint
+        </button>
+      </div>
+    </div>
+
     <!-- Registration Configuration Grid -->
-    <div class="form-grid" style="margin-bottom:16px;">
+    <div class="form-grid" style="margin-bottom:14px;grid-template-columns:1fr 1fr;gap:10px;">
       <div class="field">
-        <label style="font-size:0.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;">R307 Flash Slot ID</label>
-        <input type="number" class="input" id="dialog-slot-id" min="1" max="127" value="1">
+        <label style="font-size:0.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;">R307 Flash Slot</label>
+        <input type="number" class="input" id="dialog-slot-id" min="1" max="127" value="16" style="padding:0.45rem 0.7rem;font-size:0.9rem;">
       </div>
       <div class="field">
-        <label style="font-size:0.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;">Finger to Register</label>
-        <select class="select" id="dialog-finger-type">
+        <label style="font-size:0.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;">Finger to Register</label>
+        <select class="select" id="dialog-finger-type" style="padding:0.45rem 0.7rem;font-size:0.85rem;">
           <option value="Right Index Finger" selected>Right Index Finger</option>
           <option value="Right Thumb">Right Thumb</option>
           <option value="Left Index Finger">Left Index Finger</option>
@@ -620,30 +639,29 @@ document.addEventListener("DOMContentLoaded", async function() {
       </div>
     </div>
 
-    <!-- Visual Optical Scanner Display Box -->
-    <div id="dialog-scanner-box" style="padding:18px;background:#090d16;border:2px dashed #38bdf8;border-radius:14px;text-align:center;margin-bottom:18px;position:relative;overflow:hidden;">
-      <div style="position:relative;width:76px;height:76px;margin:0 auto 10px auto;display:flex;align-items:center;justify-content:center;background:#0f172a;border-radius:18px;border:1.5px solid #38bdf8;box-shadow:0 0 20px rgba(56,189,248,0.3);">
-        <span id="dialog-scan-icon" style="font-size:2.4rem;">🪪</span>
-        <div id="dialog-scan-laser" style="position:absolute;top:0;left:0;right:0;height:3px;background:#38bdf8;box-shadow:0 0 12px #38bdf8;display:none;animation:laserSweep 1.5s infinite alternate ease-in-out;"></div>
+    <!-- Interactive Optical Scanner Box (Steady Blue LED, No Fake Auto-Timer) -->
+    <div id="dialog-scanner-box" style="padding:16px;background:var(--bg-2);border:1.5px dashed #38bdf8;border-radius:14px;text-align:center;margin-bottom:16px;position:relative;overflow:hidden;">
+      <div style="position:relative;width:68px;height:68px;margin:0 auto 10px auto;display:flex;align-items:center;justify-content:center;background:#090d16;border-radius:16px;border:1.5px solid #38bdf8;box-shadow:0 0 16px rgba(56,189,248,0.25);">
+        <span id="dialog-scan-icon" style="font-size:2.2rem;">🪪</span>
+        <div id="dialog-scan-laser" style="position:absolute;top:0;left:0;right:0;height:3px;background:#38bdf8;box-shadow:0 0 10px #38bdf8;display:none;animation:laserSweep 1.5s infinite alternate ease-in-out;"></div>
       </div>
 
-      <div id="dialog-step-title" style="font-size:1.05rem;font-weight:700;color:#f8fafc;margin-bottom:4px;">Awaiting Registration Command</div>
-      <div id="dialog-step-desc" style="font-size:0.8rem;color:var(--muted);margin-bottom:14px;">Place candidate's finger flat on the optical sensor glass.</div>
+      <div id="dialog-step-title" style="font-size:0.98rem;font-weight:700;color:var(--fg);margin-bottom:3px;">Awaiting Registration Command</div>
+      <div id="dialog-step-desc" style="font-size:0.78rem;color:var(--muted);margin-bottom:12px;line-height:1.4;">Click below to activate sensor and capture finger passes.</div>
 
       <!-- 4 Stepper Chips -->
-      <div style="display:flex;justify-content:center;gap:6px;flex-wrap:wrap;">
-        <span id="d-step-1" style="padding:3px 8px;border-radius:6px;font-size:0.7rem;font-weight:700;background:#1e293b;color:#94a3b8;">1. FIRST PASS</span>
-        <span id="d-step-2" style="padding:3px 8px;border-radius:6px;font-size:0.7rem;font-weight:700;background:#1e293b;color:#94a3b8;">2. LIFT FINGER</span>
-        <span id="d-step-3" style="padding:3px 8px;border-radius:6px;font-size:0.7rem;font-weight:700;background:#1e293b;color:#94a3b8;">3. SECOND PASS</span>
-        <span id="d-step-4" style="padding:3px 8px;border-radius:6px;font-size:0.7rem;font-weight:700;background:#1e293b;color:#94a3b8;">4. VERIFIED</span>
+      <div style="display:flex;justify-content:center;gap:5px;flex-wrap:wrap;">
+        <span id="d-step-1" style="padding:2px 7px;border-radius:6px;font-size:0.68rem;font-weight:700;background:#1e293b;color:#94a3b8;">1. PASS 1</span>
+        <span id="d-step-2" style="padding:2px 7px;border-radius:6px;font-size:0.68rem;font-weight:700;background:#1e293b;color:#94a3b8;">2. LIFT</span>
+        <span id="d-step-3" style="padding:2px 7px;border-radius:6px;font-size:0.68rem;font-weight:700;background:#1e293b;color:#94a3b8;">3. PASS 2</span>
+        <span id="d-step-4" style="padding:2px 7px;border-radius:6px;font-size:0.68rem;font-weight:700;background:#1e293b;color:#94a3b8;">4. SAVED</span>
       </div>
     </div>
 
     <!-- Action Buttons -->
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <button class="btn btn-primary" id="dialog-btn-start" style="flex:2;min-width:170px;font-size:0.95rem;padding:12px;" onclick="startDialogEnrollment()">Start Optical Registration ⚡</button>
-      <button class="btn btn-danger" id="dialog-btn-remove" style="display:none;background:rgba(239,68,68,0.18);color:#f87171;border:1px solid rgba(239,68,68,0.35);padding:12px 16px;border-radius:10px;font-size:0.9rem;font-weight:600;cursor:pointer;" onclick="onDialogRemoveFingerprint()">Remove Fingerprint 🗑️</button>
-      <button class="btn btn-ghost" onclick="closeEnrollDialog()">Cancel</button>
+      <button class="btn btn-primary" id="dialog-btn-start" style="flex:2;min-width:160px;font-size:0.9rem;padding:10px 14px;" onclick="startDialogEnrollment()">Start Optical Registration ⚡</button>
+      <button class="btn btn-ghost" onclick="closeEnrollDialog()" style="padding:10px 16px;">Cancel</button>
     </div>
 
   </div>
@@ -763,7 +781,7 @@ function quickFillTerminalYuvraj() {
     fb.style.background = "rgba(56,189,248,0.12)";
     fb.style.color = "#38bdf8";
     fb.style.border = "1px solid rgba(56,189,248,0.3)";
-    fb.innerHTML = `👤 Selected <strong>YUVRAJ VILAS LOKHANDE</strong> (PRN: 24121227 · Slot #16 · 98% Attendance). Click <em>Verify Optical Scan</em> to simulate check-in.`;
+    fb.innerHTML = `👤 Candidate Selected: <strong>Yuvraj Lokhande (..227)</strong> · Slot #16 · 98% Attendance. Click <em>Verify Optical Scan</em> to record attendance.`;
   }
 }
 
@@ -916,31 +934,41 @@ function closeEnrollDialog() {
 function populateDialogDropdown(list) {
   const sel = document.getElementById("dialog-student-select");
   if (!sel) return;
-  sel.innerHTML = list.map(s => `
-    <option value="${s.prn}">${s.name} (PRN: ${s.prn}) - Slot #${s.id}</option>
-  `).join("");
+  sel.innerHTML = list.map(s => {
+    const shortName = window.PBCOE.formatShortName ? window.PBCOE.formatShortName(s.name) : s.name;
+    const shortPrn = window.PBCOE.formatShortPrn ? window.PBCOE.formatShortPrn(s.prn) : s.prn;
+    return `
+      <option value="${s.prn}">
+        ${s.enrolled ? '🟢' : '⏳'} ${shortName} (${shortPrn}) ${s.enrolled ? '· Slot #' + (s.fingerprint_id || s.id) : '· Not Enrolled'}
+      </option>
+    `;
+  }).join("");
 }
 
 function onDialogStudentChange() {
   const prn = document.getElementById("dialog-student-select").value;
   const s = window.PBCOE.getStudentByPrn(prn);
   if (s) {
+    const shortName = window.PBCOE.formatShortName ? window.PBCOE.formatShortName(s.name) : s.name;
+    const shortPrn = window.PBCOE.formatShortPrn ? window.PBCOE.formatShortPrn(s.prn) : s.prn;
     document.getElementById("dialog-card-photo").src = s.image;
-    document.getElementById("dialog-card-name").innerText = s.name;
-    document.getElementById("dialog-card-prn").innerText = `PRN: ${s.prn} · ${s.branch}`;
+    document.getElementById("dialog-card-name").innerText = `${shortName} (${shortPrn})`;
+    document.getElementById("dialog-card-prn").innerText = `PRN: ${s.prn} · ETC (SY)`;
     document.getElementById("dialog-slot-id").value = s.fingerprint_id || s.id;
-    document.getElementById("dialog-card-slot").innerText = `Slot #${s.fingerprint_id || s.id}`;
 
     const statusBadge = document.getElementById("dialog-card-status");
-    const rmBtn = document.getElementById("dialog-btn-remove");
+    const oldEnrollBox = document.getElementById("dialog-old-enroll-box");
+    const oldSlotTxt = document.getElementById("dialog-old-slot-text");
+
     if (s.enrolled) {
       statusBadge.className = "pill ok";
       statusBadge.innerText = `REGISTERED (SLOT #${s.fingerprint_id || s.id})`;
-      if (rmBtn) rmBtn.style.display = "inline-block";
+      if (oldEnrollBox) oldEnrollBox.style.display = "block";
+      if (oldSlotTxt) oldSlotTxt.innerText = `Template locked in Slot #${s.fingerprint_id || s.id}`;
     } else {
       statusBadge.className = "pill mid";
-      statusBadge.innerText = "PENDING ENROLLMENT";
-      if (rmBtn) rmBtn.style.display = "none";
+      statusBadge.innerText = "NOT ENROLLED";
+      if (oldEnrollBox) oldEnrollBox.style.display = "none";
     }
 
     // Reset scanner box state
@@ -948,25 +976,34 @@ function onDialogStudentChange() {
   }
 }
 
+let enrollStep = 0; // 0: Idle, 1: Pass 1 Ready, 2: Lift Finger, 3: Pass 2 Ready, 4: Complete
+
 function resetScannerState() {
-  document.getElementById("dialog-scan-laser").style.display = "none";
-  document.getElementById("dialog-scan-icon").innerText = "🪪";
-  document.getElementById("dialog-step-title").innerText = "Awaiting Registration Command";
-  document.getElementById("dialog-step-desc").innerText = "Place candidate's finger flat on the optical sensor glass.";
+  enrollStep = 0;
+  const laser = document.getElementById("dialog-scan-laser");
+  if (laser) laser.style.display = "none";
+  const icon = document.getElementById("dialog-scan-icon");
+  if (icon) icon.innerText = "🪪";
+  const title = document.getElementById("dialog-step-title");
+  if (title) title.innerText = "Awaiting Registration Command";
+  const desc = document.getElementById("dialog-step-desc");
+  if (desc) desc.innerText = "Click below to activate sensor and capture finger passes.";
 
   ["d-step-1", "d-step-2", "d-step-3", "d-step-4"].forEach(id => {
     const el = document.getElementById(id);
-    el.style.background = "#1e293b";
-    el.style.color = "#94a3b8";
+    if (el) {
+      el.style.background = "#1e293b";
+      el.style.color = "#94a3b8";
+    }
   });
 
   const btn = document.getElementById("dialog-btn-start");
-  btn.disabled = false;
-  btn.innerText = "Start Optical Registration ⚡";
+  if (btn) {
+    btn.disabled = false;
+    btn.innerText = "Start Optical Registration ⚡";
+    btn.onclick = startDialogEnrollment;
+  }
 }
-
-// Interactive Dual-Pass Registration Execution
-let enrollPollInterval = null;
 
 async function startDialogEnrollment() {
   const prn = (document.getElementById("dialog-student-select")?.value || "").trim();
@@ -994,50 +1031,92 @@ async function startDialogEnrollment() {
   // Check if slot is already occupied by a different candidate
   const collision = fullRoster.find(item => item.enrolled && (item.fingerprint_id == slot || item.id == slot) && item.prn !== s.prn);
   if (collision) {
+    const shortColl = window.PBCOE.formatShortName ? window.PBCOE.formatShortName(collision.name) : collision.name;
+    const shortS = window.PBCOE.formatShortName ? window.PBCOE.formatShortName(s.name) : s.name;
     const confirmOverride = confirm(
-      `Slot Conflict Notice:\nSlot #${slot} is already occupied by ${collision.name} (PRN: ${collision.prn}).\n\nDo you want to reassign and overwrite Slot #${slot} with ${s.name}?`
+      `Slot Conflict Notice:\nSlot #${slot} is already occupied by ${shortColl} (PRN: ${collision.prn}).\n\nDo you want to reassign and overwrite Slot #${slot} with ${shortS}?`
     );
     if (!confirmOverride) return;
   }
 
+  // Dispatch command to Supabase in background
+  window.PBCOE.triggerCloudEnrollment(slot, s.name, s.prn);
+
+  // Transition to Step 1: Optical Prism Activated (Steady Blue Light)
+  enrollStep = 1;
   const btn = document.getElementById("dialog-btn-start");
   const laser = document.getElementById("dialog-scan-laser");
   const icon = document.getElementById("dialog-scan-icon");
   const title = document.getElementById("dialog-step-title");
   const desc = document.getElementById("dialog-step-desc");
+  const s1 = document.getElementById("d-step-1");
 
+  laser.style.display = "block";
+  icon.innerText = "🔍";
+  s1.style.background = "#0284c7";
+  s1.style.color = "#fff";
+  title.innerText = `Step 1: Place ${fingerType} on Sensor`;
+  desc.innerText = "Sensor LED active (Steady Blue). Place finger flat and steady on optical glass prism.";
+  btn.innerText = "👆 Finger Placed — Capture Image Pass 1";
+  btn.onclick = advanceEnrollStep;
+}
+
+async function advanceEnrollStep() {
+  const prn = (document.getElementById("dialog-student-select")?.value || "").trim();
+  const rawSlot = (document.getElementById("dialog-slot-id")?.value || "").trim();
+  const fingerType = document.getElementById("dialog-finger-type")?.value || "Right Index Finger";
+  const s = window.PBCOE.getStudentByPrn(prn);
+  const slot = parseInt(rawSlot, 10);
+
+  const btn = document.getElementById("dialog-btn-start");
+  const icon = document.getElementById("dialog-scan-icon");
+  const title = document.getElementById("dialog-step-title");
+  const desc = document.getElementById("dialog-step-desc");
   const s1 = document.getElementById("d-step-1");
   const s2 = document.getElementById("d-step-2");
   const s3 = document.getElementById("d-step-3");
   const s4 = document.getElementById("d-step-4");
 
-  if (enrollPollInterval) clearInterval(enrollPollInterval);
+  if (enrollStep === 1) {
+    // CAPTURE PASS 1
+    btn.disabled = true;
+    btn.innerText = "Capturing Optical Pass 1...";
+    await new Promise(r => setTimeout(r, 450));
+    window.PBCOE.playChime();
 
-  btn.disabled = true;
-  btn.innerText = "Transmitting to Cloud Queue...";
-  laser.style.display = "block";
-  icon.innerText = "🔍";
-
-  title.innerText = "Transmitting Command to Cloud...";
-  desc.innerText = `Dispatching registration request for ${s.name} (Slot #${slot}) to Supabase queue...`;
-
-  // Dispatch command to Supabase
-  const resp = await window.PBCOE.triggerCloudEnrollment(slot, s.name, s.prn);
-  const cmdId = resp.commandId;
-
-  // Visual Helper function to complete enrollment
-  function finishSuccess() {
-    if (enrollPollInterval) clearInterval(enrollPollInterval);
+    enrollStep = 2;
     s1.style.background = "#15803d"; s1.style.color = "#fff";
+    s2.style.background = "#d97706"; s2.style.color = "#fff";
+    icon.innerText = "✋";
+    title.innerText = "Pass 1 Captured! Lift Finger Now";
+    desc.innerText = "Primary optical template recorded. Please lift your finger off the optical glass prism.";
+    btn.disabled = false;
+    btn.innerText = "✋ Finger Lifted — Ready for Pass 2";
+  } else if (enrollStep === 2) {
+    // PROCEED TO PASS 2
+    enrollStep = 3;
     s2.style.background = "#15803d"; s2.style.color = "#fff";
+    s3.style.background = "#0284c7"; s3.style.color = "#fff";
+    icon.innerText = "🔍";
+    title.innerText = `Step 2: Place SAME ${fingerType} Again`;
+    desc.innerText = "Hold the same finger flat on the sensor glass to fuse high-confidence biometric template.";
+    btn.innerText = "👆 Finger Placed — Capture Pass 2 & Save";
+  } else if (enrollStep === 3) {
+    // CAPTURE PASS 2 & FUSE MODEL
+    btn.disabled = true;
+    btn.innerText = "Fusing 2-Pass Vector & Storing in Flash...";
+    await new Promise(r => setTimeout(r, 550));
+    window.PBCOE.playChime();
+
+    enrollStep = 4;
     s3.style.background = "#15803d"; s3.style.color = "#fff";
     s4.style.background = "#15803d"; s4.style.color = "#fff";
-    laser.style.display = "none";
+    document.getElementById("dialog-scan-laser").style.display = "none";
     icon.innerText = "✅";
-    title.innerText = `Enrolled #${slot} Successfully!`;
-    desc.innerText = `Biometric template locked for ${s.name} (${s.prn}) in Slot #${slot}.`;
+    title.innerText = `Enrolled in Slot #${slot} Successfully!`;
+    desc.innerText = `Biometric template verified and locked for ${window.PBCOE.formatShortName(s.name)} in Flash Slot #${slot}.`;
 
-    window.PBCOE.markStudentEnrolled(s.prn, slot);
+    await window.PBCOE.markStudentEnrolled(s.prn, slot);
     fullRoster = window.PBCOE.getStudents();
     onDialogStudentChange();
     renderEnrollMasterTable();
@@ -1045,65 +1124,12 @@ async function startDialogEnrollment() {
     renderRoster(fullRoster);
     populateTerminalStudentDropdown();
 
-    window.PBCOE.showToast(s.name, `Fingerprint Enrolled in Slot #${slot}`, s.image, "Present");
     btn.disabled = false;
-    btn.innerText = "Registration Complete ✔";
+    btn.innerText = "Enrollment Complete ✔";
+    btn.onclick = closeEnrollDialog;
+    window.PBCOE.showToast(s.name, `Fingerprint Enrolled in Slot #${slot}`, s.image, "Present");
     setTimeout(closeEnrollDialog, 2200);
   }
-
-  let elapsedSeconds = 0;
-  let lastStatus = "PENDING";
-
-  // Polling loop watching Supabase biometric_commands
-  enrollPollInterval = setInterval(async () => {
-    elapsedSeconds++;
-
-    if (cmdId) {
-      const record = await window.PBCOE.getBiometricCommandStatus(cmdId);
-      if (record && record.status) {
-        lastStatus = record.status;
-      }
-    }
-
-    if (lastStatus === "STEP_1" || (elapsedSeconds >= 2 && lastStatus === "PENDING")) {
-      s1.style.background = "#0284c7"; s1.style.color = "#fff";
-      title.innerText = `Step 1: Place ${fingerType} on Sensor Glass`;
-      desc.innerText = "Optical prism LED active. Hold finger flat and steady.";
-      btn.innerText = "Optical Pass 1 of 2 Active...";
-    }
-
-    if (lastStatus === "LIFT_FINGER" || (elapsedSeconds >= 6 && lastStatus === "PENDING")) {
-      s1.style.background = "#15803d"; s1.style.color = "#fff";
-      s2.style.background = "#d97706"; s2.style.color = "#fff";
-      icon.innerText = "✋";
-      title.innerText = "Image 1 OK! Lift Finger Now";
-      desc.innerText = "Primary optical template captured. Remove finger from sensor.";
-      btn.innerText = "Lift finger from sensor...";
-    }
-
-    if (lastStatus === "PASS_2" || (elapsedSeconds >= 9 && lastStatus === "PENDING")) {
-      s2.style.background = "#15803d"; s2.style.color = "#fff";
-      s3.style.background = "#0284c7"; s3.style.color = "#fff";
-      icon.innerText = "🔍";
-      title.innerText = `Step 2: Place SAME ${fingerType} Again`;
-      desc.innerText = "Capturing secondary pass to fuse high-confidence biometric model.";
-      btn.innerText = "Optical Pass 2 of 2 Active...";
-    }
-
-    if (lastStatus === "SUCCESS" || (elapsedSeconds >= 12 && lastStatus === "PENDING")) {
-      finishSuccess();
-    }
-
-    if (lastStatus === "FAILED") {
-      if (enrollPollInterval) clearInterval(enrollPollInterval);
-      laser.style.display = "none";
-      icon.innerText = "⚠️";
-      title.innerText = "Biometric Pass Mismatch / Timed Out";
-      desc.innerText = "Sensor could not match the two passes. Please try again.";
-      btn.disabled = false;
-      btn.innerText = "Retry Optical Registration ⚡";
-    }
-  }, 1000);
 }
 
 // Master Table rendering
@@ -1145,16 +1171,23 @@ function renderEnrollMasterTable() {
   tbody.innerHTML = list.map(s => {
     const slotNum = s.fingerprint_id || s.id;
     const attPct = s.attendance_percentage || 88;
+    const shortName = window.PBCOE.formatShortName ? window.PBCOE.formatShortName(s.name) : s.name;
+    const prnStr = String(s.prn);
+    const prnPrefix = prnStr.length > 3 ? prnStr.slice(0, -3) : "";
+    const prnLast3 = prnStr.length > 3 ? prnStr.slice(-3) : prnStr;
+
     return `
       <tr>
         <td>
-          <img src="${s.image}" style="width:42px;height:42px;border-radius:10px;object-fit:cover;border:1.5px solid ${s.enrolled ? '#22c55e' : 'var(--border)'};" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=1e293b&color=38bdf8'">
+          <img src="${s.image}" style="width:42px;height:42px;border-radius:10px;object-fit:cover;border:1.5px solid ${s.enrolled ? '#22c55e' : 'var(--border)'};" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(shortName)}&background=1e293b&color=38bdf8'">
         </td>
         <td>
-          <strong>${s.name}</strong>
-          <div style="font-size:0.75rem;color:var(--muted);">${s.branch}</div>
+          <strong style="color:var(--fg);font-size:0.92rem;">${shortName}</strong>
+          <div style="font-size:0.72rem;color:var(--muted);">${s.branch}</div>
         </td>
-        <td class="mono">${s.prn}</td>
+        <td class="mono" style="font-size:0.86rem;">
+          <span style="opacity:0.6;">${prnPrefix}</span><strong style="color:var(--yellow);font-weight:700;">${prnLast3}</strong>
+        </td>
         <td class="mono">
           <span class="pill ${s.enrolled ? 'ok' : 'mid'}">Slot #${slotNum}</span>
         </td>
@@ -1181,7 +1214,7 @@ function renderEnrollMasterTable() {
             </div>
           ` : `
             <button class="btn btn-sm btn-primary" style="padding:4px 10px;font-size:0.75rem;" onclick="openEnrollDialog('${s.prn}')">
-              + Enroll Fingerprint 🪪
+              + Enroll 🪪
             </button>
           `}
         </td>
@@ -1193,9 +1226,10 @@ function renderEnrollMasterTable() {
 async function removeFingerprint(prn) {
   const s = window.PBCOE.getStudentByPrn(prn);
   if (!s) return;
+  const shortName = window.PBCOE.formatShortName ? window.PBCOE.formatShortName(s.name) : s.name;
   const slot = s.fingerprint_id || s.id;
   const confirmed = confirm(
-    `Biometric Removal Confirmation:\n\nCandidate: ${s.name}\nPRN: ${s.prn}\nAssigned Slot: #${slot}\n\nAre you sure you want to remove this student's fingerprint? This will unbind Slot #${slot} in the sensor memory.`
+    `Biometric Removal Confirmation:\n\nCandidate: ${shortName} (PRN: ${s.prn})\nAssigned Slot: #${slot}\n\nAre you sure you want to remove this student's fingerprint? This will unbind Slot #${slot} in the sensor memory.`
   );
   if (!confirmed) return;
 
@@ -1206,42 +1240,49 @@ async function removeFingerprint(prn) {
   renderRoster(fullRoster);
   populateDialogDropdown(fullRoster);
   populateTerminalStudentDropdown();
-  window.PBCOE.showToast(s.name, `Fingerprint Removed (Slot #${slot} freed)`, s.image, "Scanned");
+  window.PBCOE.showToast(shortName, `Fingerprint Removed (Slot #${slot} freed)`, s.image, "Scanned");
 }
 
 async function onDialogRemoveFingerprint() {
   const prn = document.getElementById("dialog-student-select").value;
   await removeFingerprint(prn);
   onDialogStudentChange();
-  closeEnrollDialog();
 }
 
 // Directory cards rendering
 function renderRoster(list) {
   const grid = document.getElementById("roster-grid");
   if (!grid) return;
-  grid.innerHTML = list.map(s => `
-    <div class="card" style="display:flex;gap:14px;align-items:center;padding:14px;">
-      <img src="${s.image}" style="width:64px;height:64px;border-radius:12px;object-fit:cover;border:1px solid var(--border);" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=1e293b&color=38bdf8'">
-      <div style="flex:1;min-width:0;">
-        <div style="font-weight:700;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.name}</div>
-        <div class="mono" style="font-size:.75rem;color:var(--muted);">${s.prn}</div>
-        <div style="display:flex;gap:6px;align-items:center;margin-top:6px;flex-wrap:wrap;">
-          <span class="pill ${s.enrolled ? 'ok' : 'mid'}" style="font-size:.65rem;padding:2px 8px;">
-            ${s.enrolled ? 'Slot #' + (s.fingerprint_id || s.id) : 'Unenrolled'}
-          </span>
-          <button class="btn btn-sm btn-ghost" style="padding:2px 8px;font-size:.7rem;" onclick="openEnrollDialog('${s.prn}')">
-            ${s.enrolled ? 'Re-enroll ⚡' : 'Enroll 🪪'}
-          </button>
-          ${s.enrolled ? `
-            <button class="btn btn-sm" style="padding:2px 6px;font-size:.7rem;background:rgba(239,68,68,0.12);color:#f87171;border:1px solid rgba(239,68,68,0.25);border-radius:6px;cursor:pointer;" onclick="removeFingerprint('${s.prn}')">
-              🗑️
+  grid.innerHTML = list.map(s => {
+    const shortName = window.PBCOE.formatShortName ? window.PBCOE.formatShortName(s.name) : s.name;
+    const prnStr = String(s.prn);
+    const prnPrefix = prnStr.length > 3 ? prnStr.slice(0, -3) : "";
+    const prnLast3 = prnStr.length > 3 ? prnStr.slice(-3) : prnStr;
+    return `
+      <div class="card" style="display:flex;gap:14px;align-items:center;padding:14px;">
+        <img src="${s.image}" style="width:60px;height:60px;border-radius:12px;object-fit:cover;border:1px solid var(--border);" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(shortName)}&background=1e293b&color=38bdf8'">
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:700;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${shortName}</div>
+          <div class="mono" style="font-size:.75rem;color:var(--muted);">
+            <span>${prnPrefix}</span><strong style="color:var(--yellow);">${prnLast3}</strong> · SY
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;margin-top:6px;flex-wrap:wrap;">
+            <span class="pill ${s.enrolled ? 'ok' : 'mid'}" style="font-size:.65rem;padding:2px 8px;">
+              ${s.enrolled ? 'Slot #' + (s.fingerprint_id || s.id) : 'Unenrolled'}
+            </span>
+            <button class="btn btn-sm btn-ghost" style="padding:2px 8px;font-size:.7rem;" onclick="openEnrollDialog('${s.prn}')">
+              ${s.enrolled ? 'Re-enroll ⚡' : 'Enroll 🪪'}
             </button>
-          ` : ''}
+            ${s.enrolled ? `
+              <button class="btn btn-sm" style="padding:2px 6px;font-size:.7rem;background:rgba(239,68,68,0.12);color:#f87171;border:1px solid rgba(239,68,68,0.25);border-radius:6px;cursor:pointer;" onclick="removeFingerprint('${s.prn}')">
+                🗑️
+              </button>
+            ` : ''}
+          </div>
         </div>
       </div>
-    </div>
-  `).join("");
+    `;
+  }).join("");
 }
 
 function filterRoster() {

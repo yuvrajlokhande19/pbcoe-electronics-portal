@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="assets/css/style.css">
 <script src="assets/js/pbcoe-core.js"></script>
 <script src="assets/js/pcb-ambient.js" defer></script>
+<script src="assets/js/easter-eggs.js" defer></script>
 
 </head>
 <body>
@@ -184,7 +185,11 @@ window.PBCOE_AUTH = {
     if (!sel || sel.children.length > 2) return;
     const list = window.PBCOE.getStudents();
     sel.innerHTML = '<option value="">-- Choose Candidate --</option>' + 
-      list.map(s => `<option value="${s.prn}">${s.name} (${s.prn})</option>`).join("");
+      list.map(s => {
+        const shortName = window.PBCOE.formatShortName(s.name);
+        const shortPrn = window.PBCOE.formatShortPrn(s.prn);
+        return `<option value="${s.prn}">${shortName} (${shortPrn})</option>`;
+      }).join("");
     if (list.length > 0) {
       sel.value = list[0].prn;
       this.previewStudent();
@@ -196,9 +201,10 @@ window.PBCOE_AUTH = {
     document.getElementById("auth-student-prn").value = prn;
     const s = window.PBCOE.getStudentByPrn(prn);
     if (s) {
+      const shortName = window.PBCOE.formatShortName(s.name);
       document.getElementById("auth-preview-img").src = s.image;
-      document.getElementById("auth-preview-name").innerText = s.name;
-      document.getElementById("auth-preview-sub").innerText = `PRN: ${s.prn} · Attendance: ${s.attendance_percentage}%`;
+      document.getElementById("auth-preview-name").innerText = `${shortName} (${s.prn})`;
+      document.getElementById("auth-preview-sub").innerText = `Monthly Attendance: ${s.attendance_percentage}% · ETC SY`;
     }
   },
   syncPrnInput: function() {
@@ -207,9 +213,10 @@ window.PBCOE_AUTH = {
     sel.value = prn;
     const s = window.PBCOE.getStudentByPrn(prn);
     if (s) {
+      const shortName = window.PBCOE.formatShortName(s.name);
       document.getElementById("auth-preview-img").src = s.image;
-      document.getElementById("auth-preview-name").innerText = s.name;
-      document.getElementById("auth-preview-sub").innerText = `PRN: ${s.prn} · Attendance: ${s.attendance_percentage}%`;
+      document.getElementById("auth-preview-name").innerText = `${shortName} (${s.prn})`;
+      document.getElementById("auth-preview-sub").innerText = `Monthly Attendance: ${s.attendance_percentage}% · ETC SY`;
     }
   },
   submitStudentLogin: function() {

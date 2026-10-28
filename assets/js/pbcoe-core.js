@@ -103,6 +103,22 @@ window.PBCOE = (function () {
   let lastKnownScanId = 0;
   let audioContext = null;
 
+  // Candidate Name & ERP Formatting Helpers for clean, compact UI
+  function formatShortName(fullName) {
+    if (!fullName) return "";
+    const parts = fullName.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0].charAt(0).toUpperCase() + parts[0].slice(1).toLowerCase();
+    const first = parts[0].charAt(0).toUpperCase() + parts[0].slice(1).toLowerCase();
+    const last = parts[parts.length - 1].charAt(0).toUpperCase() + parts[parts.length - 1].slice(1).toLowerCase();
+    return `${first} ${last}`;
+  }
+
+  function formatShortPrn(prn) {
+    if (!prn) return "";
+    const s = String(prn).trim();
+    return s.length > 3 ? ".." + s.slice(-3) : s;
+  }
+
   // Supabase REST Headers Helper
   function getSupabaseHeaders(custom = {}) {
     return {
@@ -771,6 +787,8 @@ window.PBCOE = (function () {
     syncStudents: syncStudentsWithSupabase,
     getStudents: () => students,
     getStudentByPrn: (prn) => students.find(s => s.prn === prn),
+    formatShortName: formatShortName,
+    formatShortPrn: formatShortPrn,
     getAttendanceLogs: () => attendanceLogs,
     getTimetable: getTimetable,
     saveTimetable: saveTimetable,

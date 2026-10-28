@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="assets/css/style.css">
 <script src="assets/js/pbcoe-core.js"></script>
 <script src="assets/js/pcb-ambient.js" defer></script>
+<script src="assets/js/easter-eggs.js" defer></script>
 
 </head>
 <body>
@@ -184,7 +185,11 @@ window.PBCOE_AUTH = {
     if (!sel || sel.children.length > 2) return;
     const list = window.PBCOE.getStudents();
     sel.innerHTML = '<option value="">-- Choose Candidate --</option>' + 
-      list.map(s => `<option value="${s.prn}">${s.name} (${s.prn})</option>`).join("");
+      list.map(s => {
+        const shortName = window.PBCOE.formatShortName(s.name);
+        const shortPrn = window.PBCOE.formatShortPrn(s.prn);
+        return `<option value="${s.prn}">${shortName} (${shortPrn})</option>`;
+      }).join("");
     if (list.length > 0) {
       sel.value = list[0].prn;
       this.previewStudent();
@@ -196,9 +201,10 @@ window.PBCOE_AUTH = {
     document.getElementById("auth-student-prn").value = prn;
     const s = window.PBCOE.getStudentByPrn(prn);
     if (s) {
+      const shortName = window.PBCOE.formatShortName(s.name);
       document.getElementById("auth-preview-img").src = s.image;
-      document.getElementById("auth-preview-name").innerText = s.name;
-      document.getElementById("auth-preview-sub").innerText = `PRN: ${s.prn} · Attendance: ${s.attendance_percentage}%`;
+      document.getElementById("auth-preview-name").innerText = `${shortName} (${s.prn})`;
+      document.getElementById("auth-preview-sub").innerText = `Monthly Attendance: ${s.attendance_percentage}% · ETC SY`;
     }
   },
   syncPrnInput: function() {
@@ -207,9 +213,10 @@ window.PBCOE_AUTH = {
     sel.value = prn;
     const s = window.PBCOE.getStudentByPrn(prn);
     if (s) {
+      const shortName = window.PBCOE.formatShortName(s.name);
       document.getElementById("auth-preview-img").src = s.image;
-      document.getElementById("auth-preview-name").innerText = s.name;
-      document.getElementById("auth-preview-sub").innerText = `PRN: ${s.prn} · Attendance: ${s.attendance_percentage}%`;
+      document.getElementById("auth-preview-name").innerText = `${shortName} (${s.prn})`;
+      document.getElementById("auth-preview-sub").innerText = `Monthly Attendance: ${s.attendance_percentage}% · ETC SY`;
     }
   },
   submitStudentLogin: function() {
@@ -790,13 +797,15 @@ function renderFacultyRoster(list) {
   const tbody = document.getElementById("fac-roster-tbody");
   tbody.innerHTML = list.map(s => {
     const isRisk = s.attendance_percentage < 75;
+    const shortName = window.PBCOE && window.PBCOE.formatShortName ? window.PBCOE.formatShortName(s.name) : s.name;
+    const shortPrn = window.PBCOE && window.PBCOE.formatShortPrn ? window.PBCOE.formatShortPrn(s.prn) : s.prn;
     return `
       <tr>
         <td>
           <img src="${s.image}" style="width:42px;height:42px;border-radius:10px;object-fit:cover;border:1px solid var(--border);" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=1e293b&color=38bdf8'">
         </td>
-        <td><strong>${s.name}</strong></td>
-        <td class="mono">${s.prn}</td>
+        <td><strong>${shortName}</strong><br><small style="color:var(--muted);font-size:0.75rem;">${s.name}</small></td>
+        <td class="mono"><span style="color:var(--accent);font-weight:700;">${shortPrn}</span> <span style="font-size:0.75rem;color:var(--muted);">(${s.prn})</span></td>
         <td>${s.branch} · ${s.year}</td>
         <td>
           <span class="pill ${isRisk ? 'bad' : 'ok'}">${s.attendance_percentage}% ${isRisk ? '⚠️ AT RISK' : 'NORMAL'}</span>
@@ -899,7 +908,11 @@ function deleteSlot(day, idx) {
 // Override Operations
 function populateOverrideDropdown(list) {
   const sel = document.getElementById("override-student-select");
-  sel.innerHTML = list.map(s => `<option value="${s.prn}">${s.name} (${s.prn})</option>`).join("");
+  sel.innerHTML = list.map(s => {
+    const sName = window.PBCOE && window.PBCOE.formatShortName ? window.PBCOE.formatShortName(s.name) : s.name;
+    const sPrn = window.PBCOE && window.PBCOE.formatShortPrn ? window.PBCOE.formatShortPrn(s.prn) : s.prn;
+    return `<option value="${s.prn}">${sName} (${sPrn})</option>`;
+  }).join("");
   previewOverrideStudent();
 }
 
@@ -907,9 +920,11 @@ function previewOverrideStudent() {
   const prn = document.getElementById("override-student-select").value;
   const s = window.PBCOE.getStudentByPrn(prn);
   if (s) {
+    const sName = window.PBCOE && window.PBCOE.formatShortName ? window.PBCOE.formatShortName(s.name) : s.name;
+    const sPrn = window.PBCOE && window.PBCOE.formatShortPrn ? window.PBCOE.formatShortPrn(s.prn) : s.prn;
     document.getElementById("override-img").src = s.image;
-    document.getElementById("override-name").innerText = s.name;
-    document.getElementById("override-prn").innerText = `PRN: ${s.prn} · Current ATT: ${s.attendance_percentage}%`;
+    document.getElementById("override-name").innerText = `${sName} (${s.name})`;
+    document.getElementById("override-prn").innerText = `PRN: ${s.prn} [${sPrn}] · Current ATT: ${s.attendance_percentage}%`;
   }
 }
 
